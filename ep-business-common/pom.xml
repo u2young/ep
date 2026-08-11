@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>xyz.herz.ep</groupId>
+        <artifactId>ep-business-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>ep-business-common</artifactId>
+    <name>ep-business-common</name>
+    <description>
+        业务公共层:提供跨业务模块通用抽象/接口,比如
+        1) 通用基础实体(后续可扩展 BaseTenant/BaseCreator);
+        2) 通用 DataProxy 基类、通用 ChoiceHandler 模板;
+        3) 业务模块间松耦合调用接口(例如 InventoryChangeFacade —— mall 依赖接口,erp/wms 提供实现)。
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-jpa</artifactId>
+        </dependency>
+    </dependencies>
+</project>

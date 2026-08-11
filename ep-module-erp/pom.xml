@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>xyz.herz.ep</groupId>
+        <artifactId>ep-business-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>ep-module-erp</artifactId>
+    <name>ep-module-erp</name>
+    <description>
+        P0:ERP 业务模块(进销存 + 库存中台默认实现)。
+        - 主数据:产品分类/单位/品牌/仓库/供应商/客户/结算账户 + 产品档案 SPU/SKU 多条码
+        - 库存:统一 InventoryChangeFacade 默认实现 + 余额表 + 流水表 (product,warehouse)
+        - 采购:PO 订单 + 采购入库(审批 + 库存副作用)
+        - 销售:SO 订单 + 销售出库(审批 + 库存副作用)
+    </description>
+
+    <dependencies>
+        <!-- 统一库存接口定义在这里 -->
+        <dependency>
+            <groupId>xyz.herz.ep</groupId>
+            <artifactId>ep-business-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

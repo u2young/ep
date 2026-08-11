@@ -1,0 +1,52 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: erupt-ai-project
+  datasource:
+    url: jdbc:h2:file:./data/eruptdb;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=FALSE;NON_KEYWORDS=VALUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+
+erupt:
+  app-name: Erupt AI Project
+  theme: ant-design
+
+magic-api:
+  web: /magic/web
+  prefix: /magic/api
+  resource:
+    type: file
+    location: ./data/magic-api
+  security:
+    username: erupt
+    password: erupt
+  backup:
+    enable: true
+    max-history: 10
+  response: |-
+    {
+      code: code,
+      msg: message,
+      data
+    }
+
+logging:
+  level:
+    xyz.erupt: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

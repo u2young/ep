@@ -1,0 +1,12 @@
+.idea/
+*.iml
+*.ipr
+*.iws
+target/
+classes/
+generated-sources/
+generated-test-sources/
+*.log
+.DS_Store
+data/
+*.db

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>xyz.herz.ep</groupId>
+        <artifactId>ep-business-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>ep-module-crm</artifactId>
+    <name>ep-module-crm</name>
+    <description>
+        P0:CRM 业务模块。
+        - 完全自包含,只依赖 common 层抽象 + erupt-core/jpa;
+        - 不直接依赖 erupt-boot 打包层(启动类/配置);
+        - 后续拆分微服务时,可独立打包为一个 Business Server(比如 erupt-cloud-crm)。
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>xyz.herz.ep</groupId>
+            <artifactId>ep-business-common</artifactId>
+        </dependency>
+
+        <!-- erupt 基础能力:注解驱动 + JPA -->
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-jpa</artifactId>
+        </dependency>
+
+        <!-- CRM 用到的 upms(数据权限预留)、security(行级) -->
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-security</artifactId>
+        </dependency>
+
+        <!-- 定时器只依赖 Spring Scheduled,不引入 erupt-job 实体模型 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
