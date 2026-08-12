@@ -14,6 +14,10 @@
         <module>ep-business-common</module>
         <module>ep-module-crm</module>
         <module>ep-module-erp</module>
+        <module>ep-module-mall</module>
+        <module>ep-module-wms</module>
+        <module>ep-module-mp</module>
+        <module>ep-module-iot</module>
         <module>ep-boot</module>
     </modules>
 
@@ -25,7 +29,7 @@
     </parent>
 
     <properties>
-        <java.version>17</java.version>
+        <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -51,6 +55,26 @@
             <dependency>
                 <groupId>xyz.herz.ep</groupId>
                 <artifactId>ep-module-erp</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>xyz.herz.ep</groupId>
+                <artifactId>ep-module-mall</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>xyz.herz.ep</groupId>
+                <artifactId>ep-module-wms</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>xyz.herz.ep</groupId>
+                <artifactId>ep-module-mp</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>xyz.herz.ep</groupId>
+                <artifactId>ep-module-iot</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -125,6 +149,11 @@
             <dependency>
                 <groupId>xyz.erupt</groupId>
                 <artifactId>erupt-security</artifactId>
+                <version>${erupt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>xyz.erupt</groupId>
+                <artifactId>erupt-upms</artifactId>
                 <version>${erupt.version}</version>
             </dependency>
             <dependency>

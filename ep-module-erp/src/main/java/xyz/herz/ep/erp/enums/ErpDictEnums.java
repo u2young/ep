@@ -113,4 +113,90 @@ public final class ErpDictEnums {
         public final String label;
         SettleMethod(int c, String l) { this.code = c; this.label = l; }
     }
+
+    // ================= 其他入库单业务类型(整单 biz_type 字段) =================
+    public enum StockInBizType {
+        CHECK_GAIN(1, "盘盈"),
+        TRANSFER_IN(2, "调拨入"),
+        OTHER(3, "其他");
+        public final int code;
+        public final String label;
+        StockInBizType(int c, String l) { this.code = c; this.label = l; }
+
+        /** 映射到库存流水 StockBizType.code(入库方向,审核时使用) */
+        public int toStockBizTypeCode() {
+            return switch (this) {
+                case CHECK_GAIN -> StockBizType.CHECK_IN.code;
+                case TRANSFER_IN -> StockBizType.MOVE_IN.code;
+                case OTHER -> StockBizType.OTHER_IN.code;
+            };
+        }
+
+        /** 反审冲销时使用的反向(出库)StockBizType.code */
+        public int toReverseStockBizTypeCode() {
+            return switch (this) {
+                case CHECK_GAIN -> StockBizType.CHECK_OUT.code;
+                case TRANSFER_IN -> StockBizType.MOVE_OUT.code;
+                case OTHER -> StockBizType.OTHER_OUT.code;
+            };
+        }
+
+        public static StockInBizType of(int code) {
+            for (StockInBizType t : values()) if (t.code == code) return t;
+            throw new IllegalArgumentException("unknown stock-in biz type code: " + code);
+        }
+    }
+
+    // ================= 其他出库单业务类型(整单 biz_type 字段) =================
+    public enum StockOutBizType {
+        CHECK_LOSS(1, "盘亏"),
+        TRANSFER_OUT(2, "调拨出"),
+        OTHER(3, "其他");
+        public final int code;
+        public final String label;
+        StockOutBizType(int c, String l) { this.code = c; this.label = l; }
+
+        /** 映射到库存流水 StockBizType.code(出库方向,审核时使用) */
+        public int toStockBizTypeCode() {
+            return switch (this) {
+                case CHECK_LOSS -> StockBizType.CHECK_OUT.code;
+                case TRANSFER_OUT -> StockBizType.MOVE_OUT.code;
+                case OTHER -> StockBizType.OTHER_OUT.code;
+            };
+        }
+
+        /** 反审冲销时使用的反向(入库)StockBizType.code */
+        public int toReverseStockBizTypeCode() {
+            return switch (this) {
+                case CHECK_LOSS -> StockBizType.CHECK_IN.code;
+                case TRANSFER_OUT -> StockBizType.MOVE_IN.code;
+                case OTHER -> StockBizType.OTHER_IN.code;
+            };
+        }
+
+        public static StockOutBizType of(int code) {
+            for (StockOutBizType t : values()) if (t.code == code) return t;
+            throw new IllegalArgumentException("unknown stock-out biz type code: " + code);
+        }
+    }
+
+    // ================= 其他出入库单据状态(0草稿/1已审核/2已关闭) =================
+    // 与通用 AuditStatus(0/20/30/99) 不同,这里只针对简化出入库单
+    public enum StockDocStatus {
+        DRAFT(0, "草稿"),
+        APPROVED(1, "已审核"),
+        CLOSED(2, "已关闭");
+        public final int code;
+        public final String label;
+        StockDocStatus(int c, String l) { this.code = c; this.label = l; }
+    }
+
+    // ================= 收付款单状态(0草稿/1已确认) =================
+    public enum FinanceDocStatus {
+        DRAFT(0, "草稿"),
+        CONFIRMED(1, "已确认");
+        public final int code;
+        public final String label;
+        FinanceDocStatus(int c, String l) { this.code = c; this.label = l; }
+    }
 }

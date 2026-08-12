@@ -20,6 +20,9 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * 线索。
  * 状态机字段:
@@ -28,6 +31,8 @@ import java.time.LocalDateTime;
  * 状态字段锁定:禁止在表单直接修改,通过 @RowOperation "转化为客户"触发。
  * 已转化线索:Handler 强校验,按钮是否显式由前端控制。
  */
+@Getter
+@Setter
 @Table(name = "crm_clue")
 @Entity
 @Erupt(
@@ -175,45 +180,4 @@ public class CrmClue extends BaseModel {
         edit = @Edit(title = "备注", type = EditType.TEXTAREA)
     )
     private String remark;
-
-    // =================== generated getter/setter ===================
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public Long getOwnerUserId() { return ownerUserId; }
-    public void setOwnerUserId(Long ownerUserId) { this.ownerUserId = ownerUserId; }
-    public Integer getFollowUpStatus() { return followUpStatus; }
-    public void setFollowUpStatus(Integer followUpStatus) { this.followUpStatus = followUpStatus; }
-    public LocalDateTime getContactLastTime() { return contactLastTime; }
-    public void setContactLastTime(LocalDateTime contactLastTime) { this.contactLastTime = contactLastTime; }
-    public String getContactLastContent() { return contactLastContent; }
-    public void setContactLastContent(String contactLastContent) { this.contactLastContent = contactLastContent; }
-    public LocalDateTime getContactNextTime() { return contactNextTime; }
-    public void setContactNextTime(LocalDateTime contactNextTime) { this.contactNextTime = contactNextTime; }
-    public Integer getTransformStatus() { return transformStatus; }
-    public void setTransformStatus(Integer transformStatus) { this.transformStatus = transformStatus; }
-    public Long getCustomerId() { return customerId; }
-    public void setCustomerId(Long customerId) { this.customerId = customerId; }
-    public String getMobile() { return mobile; }
-    public void setMobile(String mobile) { this.mobile = mobile; }
-    public String getTelephone() { return telephone; }
-    public void setTelephone(String telephone) { this.telephone = telephone; }
-    public String getQq() { return qq; }
-    public void setQq(String qq) { this.qq = qq; }
-    public String getWechat() { return wechat; }
-    public void setWechat(String wechat) { this.wechat = wechat; }
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-    public Integer getAreaId() { return areaId; }
-    public void setAreaId(Integer areaId) { this.areaId = areaId; }
-    public String getDetailAddress() { return detailAddress; }
-    public void setDetailAddress(String detailAddress) { this.detailAddress = detailAddress; }
-    public Integer getIndustryId() { return industryId; }
-    public void setIndustryId(Integer industryId) { this.industryId = industryId; }
-    public Integer getLevel() { return level; }
-    public void setLevel(Integer level) { this.level = level; }
-    public Integer getSource() { return source; }
-    public void setSource(Integer source) { this.source = source; }
-    public String getRemark() { return remark; }
-    public void setRemark(String remark) { this.remark = remark; }
 }

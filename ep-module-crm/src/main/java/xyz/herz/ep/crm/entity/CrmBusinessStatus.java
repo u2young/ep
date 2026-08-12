@@ -13,11 +13,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * 商机阶段(一个状态组下多个阶段,按 sort 排序决定先后)。
  * 典型例子(标准销售流程):
  *   10 需求分析(10%) → 20 方案报价(30%) → 30 商务谈判(60%) → 40 合同签订(90%)
  */
+@Getter
+@Setter
 @Table(name = "crm_business_status")
 @Entity
 @Erupt(name = "商机阶段配置", power = @Power(importable = true, export = true))
@@ -35,13 +40,4 @@ public class CrmBusinessStatus extends BaseModel {
 
     @EruptField(views = @View(title = "排序", sortable = true), edit = @Edit(title = "排序", notNull = true, desc = "数值越小越靠前"))
     private Integer sort;
-
-    public Long getTypeId() { return typeId; }
-    public void setTypeId(Long typeId) { this.typeId = typeId; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public BigDecimal getPercent() { return percent; }
-    public void setPercent(BigDecimal percent) { this.percent = percent; }
-    public Integer getSort() { return sort; }
-    public void setSort(Integer sort) { this.sort = sort; }
 }

@@ -23,6 +23,9 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * 客户。
  * 核心设计:ownerUserId 为 NULL 即公海客户。
@@ -31,7 +34,12 @@ import java.time.LocalDateTime;
  *
  * 注:Erupt 2.0.3 的 Filter.condition → Filter.value(),写 JPQL where 片段。
  * 行按钮可见性由 handler 内做强校验,ExprBool 只提供默认显示。
+ *
+ * 数据权限:通过 {@link CrmTeamMember} 实现(bizType=1 客户)。P1 仅建实体 + Repository,
+ * 未挂 @Filter 行级拦截;后续可在 @Erupt(filter=...) 上扩展当前登录用户的可见范围。
  */
+@Getter
+@Setter
 @Table(name = "crm_customer")
 @Entity
 @Erupt(
@@ -183,50 +191,4 @@ public class CrmCustomer extends BaseModel {
     @Lob
     @EruptField(views = @View(title = "备注"), edit = @Edit(title = "备注", type = EditType.TEXTAREA))
     private String remark;
-
-    // ============ getter/setter ============
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public Long getOwnerUserId() { return ownerUserId; }
-    public void setOwnerUserId(Long ownerUserId) { this.ownerUserId = ownerUserId; }
-    public LocalDateTime getOwnerTime() { return ownerTime; }
-    public void setOwnerTime(LocalDateTime ownerTime) { this.ownerTime = ownerTime; }
-    public Integer getLockStatus() { return lockStatus; }
-    public void setLockStatus(Integer lockStatus) { this.lockStatus = lockStatus; }
-    public Integer getDealStatus() { return dealStatus; }
-    public void setDealStatus(Integer dealStatus) { this.dealStatus = dealStatus; }
-    public Integer getFollowUpStatus() { return followUpStatus; }
-    public void setFollowUpStatus(Integer followUpStatus) { this.followUpStatus = followUpStatus; }
-    public LocalDateTime getContactLastTime() { return contactLastTime; }
-    public void setContactLastTime(LocalDateTime contactLastTime) { this.contactLastTime = contactLastTime; }
-    public String getContactLastContent() { return contactLastContent; }
-    public void setContactLastContent(String contactLastContent) { this.contactLastContent = contactLastContent; }
-    public LocalDateTime getContactNextTime() { return contactNextTime; }
-    public void setContactNextTime(LocalDateTime contactNextTime) { this.contactNextTime = contactNextTime; }
-    public String getMobile() { return mobile; }
-    public void setMobile(String mobile) { this.mobile = mobile; }
-    public String getTelephone() { return telephone; }
-    public void setTelephone(String telephone) { this.telephone = telephone; }
-    public String getQq() { return qq; }
-    public void setQq(String qq) { this.qq = qq; }
-    public String getWechat() { return wechat; }
-    public void setWechat(String wechat) { this.wechat = wechat; }
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-    public Integer getAreaId() { return areaId; }
-    public void setAreaId(Integer areaId) { this.areaId = areaId; }
-    public String getDetailAddress() { return detailAddress; }
-    public void setDetailAddress(String detailAddress) { this.detailAddress = detailAddress; }
-    public Integer getIndustryId() { return industryId; }
-    public void setIndustryId(Integer industryId) { this.industryId = industryId; }
-    public Integer getLevel() { return level; }
-    public void setLevel(Integer level) { this.level = level; }
-    public Integer getSource() { return source; }
-    public void setSource(Integer source) { this.source = source; }
-    public Integer getContractCount() { return contractCount; }
-    public void setContractCount(Integer contractCount) { this.contractCount = contractCount; }
-    public Long getContractAmount() { return contractAmount; }
-    public void setContractAmount(Long contractAmount) { this.contractAmount = contractAmount; }
-    public String getRemark() { return remark; }
-    public void setRemark(String remark) { this.remark = remark; }
 }

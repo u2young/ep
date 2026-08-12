@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>xyz.herz.ep</groupId>
+        <artifactId>ep-business-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>ep-module-mp</artifactId>
+    <name>ep-module-mp</name>
+    <description>
+        P0:微信公众号管理模块。
+        - 账号接入(appid/secret/token)、粉丝、消息、素材、菜单、自动回复
+        - 状态机:粉丝关注/取关、菜单草稿/发布、自动回复启停
+    </description>
+
+    <dependencies>
+        <!-- 统一 common 层抽象 -->
+        <dependency>
+            <groupId>xyz.herz.ep</groupId>
+            <artifactId>ep-business-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-upms</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

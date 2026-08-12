@@ -18,7 +18,8 @@ import xyz.herz.ep.erp.enums.ErpDictEnums.*;
  * </pre>
  * 支持的 key:
  *  EnableStatus / ProductListingStatus / AuditStatus / ExecStatus /
- *  StockBizType / CostMethod / SettleMethod
+ *  StockBizType / CostMethod / SettleMethod /
+ *  StockInBizType / StockOutBizType / StockDocStatus / FinanceDocStatus
  */
 public class ErpEnumChoiceFetchHandler implements ChoiceFetchHandler {
 
@@ -29,7 +30,11 @@ public class ErpEnumChoiceFetchHandler implements ChoiceFetchHandler {
         Map.entry("ExecStatus", ExecStatus.values()),
         Map.entry("StockBizType", StockBizType.values()),
         Map.entry("CostMethod", CostMethod.values()),
-        Map.entry("SettleMethod", SettleMethod.values())
+        Map.entry("SettleMethod", SettleMethod.values()),
+        Map.entry("StockInBizType", StockInBizType.values()),
+        Map.entry("StockOutBizType", StockOutBizType.values()),
+        Map.entry("StockDocStatus", StockDocStatus.values()),
+        Map.entry("FinanceDocStatus", FinanceDocStatus.values())
     );
 
     @Override

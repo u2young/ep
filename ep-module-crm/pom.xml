@@ -24,6 +24,13 @@
             <artifactId>ep-business-common</artifactId>
         </dependency>
 
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- erupt 基础能力:注解驱动 + JPA -->
         <dependency>
             <groupId>xyz.erupt</groupId>
@@ -49,6 +56,11 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-upms</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

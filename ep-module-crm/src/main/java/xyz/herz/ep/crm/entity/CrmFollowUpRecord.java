@@ -17,11 +17,16 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * 跟进记录(通用)。
  * 通过 biz_type + biz_id 关联线索/客户/联系人/商机。
  * 新建记录时 CrmFollowService 会同步刷新对应主体的 followUpStatus / contactLastTime / contactLastContent。
  */
+@Getter
+@Setter
 @Table(name = "crm_follow_up_record")
 @Entity
 @Erupt(name = "跟进记录", power = @Power(export = true, add = false, edit = false))
@@ -55,18 +60,4 @@ public class CrmFollowUpRecord extends BaseModel {
         edit = @Edit(title = "下次联系时间", type = EditType.DATE,
             dateType = @DateType(type = DateType.Type.DATE_TIME)))
     private LocalDateTime contactNextTime;
-
-    // getter/setter
-    public Integer getBizType() { return bizType; }
-    public void setBizType(Integer bizType) { this.bizType = bizType; }
-    public Long getBizId() { return bizId; }
-    public void setBizId(Long bizId) { this.bizId = bizId; }
-    public Integer getFollowWay() { return followWay; }
-    public void setFollowWay(Integer followWay) { this.followWay = followWay; }
-    public LocalDateTime getFollowTime() { return followTime; }
-    public void setFollowTime(LocalDateTime followTime) { this.followTime = followTime; }
-    public String getContent() { return content; }
-    public void setContent(String content) { this.content = content; }
-    public LocalDateTime getContactNextTime() { return contactNextTime; }
-    public void setContactNextTime(LocalDateTime contactNextTime) { this.contactNextTime = contactNextTime; }
 }

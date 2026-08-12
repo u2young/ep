@@ -23,6 +23,9 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * 商机。三层状态机:
  *   status_type_id            所属状态组
@@ -30,7 +33,12 @@ import java.time.LocalDateTime;
  *   end_status                结束状态(null=进行中 / 1赢单 / 2输单 / 3无效,不可逆)
  *
  * 赢单通常触发:成交 deal_status=1、可创建合同;输单/无效关闭该商机不影响客户。
+ *
+ * 数据权限:通过 {@link CrmTeamMember} 实现(bizType=2 商机)。P1 仅建实体 + Repository,
+ * 未挂 @Filter 行级拦截;后续可在 @Erupt(filter=...) 上扩展当前登录用户的可见范围。
  */
+@Getter
+@Setter
 @Table(name = "crm_business")
 @Entity
 @Erupt(
@@ -137,38 +145,4 @@ public class CrmBusiness extends BaseModel {
 
     @EruptField(views = @View(title = "备注"), edit = @Edit(title = "备注", type = EditType.TEXTAREA))
     private String remark;
-
-    // getter/setter
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public Long getCustomerId() { return customerId; }
-    public void setCustomerId(Long customerId) { this.customerId = customerId; }
-    public Long getOwnerUserId() { return ownerUserId; }
-    public void setOwnerUserId(Long ownerUserId) { this.ownerUserId = ownerUserId; }
-    public Integer getFollowUpStatus() { return followUpStatus; }
-    public void setFollowUpStatus(Integer followUpStatus) { this.followUpStatus = followUpStatus; }
-    public LocalDateTime getContactLastTime() { return contactLastTime; }
-    public void setContactLastTime(LocalDateTime contactLastTime) { this.contactLastTime = contactLastTime; }
-    public String getContactLastContent() { return contactLastContent; }
-    public void setContactLastContent(String contactLastContent) { this.contactLastContent = contactLastContent; }
-    public LocalDateTime getContactNextTime() { return contactNextTime; }
-    public void setContactNextTime(LocalDateTime contactNextTime) { this.contactNextTime = contactNextTime; }
-    public Long getStatusTypeId() { return statusTypeId; }
-    public void setStatusTypeId(Long statusTypeId) { this.statusTypeId = statusTypeId; }
-    public Long getStatusId() { return statusId; }
-    public void setStatusId(Long statusId) { this.statusId = statusId; }
-    public Integer getEndStatus() { return endStatus; }
-    public void setEndStatus(Integer endStatus) { this.endStatus = endStatus; }
-    public String getEndRemark() { return endRemark; }
-    public void setEndRemark(String endRemark) { this.endRemark = endRemark; }
-    public LocalDateTime getDealTime() { return dealTime; }
-    public void setDealTime(LocalDateTime dealTime) { this.dealTime = dealTime; }
-    public Long getTotalProductPrice() { return totalProductPrice; }
-    public void setTotalProductPrice(Long totalProductPrice) { this.totalProductPrice = totalProductPrice; }
-    public BigDecimal getDiscountPercent() { return discountPercent; }
-    public void setDiscountPercent(BigDecimal discountPercent) { this.discountPercent = discountPercent; }
-    public Long getTotalPrice() { return totalPrice; }
-    public void setTotalPrice(Long totalPrice) { this.totalPrice = totalPrice; }
-    public String getRemark() { return remark; }
-    public void setRemark(String remark) { this.remark = remark; }
 }

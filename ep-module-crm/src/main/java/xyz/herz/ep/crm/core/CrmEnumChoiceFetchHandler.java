@@ -30,6 +30,9 @@ import java.util.Map;
  *   <li>industry                  → Industry</li>
  *   <li>customer_level            → CustomerLevel</li>
  *   <li>sex                       → Sex</li>
+ *   <li>ContractStatus            → ContractStatus(0草稿/1生效/2作废)</li>
+ *   <li>ReceivableStatus          → ReceivableStatus(0待回款/1部分回款/2已回款)</li>
+ *   <li>TeamRole                  → TeamRole(1负责人/2跟进人/3只读)</li>
  * </ul>
  */
 public class CrmEnumChoiceFetchHandler implements ChoiceFetchHandler {
@@ -45,7 +48,10 @@ public class CrmEnumChoiceFetchHandler implements ChoiceFetchHandler {
         Map.entry("source", Source.values()),
         Map.entry("industry", Industry.values()),
         Map.entry("customer_level", CustomerLevel.values()),
-        Map.entry("sex", Sex.values())
+        Map.entry("sex", Sex.values()),
+        Map.entry("ContractStatus", ContractStatus.values()),
+        Map.entry("ReceivableStatus", ReceivableStatus.values()),
+        Map.entry("TeamRole", TeamRole.values())
     );
 
     @Override

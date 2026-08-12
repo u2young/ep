@@ -1,0 +1,19 @@
+# IoT 模块冒烟测试: 独立内存 H2, 不依赖 ep-boot 层
+spring:
+  datasource:
+    url: jdbc:h2:mem:iot-test;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=FALSE;NON_KEYWORDS=VALUE,VALUE_
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+
+erupt:
+  app-name: IoT Test
+
+logging:
+  level:
+    root: WARN
+    xyz.erupt: WARN
+    org.hibernate.SQL: WARN

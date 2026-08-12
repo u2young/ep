@@ -54,5 +54,10 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-upms</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>xyz.herz.ep</groupId>
+        <artifactId>ep-business-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>ep-module-mall</artifactId>
+    <name>ep-module-mall</name>
+    <description>
+        电商商城模块(参考 yudao mall 状态机设计,Erupt 注解驱动实现)。
+        - 商品中心:分类(树)/品牌/SPU/SKU + 上下架
+        - 交易中心:订单主子表 + 订单状态机(待付款→待发货→待收货→已完成/已取消)
+        - 售后中心:售后单 + 售后日志 + 售后状态机(申请→同意→买家发货→卖家收货→完成/拒绝)
+        - 支付中心:支付单(订单支付时联动生成)
+    </description>
+
+    <dependencies>
+        <!-- 公共模块 -->
+        <dependency>
+            <groupId>xyz.herz.ep</groupId>
+            <artifactId>ep-business-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-upms</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>xyz.herz.ep</groupId>
+        <artifactId>ep-business-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>ep-module-iot</artifactId>
+    <name>ep-module-iot</name>
+    <description>
+        物联网设备管理模块(基于 Erupt 框架)。
+        - 产品:产品分类(树) + 产品档案 + 物模型(属性/服务/事件)
+        - 设备:设备生命周期状态机(未激活→在线/离线→禁用),激活生成 deviceSecret
+        - 消息:设备上下行消息记录
+        - 告警:告警规则 + 告警(待处理→处理中→已解决/已忽略) + 告警日志
+    </description>
+
+    <dependencies>
+        <!-- 统一通用接口定义 -->
+        <dependency>
+            <groupId>xyz.herz.ep</groupId>
+            <artifactId>ep-business-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-upms</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

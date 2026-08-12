@@ -140,4 +140,37 @@ public final class CrmDictEnums {
         public final String label;
         Sex(int code, String label) { this.code = code; this.label = label; }
     }
+
+    // ========== 合同状态 ==========
+    /** 合同状态:草稿/生效/作废。生效后不可改回草稿,作废后不可逆。 */
+    public enum ContractStatus {
+        DRAFT(0, "草稿"),
+        EFFECTIVE(1, "生效"),
+        VOID(2, "作废");
+        public final int code;
+        public final String label;
+        ContractStatus(int code, String label) { this.code = code; this.label = label; }
+    }
+
+    // ========== 回款状态 ==========
+    /** 回款计划状态:待回款/部分回款/已回款。 */
+    public enum ReceivableStatus {
+        PENDING(0, "待回款"),
+        PARTIAL(1, "部分回款"),
+        RECEIVED(2, "已回款");
+        public final int code;
+        public final String label;
+        ReceivableStatus(int code, String label) { this.code = code; this.label = label; }
+    }
+
+    // ========== 团队成员角色 ==========
+    /** 团队成员角色:负责人/跟进人/只读。 */
+    public enum TeamRole {
+        OWNER(1, "负责人"),
+        FOLLOWER(2, "跟进人"),
+        READONLY(3, "只读");
+        public final int code;
+        public final String label;
+        TeamRole(int code, String label) { this.code = code; this.label = label; }
+    }
 }

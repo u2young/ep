@@ -9,10 +9,15 @@ import xyz.erupt.annotation.sub_field.Edit;
 import xyz.erupt.annotation.sub_field.View;
 import xyz.erupt.jpa.model.BaseModel;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * 公海回收配置(租户级单条配置)。
  * 由于是 MVP,当前只做一张标准单条配置表,字段全量开放;后续按部门/按角色差异化配置,直接加表即可。
  */
+@Getter
+@Setter
 @Table(name = "crm_customer_pool_config")
 @Entity
 @Erupt(name = "公海配置", power = @Power(delete = false, add = false))
@@ -49,16 +54,4 @@ public class CrmCustomerPoolConfig extends BaseModel {
         edit = @Edit(title = "每人锁定客户上限", desc = "锁客户不进公海,但得有上限;0=不限制")
     )
     private Integer lockOwnerCount = 20;
-
-    // getter/setter
-    public Boolean getEnabled() { return enabled; }
-    public void setEnabled(Boolean enabled) { this.enabled = enabled; }
-    public Integer getContactExpireDays() { return contactExpireDays; }
-    public void setContactExpireDays(Integer contactExpireDays) { this.contactExpireDays = contactExpireDays; }
-    public Integer getDealExpireDays() { return dealExpireDays; }
-    public void setDealExpireDays(Integer dealExpireDays) { this.dealExpireDays = dealExpireDays; }
-    public Integer getReceiveOwnerCount() { return receiveOwnerCount; }
-    public void setReceiveOwnerCount(Integer receiveOwnerCount) { this.receiveOwnerCount = receiveOwnerCount; }
-    public Integer getLockOwnerCount() { return lockOwnerCount; }
-    public void setLockOwnerCount(Integer lockOwnerCount) { this.lockOwnerCount = lockOwnerCount; }
 }
