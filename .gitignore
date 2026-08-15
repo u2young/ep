@@ -1,12 +1,34 @@
+# IDE
 .idea/
 *.iml
 *.ipr
 *.iws
+.vscode/
+
+# Maven
 target/
 classes/
 generated-sources/
 generated-test-sources/
+
+# Logs
 *.log
+
+# macOS
 .DS_Store
+
+# Application data / DB
 data/
 *.db
+
+# AI Editor local cache/meta
+.agents/
+.agnes/
+.trae/
+.erupt/
+
+# AI Editor rules (per-user, should not be committed)
+.aiperules
+.clinerules
+.cursorrules
+.windsurfrules
