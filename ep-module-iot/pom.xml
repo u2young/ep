@@ -20,11 +20,6 @@
     </description>
 
     <dependencies>
-        <!-- 统一通用接口定义 -->
-        <dependency>
-            <groupId>xyz.herz.ep</groupId>
-            <artifactId>ep-business-common</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

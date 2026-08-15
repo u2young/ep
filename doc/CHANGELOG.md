@@ -11,7 +11,7 @@
 
 本次迭代完成了全量 P0 + P1 业务模块的 MVP 交付，新增 4 个业务模块（Mall / WMS / MP / IoT），完成 CRM 和 ERP 的 P1 扩展功能，建立跨模块 Facade 接口体系，并将工程升级到 JDK 21 + Lombok + 模块独立测试架构。
 
-**数字概览**：9 个 Maven 模块 · 251 个 Java 源文件 · 14 个测试类 · 55 个测试用例全部通过 · 210 个文件变更 · +10527 行代码
+**数字概览**：8 个 Maven 模块 · 248 个 Java 源文件 · 14 个测试类 · 55 个测试用例全部通过 · 210 个文件变更 · +10527 行代码
 
 ---
 
@@ -25,7 +25,15 @@
 #### Lombok 简化
 - CRM 模块 8 个实体类（CrmClue / CrmCustomer / CrmContact / CrmBusiness / CrmBusinessStatus / CrmBusinessStatusType / CrmCustomerPoolConfig / CrmFollowUpRecord）添加 `@Getter @Setter`，删除全部手写 getter/setter
 - ep-module-crm/pom.xml 新增 `lombok` 依赖（provided scope）
-- common 模块检查：接口/record/工具类不适用 Lombok，无需修改
+
+#### 移除 ep-business-common 模块
+- 删除整个 `ep-business-common` 模块（原 8 个源文件 + pom.xml）
+- `InventoryChangeFacade` + `InventoryShortageException` 迁移到 `ep-module-erp/xyz/herz/ep/erp/inventory/`
+- `MallStockFacade` 迁移到 `ep-module-mall/xyz/herz/ep/mall/facade/`
+- 删除未使用的 `WmsOperationFacade` / `WeChatApiFacade` / `MqttDeviceFacade` / `SpringContextHolder`
+- 9 个 Java 文件更新 import 语句（5 ERP + 4 Mall）
+- 7 个 pom.xml 移除 ep-business-common 依赖（父 pom + 6 个业务模块）
+- 各业务模块完全自包含，无公共模块依赖
 
 #### 文档精简
 - [README.md](./README.md)：466 → 327 行，删除人天估算、难度评级、版本记录、代办章节
@@ -33,7 +41,7 @@
 
 #### 单测迁移
 - CRM / ERP 冒烟测试从 `ep-boot/src/test` 迁移到各自模块 `src/test`
-- 每个模块新增独立的 `XxxTestApplication` 启动类（扫描本模块 + common 包）
+- 每个模块新增独立的 `XxxTestApplication` 启动类（扫描本模块包）
 - 每个模块新增独立的 `application.yml`（H2 内存库，`ddl-auto=create-drop`）
 - 关键修复：
   - `webEnvironment = MOCK` — 解决 erupt-jpa `i18nTranslate` 需要 `HttpServletRequest` 的问题
@@ -42,7 +50,8 @@
 
 #### 父 POM 变更
 - `<modules>` 新增 4 个模块：`ep-module-mall` / `ep-module-wms` / `ep-module-mp` / `ep-module-iot`
-- `<dependencyManagement>` 新增 5 个内部模块坐标 + `erupt-upms` 版本管理
+- `<modules>` 移除 `ep-business-common`
+- `<dependencyManagement>` 新增 4 个内部模块坐标 + `erupt-upms` 版本管理，移除 ep-business-common 坐标
 - ep-boot/pom.xml 新增 4 个业务模块依赖
 
 ---
@@ -224,16 +233,14 @@
 
 ---
 
-### 跨模块 Facade 接口体系
+### 跨模块 Facade 接口
 
-在 `ep-business-common/src/main/java/xyz/herz/ep/common/facade/` 下新增 4 个 Facade 接口：
+各模块自包含，Facade 接口内聚到消费方模块：
 
-| 接口 | 方向 | 方法 | 说明 |
-|------|------|------|------|
-| `MallStockFacade` | Mall → ERP | `lockStock` / `unlockStock` / `deductStock` / `returnStock` | 商城下单锁库存、取消解锁、发货扣减、退货回补 |
-| `WmsOperationFacade` | ERP → WMS | `createAsn` / `createShipmentNotice` | ERP 审核出入库单时创建 WMS 对应单据 |
-| `WeChatApiFacade` | MP → 微信 | `getAccessToken` / `syncUserList` / `sendCustomMessage` / `publishMenu` / `uploadMaterial` | 微信 API 抽象，待 WxJava 实现 |
-| `MqttDeviceFacade` | IoT → MQTT | `publishCommand` / `subscribeDevice` / `unsubscribeDevice` / `isDeviceOnline` / `updateDeviceShadow` | MQTT 通信抽象，待 Paho 实现 |
+| 接口 | 所在模块 | 方法 | 说明 |
+|------|----------|------|------|
+| `MallStockFacade` | ep-module-mall (`mall.facade`) | `lockStock` / `unlockStock` / `deductStock` / `returnStock` | Mall → ERP 库存调用，Handler `@Autowired(required=false)` 可选注入 |
+| `InventoryChangeFacade` | ep-module-erp (`erp.inventory`) | `changeStock` | ERP 内部库存变更门面，采购/销售/其他出入库 Handler 调用 |
 
 **Mall 模块接入**：4 个订单/售后 Handler 通过 `@Autowired(required = false)` 可选注入 `MallStockFacade`，Facade 不可用时 log.debug 跳过，不影响模块独立测试。
 
@@ -256,7 +263,7 @@ ep-module-xxx/
 
 | 要点 | 说明 |
 |------|------|
-| 独立启动类 | 每个模块 `@SpringBootApplication` 只扫描本模块 + common 包 |
+| 独立启动类 | 每个模块 `@SpringBootApplication` 只扫描本模块包 |
 | Web 环境 | `webEnvironment = MOCK` — erupt-jpa i18nTranslate 需要 HttpServletRequest |
 | erupt-upms | test scope 引入，解决 erupt-security 的 EruptSecurityInterceptor 依赖 |
 | 数据隔离 | H2 内存库 `ddl-auto=create-drop`，`@Transactional + @Rollback` 自动回滚 |
@@ -342,7 +349,7 @@ mvn clean package -DskipTests
 
 ### 初始发布
 
-- Maven 多模块架构：ep-business-parent + ep-business-common + ep-module-crm + ep-module-erp + ep-boot
+- Maven 多模块架构：ep-business-parent + ep-module-crm + ep-module-erp + ep-boot（后移除 ep-business-common）
 - CRM P0 MVP：线索/客户/商机/跟进状态机 + 公海回收定时任务（6 个测试）
 - ERP P0 MVP：主数据 + 产品档案 + 库存 Facade + 采购/销售单据全链路状态机（4 个测试）
 - 包名：`xyz.herz.ep`

@@ -3,7 +3,7 @@ package xyz.herz.ep.erp.handler.document;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.erupt.annotation.fun.OperationHandler;
-import xyz.herz.ep.common.inventory.InventoryChangeFacade;
+import xyz.herz.ep.erp.inventory.InventoryChangeFacade;
 import xyz.herz.ep.erp.core.ErpStockService;
 import xyz.herz.ep.erp.entity.purchase.ErpPurchaseIn;
 import xyz.herz.ep.erp.entity.purchase.ErpPurchaseInItem;

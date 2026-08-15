@@ -20,11 +20,6 @@
     </description>
 
     <dependencies>
-        <!-- 跨模块通用接口(ep-business-common) -->
-        <dependency>
-            <groupId>xyz.herz.ep</groupId>
-            <artifactId>ep-business-common</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

@@ -1,4 +1,4 @@
-package xyz.herz.ep.common.inventory;
+package xyz.herz.ep.erp.inventory;
 
 import java.math.BigDecimal;
 import java.util.List;

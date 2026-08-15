@@ -20,11 +20,6 @@
     </description>
 
     <dependencies>
-        <!-- 统一库存接口定义在这里 -->
-        <dependency>
-            <groupId>xyz.herz.ep</groupId>
-            <artifactId>ep-business-common</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

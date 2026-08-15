@@ -1,4 +1,4 @@
-package xyz.herz.ep.common.inventory;
+package xyz.herz.ep.erp.inventory;
 
 /** 库存不足:出库数量 > (可用余额 - 预扣)。 */
 public class InventoryShortageException extends RuntimeException {

@@ -2,8 +2,8 @@ package xyz.herz.ep.erp.core;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import xyz.herz.ep.common.inventory.InventoryChangeFacade;
-import xyz.herz.ep.common.inventory.InventoryShortageException;
+import xyz.herz.ep.erp.inventory.InventoryChangeFacade;
+import xyz.herz.ep.erp.inventory.InventoryShortageException;
 import xyz.herz.ep.erp.entity.master.ErpProductCategory;
 import xyz.herz.ep.erp.entity.master.ErpWarehouse;
 import xyz.herz.ep.erp.entity.product.ErpProduct;

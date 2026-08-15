@@ -9,11 +9,11 @@
 
 | # | 子项 | 优先级 | 状态 | 代码位置 |
 |---|---|---|---|---|
-| 0.1 | 父 pom 版本收敛 + modules 聚合(common / crm module / boot) | P0 | ✅ | [根 pom.xml](../pom.xml) |
-| 0.2 | common 层骨架(后续放通用 Facade/BaseEntity) | P0 | ✅ | [ep-business-common](../ep-business-common/pom.xml) |
+| 0.1 | 父 pom 版本收敛 + modules 聚合(6 个业务 module + boot) | P0 | ✅ | [根 pom.xml](../pom.xml) |
+| 0.2 | ~~common 层骨架~~ 已移除,各模块自包含 | P0 | ✅ | 无公共模块,Facade 接口内聚到各模块 |
 | 0.3 | 每个业务模块独立 maven module(先落地 crm) | P0 | ✅ | [ep-module-crm](../ep-module-crm/pom.xml) |
 | 0.4 | boot 打包层(启动类 + application.yml, 只装配不写业务) | P0 | ✅ | [ep-boot](../ep-boot/pom.xml) |
-| 0.5 | 模块间 Facade(erupt-cloud 拆分预留):mall→erp 库存、erp→wms 出入库 | P1 | ✅ | `common.facade.MallStockFacade` / `WmsOperationFacade` / `WeChatApiFacade` / `MqttDeviceFacade` |
+| 0.5 | 模块间 Facade(mall→erp 库存调用) | P1 | ✅ | `mall.facade.MallStockFacade`(接口在 Mall,Handler `@Autowired(required=false)` 可选注入) |
 | 0.6 | 旧 src/main/java 单模块残余清理(boot 层完成迁移后删除) | P0 | ✅ | 根 `src/` 已整体删除 |
 
 ---
@@ -45,7 +45,7 @@
 
 | # | 子项 | 优先级 | 状态 | 代码位置 |
 |---|---|---|---|---|
-| 2.0 | 枚举字典 + 下拉处理器 + 状态机 DataProxy 基类 + Facade 接口 | P0 | ✅ | [ErpDictEnums](../ep-module-erp/src/main/java/xyz/herz/ep/erp/enums/ErpDictEnums.java) / [InventoryChangeFacade](../ep-business-common/src/main/java/xyz/herz/ep/common/inventory/InventoryChangeFacade.java) |
+| 2.0 | 枚举字典 + 下拉处理器 + 状态机 DataProxy 基类 + Facade 接口 | P0 | ✅ | [ErpDictEnums](../ep-module-erp/src/main/java/xyz/herz/ep/erp/enums/ErpDictEnums.java) / [InventoryChangeFacade](../ep-module-erp/src/main/java/xyz/herz/ep/erp/inventory/InventoryChangeFacade.java) |
 | 2.1 | 主数据:分类(树)/单位/品牌/仓库/供应商/客户/账户 + 启停行按钮 | P0 | ✅ | `erp.entity.master.*` + ErpMasterToggleHandler |
 | 2.2 | 产品档案(SPU + N SKU + 多条码/批次/保质期, DataProxy 回绑 product) | P0 | ✅ | [ErpProduct](../ep-module-erp/src/main/java/xyz/herz/ep/erp/entity/product/ErpProduct.java) / [ErpProductSku](../ep-module-erp/src/main/java/xyz/herz/ep/erp/entity/product/ErpProductSku.java) |
 | 2.3 | 统一库存变更接口 `InventoryChangeFacade` 实现(余额+流水原子更新、幂等、不足抛异常) | P0 | ✅ | [ErpStockService](../ep-module-erp/src/main/java/xyz/herz/ep/erp/core/ErpStockService.java) |
@@ -69,7 +69,7 @@
 | 3.3 | 售后(仅退款/退货退款/换货)状态机:7 态 + 5 个行按钮 + 售后日志 | P0 | ✅ | `mall.entity.MallTradeAfterSale` + `MallAfterSale*Handler` |
 | 3.4 | 支付流水(MallPayOrder,订单付款时自动生成已支付记录) | P0 | ✅ | `mall.entity.MallPayOrder` |
 | 3.5 | 冒烟单测 4 场景全闭环 | P0 | ✅ | [MallSmokeTests.java](../ep-module-mall/src/test/java/xyz/herz/ep/mall/MallSmokeTests.java) |
-| 3.6 | 待发货自动生成 erp 销售出库草稿(mall→erp 跨模块调用) | P1 | ✅ | `MallStockFacade` 接口 + Mall Handler `@Autowired(required=false)` 可选注入 |
+| 3.6 | 待发货自动生成 erp 销售出库草稿(mall→erp 跨模块调用) | P1 | ✅ | `mall.facade.MallStockFacade` 接口 + Mall Handler `@Autowired(required=false)` 可选注入 |
 | 3.7 | 售后库存回滚(调 erp changeStock 入库) | P1 | ✅ | `MallAfterSaleCompleteHandler` 调 `returnStock` |
 
 ---
@@ -104,7 +104,7 @@
 | 5.5 | 菜单(树形) + 发布/撤回状态机 | P0 | ✅ | `mp.entity.MpMenu` + `MpMenuPublish/RevokeHandler` |
 | 5.6 | 素材(图片/语音/视频/缩略图) | P0 | ✅ | `mp.entity.MpMaterial` |
 | 5.7 | 冒烟单测 5 场景全闭环 | P0 | ✅ | [MpSmokeTests.java](../ep-module-mp/src/test/java/xyz/herz/ep/mp/MpSmokeTests.java) |
-| 5.8 | 接入微信 API(WxJava) + 消息回调 + 粉丝同步 | P1 | 🔵 | `WeChatApiFacade` 接口已定义,待 WxJava 实现 |
+| 5.8 | 接入微信 API(WxJava) + 消息回调 + 粉丝同步 | P1 | 🔵 | 待在 ep-module-mp 内定义 `WeChatApiFacade` 接口 + WxJava 实现 |
 
 ---
 
@@ -121,7 +121,7 @@
 | 6.4 | 设备消息(上行/下行 + 属性/事件/服务) | P0 | ✅ | `iot.entity.IotDeviceMessage` |
 | 6.5 | 告警规则(阈值/状态) + 告警(四态:待处理→处理中→已解决/已忽略) + 告警日志 | P0 | ✅ | `iot.entity.IotAlarmRule/Alarm/AlarmLog` + `IotAlarmProcess/Resolve/IgnoreHandler` |
 | 6.6 | 冒烟单测 5 场景全闭环 | P0 | ✅ | [IotSmokeTests.java](../ep-module-iot/src/test/java/xyz/herz/ep/iot/IotSmokeTests.java) |
-| 6.7 | 接入 MQTT(EMQX) + 设备影子 + 时序数据 | P1 | 🔵 | `MqttDeviceFacade` 接口已定义,待 Paho/Spring Integration MQTT 实现 |
+| 6.7 | 接入 MQTT(EMQX) + 设备影子 + 时序数据 | P1 | 🔵 | 待在 ep-module-iot 内定义 `MqttDeviceFacade` 接口 + Paho/Spring Integration MQTT 实现 |
 
 ---
 
@@ -129,7 +129,7 @@
 
 | # | 子项 | 优先级 | 状态 | 备注 |
 |---|---|---|---|---|
-| 7.1 | 统一 `@EruptScan` 组件扫描策略:boot 层只扫 `xyz.herz.ep.**` 即可装配全部 module | P0 | ✅ | boot 层扫描 `xyz.herz.ep` 全包;模块测试类扫描各自包+common |
+| 7.1 | 统一 `@EruptScan` 组件扫描策略:boot 层只扫 `xyz.herz.ep.**` 即可装配全部 module | P0 | ✅ | boot 层扫描 `xyz.herz.ep` 全包;模块测试类扫描各自包 |
 | 7.2 | H2 测试库(内存) vs 生产库(H2 文件 / PG / MySQL)配置分层 | P0 | ✅ | 每个模块 `src/test/resources/application.yml` 独立 H2 内存库 |
 | 7.3 | 统一枚举字典/状态下拉 ChoiceHandler + 状态机 DataProxy 基类 + @RowOperation 强校验(三件套) | P0 | ✅ | CRM 已完成,其他模块照抄 |
 
@@ -154,7 +154,7 @@ ep-module-crm/
 
 | 要点 | 说明 |
 |------|------|
-| **测试启动类** | 每个模块有自己的 `XxxTestApplication`，`@SpringBootApplication` 只扫描本模块 + common 包 |
+| **测试启动类** | 每个模块有自己的 `XxxTestApplication`，`@SpringBootApplication` 只扫描本模块包 |
 | **Web 环境** | `@SpringBootTest(webEnvironment = MOCK)` — erupt-jpa 的 i18nTranslate 需要 HttpServletRequest，MOCK 提供 mock servlet context |
 | **erupt-upms** | 测试 scope 引入，解决 erupt-security 的 EruptSecurityInterceptor 依赖 |
 | **数据隔离** | H2 内存库 `ddl-auto=create-drop`，每次测试重建表，`@Transactional + @Rollback` 自动回滚 |

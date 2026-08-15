@@ -19,11 +19,6 @@
     </description>
 
     <dependencies>
-        <dependency>
-            <groupId>xyz.herz.ep</groupId>
-            <artifactId>ep-business-common</artifactId>
-        </dependency>
-
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>

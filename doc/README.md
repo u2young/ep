@@ -12,7 +12,8 @@
 1. **状态流转完整** — 每个核心实体都给出 Mermaid stateDiagram 状态机图,而非简单 CRUD
 2. **Erupt 适配** — 注解驱动(`@Erupt` / `@EruptField` / `@RowOperation` / `@ChoiceType` / `@Tree` / `DataProxy`),适配 Spring Boot 3.5.15 + Erupt 2.0.3 + JPA + H2 技术栈
 3. **不依赖 yudao 的 infra / system** — 使用 Erupt 默认的 UPMS(erupt-upms)与基础设施
-4. **参考来源明确** — 每篇文档末尾列出官方文档、源码仓库、同类开源项目参考链接
+4. **无公共模块** — 各业务模块自包含,跨模块调用通过模块内 Facade 接口 + `@Autowired(required=false)` 可选注入
+5. **参考来源明确** — 每篇文档末尾列出官方文档、源码仓库、同类开源项目参考链接
 
 ## 模块清单
 
@@ -222,7 +223,7 @@ public class ProductCategory extends TreeModel {
 
 1. **余额表** — 当前库存快照,通过 `@Version` 乐观锁或悲观锁保护
 2. **流水表** — append-only,记录每笔出入库明细
-3. **统一接口** — `StockService.changeStock(bizType, bizId, sku, qty, fromLocation, toLocation)` 事务方法
+3. **统一接口** — `ErpStockService.changeStock(bizType, bizId, sku, qty)` 事务方法(位于 ep-module-erp)
 4. **DataProxy 副作用** — 单据状态变更时通过 DataProxy 触发库存联动
 
 ## 各模块 MVP 完整基础版边界(基本功能完整,后续可扩展)
@@ -282,7 +283,7 @@ public class ProductCategory extends TreeModel {
 | 阶段 | 模块(MVP) | 依赖 | 为什么放这 |
 |---|---|---|---|
 | **P0(并行起步)** | **crm(MVP)** — 线索+客户+商机+跟进 | 无 | 纯数据流转,没有库存一致性/外部系统/事务一致性压力,业务人人懂。**用它验证三件事**:1) `@ChoiceType` + `@RowOperation` + `DataProxy.beforeUpdate` 状态机模式 2) `biz_type+biz_id` 通用跟进表 3) "我负责的/下属负责的"数据权限过滤 |
-| **P0(并行起步)** | **erp(MVP)** — 产品+仓库+进销存+收付款 | 无 | 有简单库存(单态 count,预留四态)但没有库位/波次/策略。**用它验证三件事**:1) `@OneToMany`+TAB_TABLE 主子表 2) `StockService.changeStock()` 统一事务 + `@Version` 乐观锁 3) 审批→单据状态变更→DataProxy 副作用库存联动 |
+| **P0(并行起步)** | **erp(MVP)** — 产品+仓库+进销存+收付款 | 无 | 有简单库存(单态 count,预留四态)但没有库位/波次/策略。**用它验证三件事**:1) `@OneToMany`+TAB_TABLE 主子表 2) `ErpStockService.changeStock()` 统一事务 + `@Version` 乐观锁 3) 审批→单据状态变更→DataProxy 副作用库存联动 |
 | **P1(顺序)** | mall(MVP) — 商品+订单+售后 | 依赖 erp 库存服务(复用 changeStock 接口) | 订单状态机最完整,能验证"状态机 + 库存锁定 + 超时/退款异常分支"。放在 P1 因为它比 CRM/ERP 重一点但比 WMS 轻 |
 | **P1(顺序)** | wms(MVP) — 三单据入 + 三单据出 + 四态库位库存 | 依赖 erp 基础档案产品表(不要重复建) | 多单据拆分 + 四态库存是最复杂的业务逻辑,留到 erupt 注解和状态机模式验证熟了再上,否则 80% 时间写 Service 事务,看不到 erupt 驱动效果 |
 | **P2(按需)** | mp(MVP) — 账号+粉丝+消息+菜单+素材 | 无(独立模块) | 有外部微信 API 依赖和 48h/access_token 等坑,等主业务稳定了再调 |

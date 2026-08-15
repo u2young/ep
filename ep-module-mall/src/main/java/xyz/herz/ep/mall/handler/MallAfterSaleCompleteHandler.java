@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.erupt.annotation.fun.OperationHandler;
-import xyz.herz.ep.common.facade.MallStockFacade;
+import xyz.herz.ep.mall.facade.MallStockFacade;
 import xyz.herz.ep.mall.entity.MallTradeAfterSale;
 import xyz.herz.ep.mall.entity.MallTradeOrderItem;
 import xyz.herz.ep.mall.enums.MallDictEnums.AfterSaleStatus;

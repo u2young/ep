@@ -11,7 +11,6 @@
     <description>Erupt 业务中台父工程:版本收敛 + 模块聚合,为后续 erupt-cloud 架构做准备</description>
 
     <modules>
-        <module>ep-business-common</module>
         <module>ep-module-crm</module>
         <module>ep-module-erp</module>
         <module>ep-module-mall</module>
@@ -42,11 +41,6 @@
     <dependencyManagement>
         <dependencies>
         <!-- ========== 本工程内部模块 ========== -->
-            <dependency>
-                <groupId>xyz.herz.ep</groupId>
-                <artifactId>ep-business-common</artifactId>
-                <version>${project.version}</version>
-            </dependency>
             <dependency>
                 <groupId>xyz.herz.ep</groupId>
                 <artifactId>ep-module-crm</artifactId>

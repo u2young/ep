@@ -1,4 +1,4 @@
-package xyz.herz.ep.common.facade;
+package xyz.herz.ep.mall.facade;
 
 /**
  * Mall → ERP 库存操作 Facade。

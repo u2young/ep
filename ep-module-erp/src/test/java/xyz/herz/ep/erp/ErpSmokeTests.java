@@ -1,9 +1,9 @@
 package xyz.herz.ep.erp;
 
-import xyz.herz.ep.common.inventory.InventoryChangeFacade;
-import xyz.herz.ep.common.inventory.InventoryChangeFacade.ChangeItem;
-import xyz.herz.ep.common.inventory.InventoryChangeFacade.ChangeRequest;
-import xyz.herz.ep.common.inventory.InventoryShortageException;
+import xyz.herz.ep.erp.inventory.InventoryChangeFacade;
+import xyz.herz.ep.erp.inventory.InventoryChangeFacade.ChangeItem;
+import xyz.herz.ep.erp.inventory.InventoryChangeFacade.ChangeRequest;
+import xyz.herz.ep.erp.inventory.InventoryShortageException;
 import xyz.herz.ep.erp.entity.document.ErpStockIn;
 import xyz.herz.ep.erp.entity.document.ErpStockInItem;
 import xyz.herz.ep.erp.entity.document.ErpStockOut;
