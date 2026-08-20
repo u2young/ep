@@ -47,6 +47,11 @@
 - `POST /api/landing/page` — 保存页面 JSON(管理,待 magic-api 实现)
 - `GET /api/landing/stats/{pageId}` — 访问统计(管理,待 magic-api 实现)
 
+### P1 完成（magic-api 白名单 + amis SDK 本地化）
+
+- **magic-api 公开接口白名单**：公开接口走 Spring MVC 兜底 API（`/api/landing/*`，免登），magic-api 仅管理端需登录。避免覆盖 EruptMagicAPIRequestInterceptor 破坏 magic-api web UI 鉴权。
+- **amis SDK 本地化**：amis 6.13.0 运行时 SDK（sdk.js 2MB + css 共 8MB）已下载到 `static/amis/`，H5 渲染页离线可用。编辑器仍用 CDN（React bundle 50MB 不入库），提供 `static/download-amis-editor.sh` 离线下载脚本。
+
 ### 测试用例(8 个)
 
 - template_crud / page_draft_save_and_load / page_state_machine(发布/下线/复用短码)

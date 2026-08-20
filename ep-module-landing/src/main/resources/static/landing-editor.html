@@ -51,13 +51,13 @@
         .then(function (schema) {
             if (schema == null) return;
 
-            // 2. 加载 amis-editor(CDN 6.x)
+            // 2. 加载 amis-editor(CDN 6.13.0)
             var editorCss = document.createElement('link');
             editorCss.rel = 'stylesheet';
-            editorCss.href = 'https://cdn.jsdelivr.net/npm/amis-editor@6.7.3/lib/index.css';
+            editorCss.href = 'https://cdn.jsdelivr.net/npm/amis-editor@6.13.0/lib/editor.css';
             document.head.appendChild(editorCss);
 
-            loadScript('https://cdn.jsdelivr.net/npm/amis-editor@6.7.3/lib/index.js', function () {
+            loadScript('https://cdn.jsdelivr.net/npm/amis-editor@6.13.0/lib/editor.js', function () {
                 document.getElementById('root').innerHTML =
                     '<div class="loading">amis-editor 加载失败,请检查网络</div>';
             });

@@ -207,5 +207,5 @@ mvn test
 | 7.9 | amis-editor 入口页 + amis SDK CDN 集成 | P0 | ✅ | [landing-editor.html](../ep-module-landing/src/main/resources/static/landing-editor.html) + [render.html](../ep-module-landing/src/main/resources/templates/landing/render.html) |
 | 7.10 | 模板初始化器(启动时插入 3 个预设模板) | P0 | ✅ | [LandingTemplateInitializer.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/config/LandingTemplateInitializer.java) |
 | 7.11 | 冒烟单测 8 场景全闭环 | P0 | ✅ | [LandingSmokeTests.java](../ep-module-landing/src/test/java/xyz/herz/ep/landing/LandingSmokeTests.java) |
-| 7.12 | magic-api 公开接口白名单拦截器 | P1 | 🔵 | 待 magic-api web UI 配置时实现 |
-| 7.13 | amis-editor SDK 本地化(离线部署) | P1 | ⚪ | 当前用 CDN,离线需下载到 static/amis-editor/ |
+| 7.12 | magic-api 公开接口白名单拦截器 | P1 | ✅ | 公开接口走 Spring MVC 兜底 API(/api/landing/*),magic-api 仅管理端需登录 |
+| 7.13 | amis SDK 本地化(H5 渲染离线可用) | P1 | ✅ | amis 6.13.0 SDK 已下载到 [static/amis/](../ep-module-landing/src/main/resources/static/amis/),编辑器仍用 CDN(见下载脚本) |
