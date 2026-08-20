@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8"/>
+    <title>落地页编辑器</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <style>
+        html, body { height: 100%; margin: 0; }
+        #root { height: 100vh; }
+        .loading {
+            display: flex; align-items: center; justify-content: center;
+            height: 100%; font-size: 16px; color: #666;
+        }
+    </style>
+</head>
+<body>
+<div id="root">
+    <div class="loading">正在加载 amis 编辑器...</div>
+</div>
+<!-- amis-editor SDK: 优先本地,失败用 CDN 6.x -->
+<script>
+    // 本地 SDK 加载失败时,从 CDN 加载 amis-editor 6.x
+    function loadScript(src, onerror) {
+        var s = document.createElement('script');
+        s.src = src;
+        s.onerror = onerror;
+        document.head.appendChild(s);
+    }
+
+    // 落地页 ID 从 query 取
+    var pageId = new URLSearchParams(location.search).get('id');
+    var API_BASE = '/api/landing';
+
+    // 1. 先从后端拉取页面 JSON
+    fetch(API_BASE + '/page/' + pageId)
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+            if (!res || res.code !== 1 || !res.data) {
+                document.getElementById('root').innerHTML =
+                    '<div class="loading">页面不存在(id=' + pageId + ')</div>';
+                return null;
+            }
+            var schema;
+            try {
+                schema = res.data.content ? JSON.parse(res.data.content) : { type: 'page', body: [] };
+            } catch (e) {
+                schema = { type: 'page', body: [] };
+            }
+            return schema;
+        })
+        .then(function (schema) {
+            if (schema == null) return;
+
+            // 2. 加载 amis-editor(CDN 6.x)
+            var editorCss = document.createElement('link');
+            editorCss.rel = 'stylesheet';
+            editorCss.href = 'https://cdn.jsdelivr.net/npm/amis-editor@6.7.3/lib/index.css';
+            document.head.appendChild(editorCss);
+
+            loadScript('https://cdn.jsdelivr.net/npm/amis-editor@6.7.3/lib/index.js', function () {
+                document.getElementById('root').innerHTML =
+                    '<div class="loading">amis-editor 加载失败,请检查网络</div>';
+            });
+
+            // 等 AMD 模块加载
+            var checkLoaded = setInterval(function () {
+                if (window.amisEditorRequire) {
+                    clearInterval(checkLoaded);
+                    startEditor(schema);
+                }
+            }, 100);
+        });
+
+    function startEditor(schema) {
+        var amisEditor = window.amisEditorRequire('amis-editor');
+        var editor = amisEditor.Editor({
+            container: document.getElementById('root'),
+            schema: schema,
+            onChange: function (newSchema) {
+                window.CURRENT_SCHEMA = newSchema;
+            }
+        });
+
+        // 保存按钮(可通过键盘 Ctrl+S 或自定义按钮触发)
+        window.savePage = function () {
+            if (!window.CURRENT_SCHEMA) {
+                alert('无内容可保存');
+                return;
+            }
+            fetch(API_BASE + '/page/' + pageId, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: parseInt(pageId),
+                    content: JSON.stringify(window.CURRENT_SCHEMA)
+                })
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (res) {
+                if (res.code === 1) alert('保存成功');
+                else alert('保存失败: ' + res.msg);
+            });
+        };
+
+        // Ctrl+S 保存
+        document.addEventListener('keydown', function (e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                window.savePage();
+            }
+        });
+    }
+</script>
+</body>
+</html>

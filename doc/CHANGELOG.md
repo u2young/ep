@@ -5,6 +5,56 @@
 
 ---
 
+## [1.2.0] - 2026-08-20
+
+### 概要
+
+新增第 7 个业务模块 `ep-module-landing`，基于 amis 实现可视化拖拽 H5 落地页 + 短链接 + magic-api 接口 + 留资闭环。利用 amis-editor 现成 SDK 嵌入 erupt-tpl/Thymeleaf，无需独立前端工程，4 天闭环。
+
+**数字概览**：9 个 Maven 模块 · 265 个 Java 源文件 · 15 个测试类 · 63 个测试用例全部通过 · 20 个文件变更 · +1320 行代码
+
+### 新增模块：ep-module-landing
+
+| 包 | 核心类 | 说明 |
+|---|---|---|
+| `landing.enums` | LandingDictEnums | PageStatus(草稿/发布/下线) + TemplateCategory + LeadSource |
+| `landing.core` | LandingStateDataProxy / LandingEnumChoiceFetchHandler | 状态机锁 + 下拉处理器(照搬 mall 模式) |
+| `landing.entity` | LandingPage / LandingTemplate / LandingLead / LandingAccessLog | 4 个实体,UV 去重唯一约束 |
+| `landing.jpa` | 4 个 Repository | 含 PV/UV 原子自增 @Modifying 查询 |
+| `landing.handler` | LandingPublishHandler / LandingOfflineHandler | 草稿→发布(生成短码) / 发布→下线 |
+| `landing.shorturl` | ShortCodeGenerator / ShortUrlController | Base62(id+1M偏移,6位) + /l/{code} 重定向 + PV/UV |
+| `landing.web` | LandingRenderController / LandingApiController | /p/{slug} H5 渲染 + /api/landing/* 兜底 API |
+| `landing.config` | LandingTemplateInitializer | 启动时插入 3 个预设 amis 模板 |
+
+### 关键技术决策
+
+| 决策点 | 选择 | 理由 |
+|--------|------|------|
+| 短码表设计 | 合并到 LandingPage | 1:1 关系,独立表无收益 |
+| 短码生成 | Base62(自增ID + 1M偏移),6 位 | 无碰撞、可逆、零查询 |
+| magic-api 脚本 | jar 内打包 + maven-resources-plugin 复制 | 脚本版本化入仓 |
+| 公开接口 | Spring MVC 兜底 API(/api/landing/*) | magic-api 首选,Spring MVC 兜底确保开箱即用 |
+| 编辑器入口 | /static/landing-editor.html | amis-editor CDN 加载,无需 npm 工程 |
+| H5 渲染 | 普通 @Controller + Thymeleaf | EruptSecurityInterceptor 只拦 @EruptRouter,C 端免登 |
+| amis SDK | CDN 兜底 | 避免 50MB SDK 入库,离线部署时再下载 |
+
+### magic-api 接口(6 个)
+
+- `GET /api/landing/page/slug/{slug}` — 按 slug 取已发布页面(公开)
+- `GET /api/landing/template/list` — 模板列表(公开)
+- `POST /api/landing/lead` — 留资提交(公开)
+- `GET /api/landing/page/{id}` — 按 ID 取页面(管理)
+- `POST /api/landing/page` — 保存页面 JSON(管理,待 magic-api 实现)
+- `GET /api/landing/stats/{pageId}` — 访问统计(管理,待 magic-api 实现)
+
+### 测试用例(8 个)
+
+- template_crud / page_draft_save_and_load / page_state_machine(发布/下线/复用短码)
+- short_code_deterministic_unique_reversible(确定性+唯一性+可逆)
+- lead_submit_persisted / uv_dedup / state_proxy_blocks_direct_status_edit / publish_rejected
+
+---
+
 ## [1.1.0] - 2026-08-12
 
 ### 概要

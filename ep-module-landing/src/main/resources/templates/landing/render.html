@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+    <title th:text="${pageTitle}">H5 落地页</title>
+    <!-- amis 运行时 SDK(由 ep-module-landing/static/amis 提供,如未下载则用 CDN 兜底) -->
+    <link rel="stylesheet" th:href="@{/static/amis/sdk.css}"/>
+    <link rel="stylesheet" th:href="@{/static/amis/helper.css}"/>
+    <link rel="stylesheet" th:href="@{/static/amis/iconfont.css}"/>
+    <style>
+        html, body, .app-wrapper {
+            position: relative; width: 100%; min-height: 100%; margin: 0; padding: 0;
+        }
+    </style>
+</head>
+<body>
+<div id="root" class="app-wrapper"></div>
+<!-- 优先用本地 SDK,加载失败时 CDN 兜底 -->
+<script th:src="@{/static/amis/sdk.js}"></script>
+<script th:inline="javascript">
+    (function () {
+        var PAGE_ID = /*[[${pageId}]]*/ 0;
+        var SLUG = /*[[${slug}]]*/ '';
+        var SCHEMA = /*[[${schema}]]*/ {type: 'page', body: [{type: 'tpl', tpl: '加载中...'}]};
+
+        // 等 amis SDK 加载完成(本地未下载时从 CDN 加载)
+        function loadAmis(cb) {
+            if (window.amisRequire) { cb(); return; }
+            // 本地 SDK 加载失败,从 CDN 加载 amis 6.x
+            var s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/amis@6.7.3/sdk/sdk.js';
+            s.onload = cb; s.onerror = function () {
+                document.getElementById('root').innerHTML =
+                    '<div style="padding:20px;text-align:center">amis SDK 未安装,请联系管理员</div>';
+            };
+            document.head.appendChild(s);
+        }
+
+        loadAmis(function () {
+            var amis = amisRequire('amis/embed');
+            amis.embed('#root',
+                typeof SCHEMA === 'string' ? JSON.parse(SCHEMA) : SCHEMA,
+                {},
+                {
+                    // 拦截 amis form 的 api 请求,改调 /magic/api/landing/lead
+                    fetcher: function (options) {
+                        if (options.url && options.url.indexOf('/saveLead') >= 0) {
+                            options.url = '/magic/api/landing/lead';
+                            options.data = Object.assign({}, options.data,
+                                {pageId: PAGE_ID, slug: SLUG});
+                        }
+                        return amisRequire('axios')(options).then(function (resp) {
+                            return resp.data;
+                        });
+                    }
+                }
+            );
+        });
+    })();
+</script>
+</body>
+</html>

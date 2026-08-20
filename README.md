@@ -25,6 +25,7 @@ ep-business-parent              ← 父 pom，版本收敛 + dependencyManagemen
 ├── ep-module-wms               ← 仓储：仓库/库区/库位/四态库存/ASN/拣货
 ├── ep-module-mp                ← 微信公众号：账号/粉丝/消息/菜单/素材
 ├── ep-module-iot               ← 物联网：产品/物模型/设备/告警
+├── ep-module-landing           ← 落地页：amis 拖拽 H5 + 短链接 + 留资闭环
 └── ep-boot                     ← 打包层，只装配不写业务
 ```
 
@@ -111,6 +112,7 @@ public void ship(Order order) {
 | **WMS** | ASN→收货→上架→四态库存→拣货→发货 | 11 | 7/7 ✅ |
 | **MP** | 账号→粉丝→消息→菜单→素材 | 6 | 5/5 ✅ |
 | **IoT** | 产品→物模型→设备→消息→告警 | 5 | 5/5 ✅ |
+| **Landing** | amis 拖拽 H5→短链→留资 | 3 | 8/8 ✅ |
 
 ## 快速开始
 
@@ -140,6 +142,7 @@ mvn test
 | WMS | 7 | `WmsTestApplication` | `WmsSmokeTests` |
 | MP | 5 | `MpTestApplication` | `MpSmokeTests` |
 | IoT | 5 | `IotTestApplication` | `IotSmokeTests` |
+| Landing | 8 | `LandingTestApplication` | `LandingSmokeTests` |
 | Boot | 20 | `EruptBusinessApplication` | `SimpleEntityTest` |
 
 - 每个模块独立 `XxxTestApplication`，`@SpringBootApplication` 只扫描本模块包
@@ -160,6 +163,8 @@ mvn test
 | [JetLinks](https://www.jetlinks.com/) | IoT 物模型 + MQTT Topic | — |
 | [ThingsBoard](https://thingsboard.io/) | IoT 设备生命周期 + 告警 | — |
 | [WxJava](https://github.com/Wechat-Group/WxJava) | 微信公众号 API 封装 | — |
+| [amis](https://aisuda.bce.baidu.com/amis/) | 落地页 H5 可视化渲染 | https://github.com/baidu/amis |
+| [amis-editor](https://github.com/aisuda/amis-editor) | 落地页拖拽编辑器 | https://github.com/aisuda/amis-editor |
 
 ## 文档
 

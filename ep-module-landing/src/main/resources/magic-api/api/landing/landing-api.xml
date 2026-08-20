@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- magic-api 接口脚本文件
+    说明:此文件为 magic-api 的 XML 格式脚本。
+    magic-api 启动时从 ./data/magic-api 加载,打包时由 maven-resources-plugin 复制。
+    若 magic-api 未正确加载,可用 ep-module-landing 的 Spring MVC Controller 兜底。
+    magic-api web UI:http://localhost:8080/magic/web 用户名/密码:erupt/erupt
+-->
+<magic-api>
+    <!-- 分组:landing -->
+    <group name="landing" path="landing">
+        <!-- GET /landing/page/{id} 按 ID 取页面(管理端,需登录) -->
+        <api name="page-get-by-id" path="/page/{id}" method="GET" summary="按ID取落地页(管理端)">
+            <script language="javascript">
+                var page = db.selectOne("""
+                    SELECT id, slug, name, status, content, template_id, short_code,
+                           pv_count, uv_count, publish_time
+                    FROM landing_page WHERE id = #{id}
+                    """);
+                if (page == null) {
+                    return response.json(404, "页面不存在", null);
+                }
+                return page;
+            </script>
+        </api>
+
+        <!-- GET /landing/page/slug/{slug} 按 slug 取已发布页面(公开,H5 渲染用) -->
+        <api name="page-get-by-slug" path="/page/slug/{slug}" method="GET" summary="按slug取已发布页面(公开)">
+            <script language="javascript">
+                var page = db.selectOne("""
+                    SELECT id, slug, name, content, status
+                    FROM landing_page
+                    WHERE slug = #{slug} AND status = 10
+                    """);
+                if (page == null) {
+                    return response.json(404, "页面不存在或已下线", null);
+                }
+                return page;
+            </script>
+        </api>
+
+        <!-- POST /landing/page 保存页面 JSON(管理端,需登录) -->
+        <api name="page-save" path="/page" method="POST" summary="保存落地页JSON(管理端)">
+            <script language="javascript">
+                var body = request.body();
+                if (body.id == null) {
+                    var id = db.insert("""
+                        INSERT INTO landing_page(slug, name, status, content, template_id, pv_count, uv_count)
+                        VALUES(#{body.slug}, #{body.name}, 0, #{body.content}, #{body.templateId}, 0, 0)
+                        """);
+                    return { id: id };
+                } else {
+                    var affected = db.update("""
+                        UPDATE landing_page
+                        SET name = #{body.name}, content = #{body.content}, template_id = #{body.templateId}
+                        WHERE id = #{body.id} AND status = 0
+                        """);
+                    if (affected == 0) {
+                        return response.json(400, "仅草稿态可编辑", null);
+                    }
+                    return { id: body.id };
+                }
+            </script>
+        </api>
+
+        <!-- GET /landing/template/list 模板列表(公开) -->
+        <api name="template-list" path="/template/list" method="GET" summary="模板列表(公开)">
+            <script language="javascript">
+                return db.select("""
+                    SELECT id, name, category, schema, thumb_url
+                    FROM landing_template
+                    WHERE enabled = 1
+                    ORDER BY category, id
+                    """);
+            </script>
+        </api>
+
+        <!-- POST /landing/lead 留资提交(公开,核心闭环) -->
+        <api name="lead-submit" path="/lead" method="POST" summary="留资提交(公开)">
+            <script language="javascript">
+                var body = request.body();
+                var page = db.selectOne("SELECT id, slug FROM landing_page WHERE id = #{body.pageId} AND status = 10");
+                if (page == null) {
+                    return response.json(404, "页面不存在或已下线", null);
+                }
+                var source = body.source == null ? 1 : body.source;
+                var ip = request.getClientIP();
+                var ua = request.getHeader("User-Agent") == null ? "" : request.getHeader("User-Agent");
+                var extraJson = body.extra == null ? null : JSON.stringify(body.extra);
+
+                db.insert("""
+                    INSERT INTO landing_lead(page_id, slug, phone, extra, source, client_ip, user_agent, submit_time)
+                    VALUES(#{page.id}, #{page.slug}, #{body.phone}, #{extraJson}, #{source}, #{ip}, #{ua}, NOW())
+                    """);
+                return { ok: true };
+            </script>
+        </api>
+
+        <!-- GET /landing/stats/{pageId} 访问统计(管理端,需登录) -->
+        <api name="stats-by-page" path="/stats/{pageId}" method="GET" summary="访问统计(管理端)">
+            <script language="javascript">
+                var stat = db.selectOne("""
+                    SELECT pv_count AS pv, uv_count AS uv
+                    FROM landing_page WHERE id = #{pageId}
+                    """);
+                var todayLeads = db.selectInt("""
+                    SELECT COUNT(*) FROM landing_lead
+                    WHERE page_id = #{pageId} AND submit_time >= CURRENT_DATE
+                    """);
+                stat.todayLeads = todayLeads;
+                return stat;
+            </script>
+        </api>
+    </group>
+</magic-api>

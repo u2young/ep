@@ -9,7 +9,7 @@
 
 | # | 子项 | 优先级 | 状态 | 代码位置 |
 |---|---|---|---|---|
-| 0.1 | 父 pom 版本收敛 + modules 聚合(6 个业务 module + boot) | P0 | ✅ | [根 pom.xml](../pom.xml) |
+| 0.1 | 父 pom 版本收敛 + modules 聚合(7 个业务 module + boot) | P0 | ✅ | [根 pom.xml](../pom.xml) |
 | 0.2 | ~~common 层骨架~~ 已移除,各模块自包含 | P0 | ✅ | 无公共模块,Facade 接口内聚到各模块 |
 | 0.3 | 每个业务模块独立 maven module(先落地 crm) | P0 | ✅ | [ep-module-crm](../ep-module-crm/pom.xml) |
 | 0.4 | boot 打包层(启动类 + application.yml, 只装配不写业务) | P0 | ✅ | [ep-boot](../ep-boot/pom.xml) |
@@ -188,4 +188,24 @@ mvn test -pl ep-module-erp
 
 # 全量测试
 mvn test
-``` |
+```
+
+---
+
+## 7. Landing 落地页模块(P0:已完成)
+
+| # | 子项 | 优先级 | 状态 | 代码位置 |
+|---|---|---|---|---|
+| 7.1 | 模块骨架(pom + erupt-core/jpa/security/tpl + thymeleaf) | P0 | ✅ | [ep-module-landing/pom.xml](../ep-module-landing/pom.xml) |
+| 7.2 | LandingPage 实体 + 状态机(草稿→发布→下线) | P0 | ✅ | [LandingPage.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/entity/LandingPage.java) |
+| 7.3 | LandingTemplate 预设模板(空白/留资/产品) | P0 | ✅ | [LandingTemplate.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/entity/LandingTemplate.java) |
+| 7.4 | LandingLead 留资记录 + LandingAccessLog UV 去重 | P0 | ✅ | [LandingLead.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/entity/LandingLead.java) |
+| 7.5 | 短码生成器(Base62 自增 ID + 1M 偏移,6 位) | P0 | ✅ | [ShortCodeGenerator.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/shorturl/ShortCodeGenerator.java) |
+| 7.6 | 短链 Controller /l/{code} → /p/{slug} + PV/UV 统计 | P0 | ✅ | [ShortUrlController.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/shorturl/ShortUrlController.java) |
+| 7.7 | H5 渲染 Controller /p/{slug} + Thymeleaf 模板 | P0 | ✅ | [LandingRenderController.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/web/LandingRenderController.java) |
+| 7.8 | magic-api 脚本(6 个接口) + Spring MVC 兜底 API | P0 | ✅ | [LandingApiController.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/web/LandingApiController.java) + [magic-api 脚本](../ep-module-landing/src/main/resources/magic-api/api/landing/landing-api.xml) |
+| 7.9 | amis-editor 入口页 + amis SDK CDN 集成 | P0 | ✅ | [landing-editor.html](../ep-module-landing/src/main/resources/static/landing-editor.html) + [render.html](../ep-module-landing/src/main/resources/templates/landing/render.html) |
+| 7.10 | 模板初始化器(启动时插入 3 个预设模板) | P0 | ✅ | [LandingTemplateInitializer.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/config/LandingTemplateInitializer.java) |
+| 7.11 | 冒烟单测 8 场景全闭环 | P0 | ✅ | [LandingSmokeTests.java](../ep-module-landing/src/test/java/xyz/herz/ep/landing/LandingSmokeTests.java) |
+| 7.12 | magic-api 公开接口白名单拦截器 | P1 | 🔵 | 待 magic-api web UI 配置时实现 |
+| 7.13 | amis-editor SDK 本地化(离线部署) | P1 | ⚪ | 当前用 CDN,离线需下载到 static/amis-editor/ |

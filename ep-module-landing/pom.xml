@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>xyz.herz.ep</groupId>
+        <artifactId>ep-business-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>ep-module-landing</artifactId>
+    <name>ep-module-landing</name>
+    <description>
+        落地页模块(基于 amis 可视化拖拽 H5 落地页 + 短链接 + magic-api 接口 + 留资闭环)。
+        - 落地页:slug 直链 + 短码 + amis JSON schema + 状态机(草稿→发布→下线)
+        - 模板:预设 amis schema 模板(空白/留资表单/产品介绍/海报/活动报名)
+        - 留资:H5 表单提交入库,Erupt 后台可查看
+        - 访问统计:PV/UV 去重(基于 client_ip + 指纹)
+        - 编辑器:amis-editor-demo 6.11.0 SDK 嵌入
+        - H5 渲染:amis SDK 运行时 + Thymeleaf 模板
+        - 接口:magic-api 实现(脚本随模块打包)
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-tpl</artifactId>
+        </dependency>
+        <!-- erupt-tpl 默认 FreeMarker,改用 Thymeleaf 渲染 H5 落地页 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+        <!-- 短链重定向 / H5 渲染用 Spring MVC -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-upms</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- 打包时把 magic-api 脚本复制到运行目录 ./data/magic-api -->
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-magic-api-scripts</id>
+                        <phase>process-resources</phase>
+                        <goals><goal>copy-resources</goal></goals>
+                        <configuration>
+                            <outputDirectory>${project.basedir}/../data/magic-api</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/resources/magic-api</directory>
+                                </resource>
+                            </resources>
+                            <overwrite>true</overwrite>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -17,6 +17,7 @@
         <module>ep-module-wms</module>
         <module>ep-module-mp</module>
         <module>ep-module-iot</module>
+        <module>ep-module-landing</module>
         <module>ep-boot</module>
     </modules>
 
@@ -69,6 +70,11 @@
             <dependency>
                 <groupId>xyz.herz.ep</groupId>
                 <artifactId>ep-module-iot</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>xyz.herz.ep</groupId>
+                <artifactId>ep-module-landing</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
