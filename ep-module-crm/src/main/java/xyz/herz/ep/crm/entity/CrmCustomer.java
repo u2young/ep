@@ -45,7 +45,7 @@ import lombok.Setter;
 @Erupt(
     name = "客户",
     dataProxy = CrmCustomerStateProxy.class,
-    power = @Power(importable = true, export = true),
+    power = @Power(importable = true, export = true, copy = true),
     // 默认视图:"我的客户"。公海客户可以再写一个 CrmCustomerSea 子类或独立 View @Erupt(filter=ownerUserId is null)
     filter = @Filter("ownerUserId is not null"),
     rowOperation = {

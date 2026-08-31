@@ -26,7 +26,7 @@ import lombok.Setter;
 @Table(name = "iot_product")
 @Erupt(
     name = "产品档案",
-    power = @Power(importable = true, export = true),
+    power = @Power(importable = true, export = true, copy = true),
     rowOperation = {
         @RowOperation(title = "启用", code = IotProductToggleHandler.ENABLE, icon = "fa fa-check",
             operationHandler = IotProductToggleHandler.class, operationParam = { IotProductToggleHandler.ENABLE }),

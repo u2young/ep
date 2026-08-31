@@ -7,9 +7,11 @@ import xyz.herz.ep.wms.jpa.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +55,9 @@ class WmsSmokeTests {
     @Autowired WmsStockMoveCompleteHandler stockMoveComplete;
     @Autowired WmsStockCheckStartHandler stockCheckStart;
     @Autowired WmsStockCheckFinishHandler stockCheckFinish;
+
+    /** 反射获取 BUTTON Handler Bean。 */
+    @Autowired ApplicationContext applicationContext;
 
     // =================== 1. 仓库/库区/库位三级 CRUD ===================
 
@@ -564,7 +569,204 @@ class WmsSmokeTests {
         assertTrue(r2.contains("成功 1"), () -> "入库-上架完成失败: " + r2);
     }
 
+    // =================== TR-2.2 PROGRESS 盘点进度(RED→GREEN) ===================
+
+    @Test
+    void stock_check_progress_view_and_calc() throws Exception {
+        // (1) 注解断言: 应有 checkProgress 虚拟字段 type=PROGRESS
+        java.lang.reflect.Field f = WmsStockCheck.class.getDeclaredField("checkProgress");
+        xyz.erupt.annotation.EruptField ann =
+            f.getAnnotation(xyz.erupt.annotation.EruptField.class);
+        assertNotNull(ann, "WmsStockCheck 应有 checkProgress @EruptField 虚拟进度字段");
+        assertEquals(xyz.erupt.annotation.sub_field.ViewType.PROGRESS,
+            ann.views()[0].type(),
+            "checkProgress 视图 type 应为 PROGRESS,用于盘点完成度条形展示");
+
+        java.lang.reflect.Method getter =
+            WmsStockCheck.class.getMethod("getCheckProgress");
+
+        // (2) 比例 1: 明细 book=50,actual=25 → 盘点进度 50%
+        WmsStockCheck c50 = new WmsStockCheck();
+        WmsStockCheckItem i1 = new WmsStockCheckItem();
+        i1.setBookQty(50);
+        i1.setActualQty(25);
+        i1.setCheck(c50);
+        c50.setItems(new ArrayList<>(List.of(i1)));
+        BigDecimal v50 = (BigDecimal) getter.invoke(c50);
+        assertEquals(0, new BigDecimal("50.00").compareTo(v50),
+            "actual=25 book=50 → 盘点进度应为 50.00%");
+
+        // (3) 比例 2: book=50 actual=50 → 100%
+        i1.setActualQty(50);
+        BigDecimal v100 = (BigDecimal) getter.invoke(c50);
+        assertEquals(0, new BigDecimal("100.00").compareTo(v100),
+            "actual=book → 盘点进度应为 100%");
+
+        // (4) 安全边界: items 为空 或 sum(bookQty)=0,返回 0
+        WmsStockCheck empty = new WmsStockCheck();
+        empty.setItems(new ArrayList<>());
+        BigDecimal vEmpty = (BigDecimal) getter.invoke(empty);
+        assertEquals(0, BigDecimal.ZERO.compareTo(vEmpty),
+            "空明细盘点进度应安全返回 0");
+
+        WmsStockCheck zeroBook = new WmsStockCheck();
+        WmsStockCheckItem iz = new WmsStockCheckItem();
+        iz.setBookQty(0);
+        iz.setActualQty(0);
+        iz.setCheck(zeroBook);
+        zeroBook.setItems(new ArrayList<>(List.of(iz)));
+        BigDecimal vZero = (BigDecimal) getter.invoke(zeroBook);
+        assertEquals(0, BigDecimal.ZERO.compareTo(vZero),
+            "sum(bookQty)=0 时进度应安全返回 0");
+    }
+
+    // =================== TR-4.2 @Power(copy=true) for WmsWarehouse + backend duplicate ===================
+
+    @Test
+    void wms_warehouse_power_copy_and_backend_duplicate() {
+        // TR-4.2 (RED): WmsWarehouse 高频实体 应启用 @Power(copy=true)
+        xyz.erupt.annotation.Erupt eruptAnn =
+            WmsWarehouse.class.getAnnotation(xyz.erupt.annotation.Erupt.class);
+        assertNotNull(eruptAnn, "WmsWarehouse 应有 @Erupt 注解");
+        assertTrue(eruptAnn.power().copy(),
+            "WmsWarehouse 高频仓库档案 应启用 @Power(copy=true) 一键复制行");
+
+        // TR-4.2 (RED): 后端复制行为验证
+        WmsWarehouse src = new WmsWarehouse();
+        src.setName("源仓库");
+        src.setCode("WH-COPY-" + System.nanoTime());
+        src.setAddress("上海市浦东新区源地址");
+        src.setStatus(EnableStatus.ENABLED.code);
+        whRepo.save(src);
+        assertNotNull(src.getId());
+
+        WmsWarehouse cp = new WmsWarehouse();
+        cp.setName(src.getName() + "-副本");
+        cp.setCode(src.getCode() + "-CP");  // unique
+        cp.setAddress(src.getAddress());
+        cp.setStatus(src.getStatus());
+        cp.setRemark(src.getRemark());
+        cp.setId(null);
+        whRepo.save(cp);
+
+        assertNotNull(cp.getId(), "复制仓库必须生成新 ID");
+        assertNotEquals(src.getId(), cp.getId());
+        WmsWarehouse cpDb = whRepo.findById(cp.getId()).orElseThrow();
+        assertEquals(src.getAddress(), cpDb.getAddress(), "复制仓库应保留地址");
+        assertEquals(EnableStatus.ENABLED.code, cpDb.getStatus(), "复制仓库应保留启用状态");
+    }
+
     private WmsStock findStock(Long locationId, String skuCode) {
         return stockRepo.findByLocationSku(locationId, skuCode).orElse(null);
+    }
+
+    // =================== TR-6B WMS BUTTON: 移库作业 推荐可用数量 (RED→GREEN) ===================
+
+    @Test
+    void wms_move_order_button_recommend_and_boundary() throws Exception {
+        // ===== (1) 注解断言: WmsStockMoveOrder BUTTON 辅助字段 runRecommendQtyTrigger =====
+        java.lang.reflect.Field trigF;
+        try {
+            trigF = WmsStockMoveOrder.class.getDeclaredField("runRecommendQtyTrigger");
+        } catch (NoSuchFieldException e) {
+            fail("WmsStockMoveOrder 缺少 BUTTON 辅助字段: runRecommendQtyTrigger（点按钮触发全单推荐移库数）");
+            return;
+        }
+        assertNotNull(trigF.getAnnotation(jakarta.persistence.Transient.class),
+            "runRecommendQtyTrigger 必须 @Transient");
+        xyz.erupt.annotation.EruptField ann =
+            trigF.getAnnotation(xyz.erupt.annotation.EruptField.class);
+        assertNotNull(ann, "runRecommendQtyTrigger 应有 @EruptField");
+        assertEquals(xyz.erupt.annotation.sub_field.EditType.BUTTON, ann.edit().type(),
+            "runRecommendQtyTrigger 编辑 type 应为 BUTTON（根据源库位实际可用库存 clamp 移库数）");
+
+        // ===== (2) Handler 存在性 + exec 签名 =====
+        Class<?> handlerCls;
+        try {
+            handlerCls = Class.forName("xyz.herz.ep.wms.handler.WmsMoveRecommendButtonHandler");
+        } catch (ClassNotFoundException e) {
+            fail("缺少 WMS BUTTON Handler: xyz.herz.ep.wms.handler.WmsMoveRecommendButtonHandler");
+            return;
+        }
+        java.lang.reflect.Method exec;
+        try {
+            exec = handlerCls.getMethod("exec", WmsStockMoveOrder.class);
+        } catch (NoSuchMethodException e) {
+            fail("WmsMoveRecommendButtonHandler 必须暴露 exec(WmsStockMoveOrder order) -> String");
+            return;
+        }
+        Object handler = applicationContext.getBean(handlerCls);
+        assertNotNull(handler);
+
+        // ===== (3) TR-6B.1 正常路径: 3 条明细 clamp =====
+        WmsLocation locA = setupLocation();  // LOC-A
+        WmsLocation locB = setupLocation();  // LOC-B
+        // LOC-A 入库: SKU-A 100、SKU-B 20
+        inboundStock(locA, "SKU-TR6B-A", "SKU-A 测试品", 100);
+        inboundStock(locA, "SKU-TR6B-B", "SKU-B 测试品", 20);
+        // LOC-B: 不入库,SKU-A 库存=0(空)
+
+        WmsWarehouse wh = locA.getZone().getWarehouse();
+        WmsStockMoveOrder order = new WmsStockMoveOrder();
+        order.setNo("MOVE-TR6B-" + System.nanoTime());
+        order.setWarehouse(wh);
+        order.setStatus(StockMoveOrderStatus.NEW.code);
+
+        WmsStockMoveOrderItem i1 = new WmsStockMoveOrderItem();
+        i1.setSkuCode("SKU-TR6B-A"); i1.setFromLocationId(locA.getId());
+        i1.setToLocationId(locB.getId()); i1.setQty(150);  // 请求 150,实际 100 → clamp 100
+
+        WmsStockMoveOrderItem i2 = new WmsStockMoveOrderItem();
+        i2.setSkuCode("SKU-TR6B-B"); i2.setFromLocationId(locA.getId());
+        i2.setToLocationId(locB.getId()); i2.setQty(20);   // 请求 20,实际 20 → 20 exact
+
+        WmsStockMoveOrderItem i3 = new WmsStockMoveOrderItem();
+        i3.setSkuCode("SKU-TR6B-A"); i3.setFromLocationId(locB.getId());
+        i3.setToLocationId(locA.getId()); i3.setQty(10);   // LOC-B SKU-A 空 → 0
+        order.setItems(new ArrayList<>(List.of(i1, i2, i3)));
+        moveOrderRepo.save(order);
+        assertNotNull(order.getId());
+
+        String r = (String) exec.invoke(handler, order);
+        assertTrue(r.contains("3"), () -> "应处理 3 条明细,返回:" + r);
+
+        // 重查 moveOrderRepo (含明细,因为 Cascade.ALL + orphan + save 回填 item id)
+        WmsStockMoveOrder ordDb = moveOrderRepo.findById(order.getId()).orElseThrow();
+        List<WmsStockMoveOrderItem> items = ordDb.getItems();
+        assertEquals(3, items.size(), "3 明细");
+
+        // 按 SKU 顺序断言(先按 fromLocationId + skuCode 排序避免顺序依赖)
+        java.util.Map<String,Integer> byKey = new java.util.HashMap<>();
+        for (WmsStockMoveOrderItem it : items) {
+            byKey.put(it.getFromLocationId() + ":" + it.getSkuCode(), it.getQty());
+        }
+        assertEquals(Integer.valueOf(100), byKey.get(locA.getId() + ":SKU-TR6B-A"),
+            "LOC-A SKU-A avail=100 req=150 → clamp 推荐 100");
+        assertEquals(Integer.valueOf(20),  byKey.get(locA.getId() + ":SKU-TR6B-B"),
+            "LOC-A SKU-B avail=20 req=20 → exact 推荐 20");
+        assertEquals(Integer.valueOf(0),   byKey.get(locB.getId() + ":SKU-TR6B-A"),
+            "LOC-B SKU-A avail=0 req=10 → clamp 推荐 0");
+
+        // ===== (4) TR-6B.2 边界: fromLocationId == null → IAE =====
+        // 说明: 实体 fromLocationId 列 nullable=false,无法先 save 再测;
+        // Handler 在遍历 items 第一句就会校验 fromLocationId,所以直接传内存对象即可触发 IAE,
+        // 不需要先落库 (save 是 Handler 最后一步,在异常前不会执行)。
+        WmsStockMoveOrder bad = new WmsStockMoveOrder();
+        bad.setNo("MOVE-BAD-" + System.nanoTime());
+        bad.setWarehouse(wh);
+        WmsStockMoveOrderItem badItem = new WmsStockMoveOrderItem();
+        badItem.setSkuCode("X");
+        badItem.setFromLocationId(null);   // 违反约束
+        badItem.setToLocationId(9999L);
+        badItem.setQty(10);
+        bad.setItems(new ArrayList<>(List.of(badItem)));
+        try {
+            exec.invoke(handler, bad);
+            fail("明细 fromLocationId=null 应抛 IllegalArgumentException");
+        } catch (java.lang.reflect.InvocationTargetException ite) {
+            Throwable cause = ite.getCause();
+            assertTrue(cause instanceof IllegalArgumentException,
+                "fromLocationId=null 应抛 IAE, cause=" + (cause == null ? null : cause.getClass().getSimpleName()));
+        }
     }
 }

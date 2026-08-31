@@ -6,6 +6,8 @@ import xyz.erupt.annotation.sub_field.Edit;
 import xyz.erupt.annotation.sub_field.EditType;
 import xyz.erupt.annotation.sub_field.View;
 import xyz.erupt.annotation.sub_field.sub_edit.ChoiceType;
+import xyz.erupt.annotation.sub_erupt.DragSort;
+import xyz.erupt.annotation.sub_erupt.Power;
 import xyz.erupt.annotation.sub_field.sub_edit.NumberType;
 import xyz.erupt.jpa.model.BaseModel;
 import xyz.herz.ep.mall.core.MallEnumChoiceFetchHandler;
@@ -19,7 +21,9 @@ import lombok.Setter;
 @Getter @Setter
 @Entity
 @Table(name = "mall_product_brand")
-@Erupt(name = "商品品牌")
+@Erupt(name = "商品品牌",
+    power = @Power(importable = true, export = true),
+    dragSort = @DragSort(field = "sort"))
 public class MallProductBrand extends BaseModel {
 
     @EruptField(views = @View(title = "品牌名称"),

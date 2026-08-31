@@ -312,6 +312,75 @@ class MpSmokeTests {
         assertTrue(menuRepo.findById(menu.getId()).isEmpty());
     }
 
+    // =================== TR-2.1 PASSWORD 掩码注解(RED→GREEN) ===================
+
+    @Test
+    void password_masked_for_appsecret_and_token() throws NoSuchFieldException {
+        // RED→GREEN: MpAccount.appSecret / token 字段视图+编辑均必须为 PASSWORD 掩码
+        java.lang.reflect.Field appSecretField = MpAccount.class.getDeclaredField("appSecret");
+        xyz.erupt.annotation.EruptField appSecretAnn =
+            appSecretField.getAnnotation(xyz.erupt.annotation.EruptField.class);
+        assertNotNull(appSecretAnn, "appSecret 应有 @EruptField");
+        assertEquals(xyz.erupt.annotation.sub_field.ViewType.PASSWORD,
+            appSecretAnn.views()[0].type(),
+            "appSecret 视图类型应为 PASSWORD 掩码,防止敏感信息明文展示");
+        assertEquals(xyz.erupt.annotation.sub_field.EditType.PASSWORD,
+            appSecretAnn.edit().type(),
+            "appSecret 编辑类型应为 PASSWORD 掩码,表单显示占位符保留原值");
+
+        java.lang.reflect.Field tokenField = MpAccount.class.getDeclaredField("token");
+        xyz.erupt.annotation.EruptField tokenAnn =
+            tokenField.getAnnotation(xyz.erupt.annotation.EruptField.class);
+        assertNotNull(tokenAnn, "token 应有 @EruptField");
+        assertEquals(xyz.erupt.annotation.sub_field.ViewType.PASSWORD,
+            tokenAnn.views()[0].type(),
+            "token 视图类型应为 PASSWORD 掩码");
+        assertEquals(xyz.erupt.annotation.sub_field.EditType.PASSWORD,
+            tokenAnn.edit().type(),
+            "token 编辑类型应为 PASSWORD 掩码");
+    }
+
+    // =================== TR-3.1/3.2 @DragSort 拖拽排序(RED→GREEN) ===================
+
+    @Test
+    void mp_menu_drag_sort_annotation_and_order() throws Exception {
+        // TR-3.2 注解断言: @Erupt.dragSort.field 必须 = "sort"
+        xyz.erupt.annotation.Erupt eruptAnn =
+            MpMenu.class.getAnnotation(xyz.erupt.annotation.Erupt.class);
+        assertNotNull(eruptAnn, "MpMenu 应有 @Erupt");
+        assertEquals("sort", eruptAnn.dragSort().field(),
+            "MpMenu 必须配置 @DragSort(field=\"sort\") 支持列表拖拽排序");
+
+        // TR-3.1 字段完整性: sort 必须是 Integer,默认值 0
+        MpMenu empty = new MpMenu();
+        java.lang.reflect.Field sortF = MpMenu.class.getDeclaredField("sort");
+        sortF.setAccessible(true);
+        assertEquals(Integer.class, sortF.getType(), "sort 字段类型必须是 Integer");
+        assertEquals(0, sortF.get(empty), "sort 默认值应为 0");
+
+        // TR-3.1 排序查询: save 3 条(sort=30/10/20),按 sort ASC 查询顺序应为 10,20,30
+        MpAccount acc = basicAccount();
+        MpMenu m30 = new MpMenu();
+        m30.setAccount(acc); m30.setName("sort-30"); m30.setSort(30);
+        m30.setStatus(MenuStatus.DRAFT.code);
+        MpMenu m10 = new MpMenu();
+        m10.setAccount(acc); m10.setName("sort-10"); m10.setSort(10);
+        m10.setStatus(MenuStatus.DRAFT.code);
+        MpMenu m20 = new MpMenu();
+        m20.setAccount(acc); m20.setName("sort-20"); m20.setSort(20);
+        m20.setStatus(MenuStatus.DRAFT.code);
+        menuRepo.saveAll(List.of(m30, m10, m20));
+        // 按 sort ASC 查(通过 JpaRepository 默认 findAll + 排序器或手工 stream 排)
+        List<MpMenu> ordered = menuRepo.findAll().stream()
+            .filter(m -> acc.equals(m.getAccount()))
+            .sorted((a, b) -> Integer.compare(a.getSort(), b.getSort()))
+            .toList();
+        assertEquals(3, ordered.size(), "该账号下应有 3 个菜单");
+        assertEquals("sort-10", ordered.get(0).getName(), "sort ASC 第一个应为 10");
+        assertEquals("sort-20", ordered.get(1).getName(), "sort ASC 第二个应为 20");
+        assertEquals("sort-30", ordered.get(2).getName(), "sort ASC 第三个应为 30");
+    }
+
     // =================== helpers ===================
 
     private MpAccount basicAccount() {

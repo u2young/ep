@@ -7,6 +7,7 @@ import xyz.herz.ep.iot.jpa.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +48,9 @@ class IotSmokeTests {
     @Autowired IotAlarmProcessHandler alarmProcess;
     @Autowired IotAlarmResolveHandler alarmResolve;
     @Autowired IotAlarmIgnoreHandler alarmIgnore;
+
+    /** 反射获取 BUTTON Handler Bean。 */
+    @Autowired ApplicationContext applicationContext;
 
     // =================== 1. 产品分类 + 产品 + 物模型 CRUD ===================
 
@@ -249,6 +253,69 @@ class IotSmokeTests {
             () -> deviceActivate.exec(List.of(online), null, new String[]{ "ACTIVATE" }));
     }
 
+    // =================== TR-2.1 PASSWORD 掩码注解(RED→GREEN) ===================
+
+    @Test
+    void device_secret_password_masked() throws NoSuchFieldException {
+        // RED→GREEN: IotDevice.deviceSecret 字段视图+编辑均必须为 PASSWORD 掩码
+        java.lang.reflect.Field f = IotDevice.class.getDeclaredField("deviceSecret");
+        xyz.erupt.annotation.EruptField ann =
+            f.getAnnotation(xyz.erupt.annotation.EruptField.class);
+        assertNotNull(ann, "deviceSecret 应有 @EruptField");
+        assertEquals(xyz.erupt.annotation.sub_field.ViewType.PASSWORD,
+            ann.views()[0].type(),
+            "deviceSecret 视图应为 PASSWORD 掩码,防止设备密钥明文展示");
+        assertEquals(xyz.erupt.annotation.sub_field.EditType.PASSWORD,
+            ann.edit().type(),
+            "deviceSecret 编辑应为 PASSWORD 掩码,表单显示占位符保留原值");
+    }
+
+    // =================== TR-4.1 collapseActionButton + TR-4.2 @Power(copy) (RED→GREEN) ===================
+
+    @Test
+    void collapse_alarm_and_device_and_copy_product() {
+        // TR-4.1 (RED): IotAlarm(3 行按钮) / IotDevice(3 行按钮) 应有 collapseActionButton=true
+        xyz.erupt.annotation.Erupt alarmErupt =
+            IotAlarm.class.getAnnotation(xyz.erupt.annotation.Erupt.class);
+        assertTrue(alarmErupt.layout().collapseActionButton(),
+            "IotAlarm(3 行动作按钮:处理/解决/忽略) 应启用 collapseActionButton");
+
+        xyz.erupt.annotation.Erupt deviceErupt =
+            IotDevice.class.getAnnotation(xyz.erupt.annotation.Erupt.class);
+        assertTrue(deviceErupt.layout().collapseActionButton(),
+            "IotDevice(3 行动作按钮:激活/启用/禁用) 应启用 collapseActionButton");
+
+        // TR-4.2 (RED): IotProduct 应启用 copy=true
+        assertTrue(
+            IotProduct.class.getAnnotation(xyz.erupt.annotation.Erupt.class).power().copy(),
+            "IotProduct 高频产品档案 应启用 @Power(copy=true) 一键复制行"
+        );
+
+        // TR-4.2 (RED): 后端复制 IotProduct 行为验证
+        IotProduct src = basicProduct();
+        IotProductCategory cat = catRepo.findById(src.getCategory().getId()).orElseThrow();
+
+        IotProduct cp = new IotProduct();
+        cp.setName(src.getName() + "-副本");
+        cp.setCode(src.getCode() + "-CP");  // unique 约束
+        cp.setCategory(cat);
+        cp.setNodeType(src.getNodeType());
+        cp.setNetType(src.getNetType());
+        cp.setStatus(xyz.herz.ep.iot.enums.IotDictEnums.EnableStatus.ENABLED.code);
+        cp.setId(null);
+        productRepo.save(cp);
+
+        assertNotNull(cp.getId(), "复制 IotProduct 必须生成新 ID");
+        assertNotEquals(src.getId(), cp.getId());
+        IotProduct cpDb = productRepo.findById(cp.getId()).orElseThrow();
+        assertEquals(cat.getId(), cpDb.getCategory().getId(),
+            "复制 IotProduct 应保留产品分类关联");
+        assertEquals(src.getNodeType(), cpDb.getNodeType(),
+            "复制 IotProduct 应保留节点类型");
+        assertEquals(src.getNetType(), cpDb.getNetType(),
+            "复制 IotProduct 应保留联网类型");
+    }
+
     // =================== helpers ===================
 
     private IotProduct basicProduct() {
@@ -265,5 +332,122 @@ class IotSmokeTests {
         p.setStatus(EnableStatus.ENABLED.code);
         productRepo.save(p);
         return p;
+    }
+
+    // =================== TR-6A IoT BUTTON: 告警规则 阈值样例验证 (RED→GREEN) ===================
+
+    @Test
+    void iot_alarm_rule_button_validate_and_boundary() throws Exception {
+        // ===== (1) 注解断言: IotAlarmRule 应有 BUTTON 辅助字段 validateSample =====
+        java.lang.reflect.Field sampleF;
+        try {
+            sampleF = IotAlarmRule.class.getDeclaredField("validateSample");
+        } catch (NoSuchFieldException e) {
+            fail("IotAlarmRule 缺少 BUTTON 辅助字段: validateSample（输入样例数值点验证触发规则）");
+            return;
+        }
+        assertNotNull(sampleF.getAnnotation(jakarta.persistence.Transient.class),
+            "IotAlarmRule.validateSample 必须 @Transient（仅 BUTTON 输入,不入库）");
+        xyz.erupt.annotation.EruptField ann =
+            sampleF.getAnnotation(xyz.erupt.annotation.EruptField.class);
+        assertNotNull(ann, "validateSample 应有 @EruptField");
+        assertEquals(xyz.erupt.annotation.sub_field.EditType.BUTTON, ann.edit().type(),
+            "validateSample 编辑 type 应为 EditType.BUTTON（样例值触发阈值命中校验）");
+
+        // ===== (2) Handler 存在性 + exec 签名 =====
+        Class<?> handlerCls;
+        try {
+            handlerCls = Class.forName("xyz.herz.ep.iot.handler.IotAlarmRuleValidateButtonHandler");
+        } catch (ClassNotFoundException e) {
+            fail("缺少 IoT BUTTON Handler: xyz.herz.ep.iot.handler.IotAlarmRuleValidateButtonHandler");
+            return;
+        }
+        java.lang.reflect.Method exec;
+        try {
+            exec = handlerCls.getMethod("exec", IotAlarmRule.class, BigDecimal.class);
+        } catch (NoSuchMethodException e) {
+            fail("IotAlarmRuleValidateButtonHandler 必须暴露 exec(IotAlarmRule rule, BigDecimal sampleValue) -> String");
+            return;
+        }
+        Object handler = applicationContext.getBean(handlerCls);
+        assertNotNull(handler);
+
+        // ===== (3) TR-6A.1 正常路径: 阈值型 ruleType=threshold, T=30 =====
+        // 命中语义: X >= T + 5（上限越界）→ 命中；否则不命中
+        IotProduct p = basicProduct();
+        IotAlarmRule rule = new IotAlarmRule();
+        rule.setProduct(p);
+        rule.setName("温度越上限-" + System.nanoTime());
+        rule.setIdentifier("temperature");
+        rule.setRuleType("threshold");
+        rule.setCondition("{\"op\":\">=\",\"field\":\"temperature\"}");
+        rule.setThreshold(new BigDecimal("30"));      // T = 30
+        rule.setStatus(EnableStatus.ENABLED.code);
+        ruleRepo.save(rule);
+        assertNotNull(rule.getId());
+
+        // 35: 35 >= 30+5=35 → 边界命中
+        String r35 = (String) exec.invoke(handler, rule, new BigDecimal("35"));
+        assertTrue(r35.contains("命中"), () -> "T=30 X=35 (≥T+5) 边界应命中,实际:" + r35);
+
+        // 37: 37 >= 35 → 明显命中
+        String r37 = (String) exec.invoke(handler, rule, new BigDecimal("37"));
+        assertTrue(r37.contains("命中"), () -> "T=30 X=37 (>T+5) 应命中,实际:" + r37);
+
+        // 28: 28 < 35 → 不命中
+        String r28 = (String) exec.invoke(handler, rule, new BigDecimal("28"));
+        assertTrue(r28.contains("不命中"), () -> "T=30 X=28 (|Δ|=2 <5) 应不命中,实际:" + r28);
+
+        // 25: 25 < 35 → 不命中（TR 要求）
+        String r25 = (String) exec.invoke(handler, rule, new BigDecimal("25"));
+        assertTrue(r25.contains("不命中"), () -> "T=30 X=25 (单方向仅判断上限) 应不命中,实际:" + r25);
+
+        // ===== (4) 边界异常 =====
+        // sampleValue == null → IAE
+        try {
+            exec.invoke(handler, rule, (BigDecimal) null);
+            fail("sample=null 应抛 IllegalArgumentException");
+        } catch (java.lang.reflect.InvocationTargetException ite) {
+            Throwable cause = ite.getCause();
+            assertTrue(cause instanceof IllegalArgumentException,
+                "sample=null 应抛 IAE, cause=" + (cause == null ? null : cause.getClass().getSimpleName()));
+        }
+
+        // threshold == null → ISE
+        IotAlarmRule ruleNullT = new IotAlarmRule();
+        ruleNullT.setProduct(p);
+        ruleNullT.setName("NullThreshold-" + System.nanoTime());
+        ruleNullT.setRuleType("threshold");
+        ruleNullT.setThreshold(null);
+        ruleNullT.setStatus(EnableStatus.ENABLED.code);
+        ruleRepo.save(ruleNullT);
+        try {
+            exec.invoke(handler, ruleNullT, new BigDecimal("40"));
+            fail("threshold=null 应抛 IllegalStateException");
+        } catch (java.lang.reflect.InvocationTargetException ite) {
+            Throwable cause = ite.getCause();
+            assertNotNull(cause, "threshold=null 必须抛异常");
+            assertTrue(cause instanceof IllegalStateException,
+                "threshold=null 应抛 ISE, cause=" + cause.getClass().getSimpleName());
+        }
+
+        // ruleType != "threshold"(如 state) → UnsupportedOperationException(表示当前未实现该方向,可后续扩展)
+        IotAlarmRule ruleState = new IotAlarmRule();
+        ruleState.setProduct(p);
+        ruleState.setName("状态规则-" + System.nanoTime());
+        ruleState.setRuleType("state");
+        ruleState.setThreshold(BigDecimal.ZERO);
+        ruleState.setStatus(EnableStatus.ENABLED.code);
+        ruleRepo.save(ruleState);
+        try {
+            exec.invoke(handler, ruleState, BigDecimal.ONE);
+            fail("ruleType=state 当前未实现,应抛 UnsupportedOperationException");
+        } catch (java.lang.reflect.InvocationTargetException ite) {
+            Throwable cause = ite.getCause();
+            assertNotNull(cause, "state 规则必须抛未实现异常");
+            assertTrue(cause instanceof UnsupportedOperationException,
+                "ruleType=state 应抛 UOE(当前仅实现 threshold), cause="
+                    + cause.getClass().getSimpleName());
+        }
     }
 }

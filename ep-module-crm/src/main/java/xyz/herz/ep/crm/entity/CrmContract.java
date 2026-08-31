@@ -2,6 +2,7 @@ package xyz.herz.ep.crm.entity;
 
 import xyz.herz.ep.crm.core.CrmEnumChoiceFetchHandler;
 import xyz.herz.ep.crm.core.CrmStateDataProxy;
+import xyz.herz.ep.crm.handler.CrmContractAutoPlanButtonHandler;
 import xyz.herz.ep.crm.handler.CrmContractEffectHandler;
 import xyz.herz.ep.crm.handler.CrmContractVoidHandler;
 import xyz.erupt.annotation.Erupt;
@@ -11,8 +12,10 @@ import xyz.erupt.annotation.sub_erupt.RowOperation;
 import xyz.erupt.annotation.sub_field.Edit;
 import xyz.erupt.annotation.sub_field.EditType;
 import xyz.erupt.annotation.sub_field.View;
+import xyz.erupt.annotation.sub_field.sub_edit.ButtonType;
 import xyz.erupt.annotation.sub_field.sub_edit.ChoiceType;
 import xyz.erupt.annotation.sub_field.sub_edit.DateType;
+import xyz.erupt.annotation.sub_field.sub_edit.NumberType;
 import xyz.erupt.annotation.sub_field.sub_edit.Search;
 import xyz.erupt.jpa.model.BaseModel;
 
@@ -21,6 +24,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -127,6 +131,63 @@ public class CrmContract extends BaseModel {
         )
     )
     private Integer status = 0;
+
+    // =================== BUTTON 辅助输入字段(均 @Transient 不持久化) ===================
+
+    /** 分几期生成回款计划。默认 3 期。 */
+    @Transient
+    @EruptField(
+        views = @View(title = "自动分期-期数", show = false),
+        edit = @Edit(
+            title = "分几期",
+            type = EditType.BUTTON,
+            desc = "填写期数后点击右侧按钮,自动按合同金额均分生成 N 条回款计划",
+            numberType = @NumberType(min = 1, max = 60),
+            buttonType = @ButtonType(
+                handler = CrmContractAutoPlanButtonHandler.class,
+                icon = "fa fa-magic",
+                confirm = "按当前填写的期数/起始日/间隔月,均分合同金额生成回款计划,确认继续?",
+                style = "primary"
+            )
+        )
+    )
+    private Integer planPeriods = 3;
+
+    /** 第一期计划回款起始日。默认今天。 */
+    @Transient
+    @EruptField(
+        views = @View(title = "自动分期-起始日", show = false),
+        edit = @Edit(
+            title = "首期计划回款日",
+            type = EditType.BUTTON,
+            desc = "第一期的计划回款日期,后续各期按间隔月数递增",
+            dateType = @DateType(type = DateType.Type.DATE),
+            buttonType = @ButtonType(
+                handler = CrmContractAutoPlanButtonHandler.class,
+                icon = "fa fa-magic",
+                style = "primary"
+            )
+        )
+    )
+    private LocalDate planStartDate = LocalDate.now();
+
+    /** 每期间隔月数。默认 1 月。 */
+    @Transient
+    @EruptField(
+        views = @View(title = "自动分期-间隔月", show = false),
+        edit = @Edit(
+            title = "每期间隔(月)",
+            type = EditType.BUTTON,
+            desc = "相邻两期计划回款日的间隔月数",
+            numberType = @NumberType(min = 1, max = 60),
+            buttonType = @ButtonType(
+                handler = CrmContractAutoPlanButtonHandler.class,
+                icon = "fa fa-magic",
+                style = "primary"
+            )
+        )
+    )
+    private Integer planIntervalMonths = 1;
 
     @Lob
     @EruptField(views = @View(title = "备注"), edit = @Edit(title = "备注", type = EditType.TEXTAREA))

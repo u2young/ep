@@ -2,6 +2,7 @@ package xyz.herz.ep.iot.entity;
 
 import xyz.erupt.annotation.Erupt;
 import xyz.erupt.annotation.EruptField;
+import xyz.erupt.annotation.sub_erupt.Layout;
 import xyz.erupt.annotation.sub_erupt.Power;
 import xyz.erupt.annotation.sub_erupt.RowOperation;
 import xyz.erupt.annotation.sub_field.Edit;
@@ -36,6 +37,7 @@ import java.time.LocalDateTime;
     name = "告警中心",
     dataProxy = IotAlarm.Proxy.class,
     power = @Power(importable = true, export = true),
+    layout = @Layout(collapseActionButton = true),
     rowOperation = {
         @RowOperation(title = "处理", code = "PROCESS", icon = "fa fa-cogs",
             operationHandler = IotAlarmProcessHandler.class, operationParam = { "PROCESS" }),

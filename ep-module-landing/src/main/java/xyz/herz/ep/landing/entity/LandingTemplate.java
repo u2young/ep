@@ -2,11 +2,13 @@ package xyz.herz.ep.landing.entity;
 
 import xyz.erupt.annotation.Erupt;
 import xyz.erupt.annotation.EruptField;
+import xyz.erupt.annotation.sub_erupt.DragSort;
 import xyz.erupt.annotation.sub_erupt.Power;
 import xyz.erupt.annotation.sub_field.Edit;
 import xyz.erupt.annotation.sub_field.EditType;
 import xyz.erupt.annotation.sub_field.View;
 import xyz.erupt.annotation.sub_field.sub_edit.ChoiceType;
+import xyz.erupt.annotation.sub_field.sub_edit.NumberType;
 import xyz.erupt.annotation.sub_field.sub_edit.Search;
 import xyz.erupt.jpa.model.BaseModel;
 import xyz.herz.ep.landing.core.LandingEnumChoiceFetchHandler;
@@ -24,13 +26,19 @@ import lombok.Setter;
 @Getter @Setter
 @Entity
 @Table(name = "landing_template")
-@Erupt(name = "落地页模板", power = @Power(importable = true, export = true))
+@Erupt(name = "落地页模板",
+    power = @Power(importable = true, export = true, copy = true),
+    dragSort = @DragSort(field = "sort"))
 public class LandingTemplate extends BaseModel {
 
     @EruptField(views = @View(title = "模板名称"),
                 edit = @Edit(title = "模板名称", notNull = true, search = @Search))
     @Column(length = 100, nullable = false)
     private String name;
+
+    @EruptField(views = @View(title = "排序", sortable = true),
+                edit = @Edit(title = "排序", numberType = @NumberType(min = 0)))
+    private Integer sort = 0;
 
     @EruptField(views = @View(title = "分类"),
                 edit = @Edit(title = "分类", notNull = true, search = @Search,

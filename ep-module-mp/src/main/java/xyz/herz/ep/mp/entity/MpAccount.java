@@ -36,13 +36,17 @@ public class MpAccount extends BaseModel {
     @Column(length = 100, nullable = false, unique = true)
     private String appId;
 
-    @EruptField(views = @View(title = "AppSecret"),
-                edit = @Edit(title = "AppSecret", notNull = true, inputType = @InputType))
+    @EruptField(
+        views = @View(title = "AppSecret", type = xyz.erupt.annotation.sub_field.ViewType.PASSWORD),
+        edit = @Edit(title = "AppSecret", notNull = true, type = EditType.PASSWORD, inputType = @InputType)
+    )
     @Column(length = 100, nullable = false)
     private String appSecret;
 
-    @EruptField(views = @View(title = "Token"),
-                edit = @Edit(title = "Token"))
+    @EruptField(
+        views = @View(title = "Token", type = xyz.erupt.annotation.sub_field.ViewType.PASSWORD),
+        edit = @Edit(title = "Token", type = EditType.PASSWORD)
+    )
     @Column(length = 100)
     private String token;
 

@@ -33,7 +33,7 @@
         </dependency>
         <dependency>
             <groupId>xyz.erupt</groupId>
-            <artifactId>erupt-jpa</artifactId>
+            <artifactId>erupt-data-jpa</artifactId>
         </dependency>
 
         <!-- CRM 用到的 upms(数据权限预留)、security(行级) -->

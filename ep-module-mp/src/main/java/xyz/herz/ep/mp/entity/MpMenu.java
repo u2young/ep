@@ -2,6 +2,7 @@ package xyz.herz.ep.mp.entity;
 
 import xyz.erupt.annotation.Erupt;
 import xyz.erupt.annotation.EruptField;
+import xyz.erupt.annotation.sub_erupt.DragSort;
 import xyz.erupt.annotation.sub_erupt.Power;
 import xyz.erupt.annotation.sub_erupt.RowOperation;
 import xyz.erupt.annotation.sub_field.Edit;
@@ -37,6 +38,7 @@ import lombok.Setter;
 @Erupt(
     name = "公众号菜单",
     power = @Power(importable = true, export = true),
+    dragSort = @DragSort(field = "sort"),
     dataProxy = MpMenu.Proxy.class,
     rowOperation = {
         @RowOperation(title = "发布", code = "PUBLISH", icon = "fa fa-cloud-upload",
