@@ -11,9 +11,12 @@ import xyz.erupt.annotation.sub_field.sub_edit.ChoiceType;
 import xyz.erupt.annotation.sub_field.sub_edit.ReferenceTableType;
 import xyz.erupt.jpa.model.BaseModel;
 
+import xyz.erupt.annotation.sub_field.sub_edit.ButtonType;
+import xyz.erupt.annotation.sub_field.sub_edit.NumberType;
 import xyz.herz.ep.wms.core.WmsEnumChoiceFetchHandler;
 import xyz.herz.ep.wms.core.WmsStateDataProxy;
 import xyz.herz.ep.wms.enums.WmsDictEnums.StockMoveOrderStatus;
+import xyz.herz.ep.wms.handler.WmsMoveRecommendButtonHandler;
 import xyz.herz.ep.wms.handler.WmsStockMoveCompleteHandler;
 
 import jakarta.persistence.*;
@@ -60,6 +63,23 @@ public class WmsStockMoveOrder extends BaseModel {
                     choiceType = @ChoiceType(fetchHandler = WmsEnumChoiceFetchHandler.class,
                         fetchHandlerParams = "StockMoveOrderStatus")))
     private Integer status = StockMoveOrderStatus.NEW.code;
+
+    @Transient
+    @EruptField(
+        views = @View(title = "推荐移库数触发器", show = false),
+        edit = @Edit(
+            title = "推荐移库数（按源库位可用库存自动 clamp）",
+            type = EditType.BUTTON,
+            desc = "点按钮自动根据每条明细源库位实际可用库存,把明细 qty clamp 到最大可移数量",
+            buttonType = @ButtonType(
+                handler = WmsMoveRecommendButtonHandler.class,
+                icon = "fa fa-balance-scale",
+                confirm = "根据源库位实际可用库存自动调整全单移库数量(会直接覆盖明细 qty),确认继续?",
+                style = "primary"
+            )
+        )
+    )
+    private Integer runRecommendQtyTrigger = 1;
 
     @EruptField(views = @View(title = "备注"),
                 edit = @Edit(title = "备注", type = EditType.TEXTAREA))

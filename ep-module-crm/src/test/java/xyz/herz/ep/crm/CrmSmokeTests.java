@@ -16,6 +16,7 @@ import xyz.herz.ep.crm.job.CrmCustomerPoolRecycleJob;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,6 +61,9 @@ class CrmSmokeTests {
     @Autowired CrmContractEffectHandler contractEffectHandler;
     @Autowired CrmContractVoidHandler contractVoidHandler;
     @Autowired CrmReceivableConfirmHandler receivableConfirmHandler;
+
+    /** ApplicationContext 用于按反射获取 Handler Bean（如 CrmContractAutoPlanButtonHandler）。 */
+    @Autowired ApplicationContext applicationContext;
 
     /** 1. 线索 -> 转化客户 */
     @Test
@@ -231,6 +235,84 @@ class CrmSmokeTests {
         assertNull(released.getOwnerTime());
     }
 
+    // =================== TR-4.2 @Power(copy=true) for CrmCustomer (RED→GREEN) ===================
+
+    @Test
+    void crm_customer_power_copy_and_backend_duplicate() {
+        // TR-4.2 (RED): CrmCustomer 高频实体 应启用 @Power(copy=true)
+        assertTrue(
+            CrmCustomer.class.getAnnotation(xyz.erupt.annotation.Erupt.class).power().copy(),
+            "CrmCustomer 高频客户档案 应启用 @Power(copy=true) 一键复制行"
+        );
+
+        // TR-4.2 (RED): 后端复制行为(ID 清空 + save + 关键字段保留)
+        CrmCustomer src = new CrmCustomer();
+        src.setName("源客户-" + System.nanoTime());
+        src.setOwnerUserId(1L);
+        src.setMobile("1390000" + (System.nanoTime() % 10000));
+        src.setLevel(xyz.herz.ep.crm.enums.CrmDictEnums.CustomerLevel.A.code);
+        src.setDealStatus(xyz.herz.ep.crm.enums.CrmDictEnums.DealStatus.NOT_DEALT.code);
+        src.setLockStatus(0);
+        customerRepo.save(src);
+
+        CrmCustomer cp = new CrmCustomer();
+        cp.setName(src.getName() + "-副本");
+        cp.setOwnerUserId(src.getOwnerUserId());
+        cp.setMobile("1391111" + (System.nanoTime() % 10000)); // unique-ish
+        cp.setLevel(src.getLevel());
+        cp.setDealStatus(src.getDealStatus());
+        cp.setLockStatus(src.getLockStatus());
+        cp.setId(null);
+        customerRepo.save(cp);
+
+        assertNotNull(cp.getId(), "复制客户必须生成新 ID");
+        assertNotEquals(src.getId(), cp.getId());
+        CrmCustomer cpDb = customerRepo.findById(cp.getId()).orElseThrow();
+        assertEquals(src.getLevel(), cpDb.getLevel(), "复制客户应保留等级");
+        assertEquals(src.getDealStatus(), cpDb.getDealStatus(), "复制客户应保留成交状态");
+        assertEquals(0, cpDb.getLockStatus(), "复制客户应保留锁定状态");
+        assertEquals(1L, cpDb.getOwnerUserId(), "复制客户应保留负责人");
+    }
+
+    // =================== TR-2.2 PROGRESS 回款进度(RED→GREEN) ===================
+
+    @Test
+    void receivable_plan_progress_view_and_value() throws Exception {
+        // (1) 注解断言: 应有 receivedProgress 虚拟字段,type=PROGRESS
+        java.lang.reflect.Field f = CrmReceivablePlan.class.getDeclaredField("receivedProgress");
+        xyz.erupt.annotation.EruptField ann =
+            f.getAnnotation(xyz.erupt.annotation.EruptField.class);
+        assertNotNull(ann, "CrmReceivablePlan 应有 receivedProgress @EruptField 虚拟进度字段");
+        assertEquals(xyz.erupt.annotation.sub_field.ViewType.PROGRESS,
+            ann.views()[0].type(),
+            "receivedProgress 视图 type 应为 PROGRESS,用于回款百分比条形");
+
+        java.lang.reflect.Method getter =
+            CrmReceivablePlan.class.getMethod("getReceivedProgress");
+
+        // (2) 比例 1: 30000/120000 = 25%
+        CrmReceivablePlan p25 = new CrmReceivablePlan();
+        p25.setPlanAmount(new BigDecimal("120000"));
+        p25.setReceivedAmount(new BigDecimal("30000"));
+        BigDecimal v25 = (BigDecimal) getter.invoke(p25);
+        assertEquals(0, new BigDecimal("25.00").compareTo(v25),
+            "30000/120000 回款进度应为 25.00%");
+
+        // (3) 比例 2: 120000/120000 = 100%
+        p25.setReceivedAmount(new BigDecimal("120000"));
+        BigDecimal v100 = (BigDecimal) getter.invoke(p25);
+        assertEquals(0, new BigDecimal("100.00").compareTo(v100),
+            "120000/120000 全额回款进度应为 100.00%");
+
+        // (4) 安全边界: planAmount=0 时返回 0,不能 ArithmeticException
+        CrmReceivablePlan pZero = new CrmReceivablePlan();
+        pZero.setPlanAmount(BigDecimal.ZERO);
+        pZero.setReceivedAmount(BigDecimal.ZERO);
+        BigDecimal vZero = (BigDecimal) getter.invoke(pZero);
+        assertEquals(0, BigDecimal.ZERO.compareTo(vZero),
+            "planAmount=0 时进度应安全返回 0,不得抛除零异常");
+    }
+
     private CrmBusinessStatus mkStatus(Long typeId, String name, int pct, int sort) {
         CrmBusinessStatus s = new CrmBusinessStatus();
         s.setTypeId(typeId);
@@ -394,5 +476,132 @@ class CrmSmokeTests {
         // 9. 已作废合同再作废应失败
         String rv2 = contractVoidHandler.exec(List.of(c), "", new String[]{});
         assertTrue(rv2.contains("成功 0"), () -> "已作废再作废应失败:" + rv2);
+    }
+
+    // =================== TR-5A CRM BUTTON: CrmContract 自动生成回款计划 (RED→GREEN) ===================
+
+    @Test
+    void crm_contract_button_autoplan_and_boundary() throws Exception {
+        // ===== (1) 注解断言: CrmContract 应有 3 个 @Transient + EditType.BUTTON 辅助字段 =====
+        String[] BUTTON_FIELDS = {"planPeriods", "planStartDate", "planIntervalMonths"};
+        for (String fname : BUTTON_FIELDS) {
+            java.lang.reflect.Field f;
+            try {
+                f = CrmContract.class.getDeclaredField(fname);
+            } catch (NoSuchFieldException e) {
+                fail("CrmContract 缺少 BUTTON 辅助字段: " + fname
+                    + "（需 @Transient + @EruptField(edit=@Edit(type=BUTTON, ...))）");
+                return;
+            }
+            // 需 @Transient: 不持久化
+            assertNotNull(f.getAnnotation(jakarta.persistence.Transient.class),
+                "CrmContract." + fname + " 必须加 @Transient（仅 BUTTON 输入,不入库）");
+            xyz.erupt.annotation.EruptField ann = f.getAnnotation(xyz.erupt.annotation.EruptField.class);
+            assertNotNull(ann, "CrmContract." + fname + " 必须加 @EruptField 注解");
+            assertEquals(xyz.erupt.annotation.sub_field.EditType.BUTTON, ann.edit().type(),
+                "CrmContract." + fname + " 编辑 type 应为 EditType.BUTTON（表单按钮触发自动生成回款计划）");
+        }
+
+        // ===== (2) Handler 存在性断言: 必须有 Spring Bean 并暴露 exec 业务方法 =====
+        Class<?> handlerCls;
+        try {
+            handlerCls = Class.forName("xyz.herz.ep.crm.handler.CrmContractAutoPlanButtonHandler");
+        } catch (ClassNotFoundException e) {
+            fail("缺少 CRM AutoPlan BUTTON Handler 类: xyz.herz.ep.crm.handler.CrmContractAutoPlanButtonHandler");
+            return;
+        }
+        java.lang.reflect.Method exec;
+        try {
+            exec = handlerCls.getMethod("exec",
+                Integer.class, LocalDate.class, Integer.class, CrmContract.class);
+        } catch (NoSuchMethodException e) {
+            fail("CrmContractAutoPlanButtonHandler 必须暴露业务方法: "
+                + "exec(Integer periods, LocalDate startDate, Integer intervalMonths, CrmContract contract) -> String");
+            return;
+        }
+        // 必须是 Spring 管理的 Bean（因为要 @Autowired planRepo）
+        Object handler = applicationContext.getBean(handlerCls);
+        assertNotNull(handler, "CrmContractAutoPlanButtonHandler 必须注册为 Spring @Component/@Service");
+
+        // ===== (3) TR-5A.1 正常路径: ¥3000 / 3 期 / 2026-01-01 / interval=1 月 =====
+        CrmCustomer cu = new CrmCustomer();
+        cu.setName("AutoPlan-客户-" + System.nanoTime());
+        cu.setOwnerUserId(999L);
+        customerRepo.save(cu);
+
+        CrmContract c = new CrmContract();
+        c.setNo("HT-AP-" + System.nanoTime());
+        c.setName("自动分期合同");
+        c.setCustomer(cu);
+        c.setAmount(new BigDecimal("3000"));
+        c.setSignedDate(LocalDate.now());
+        c.setStartDate(LocalDate.now());
+        c.setEndDate(LocalDate.now().plusYears(1));
+        c.setStatus(xyz.herz.ep.crm.enums.CrmDictEnums.ContractStatus.DRAFT.code);
+        contractRepo.save(c);
+        assertNotNull(c.getId());
+
+        LocalDate start = LocalDate.of(2026, 1, 1);
+        String r = (String) exec.invoke(handler, 3, start, 1, c);
+        assertTrue(r.contains("3"), () -> "exec 返回应提示成功生成 3 条计划,实际:" + r);
+
+        // 查 planRepo:应 3 条,按 periodNo 升序
+        List<CrmReceivablePlan> plans = planRepo.findByContractOrderByPeriodNoAsc(c);
+        assertEquals(3, plans.size(), "¥3000 分 3 期,必须生成 3 条 CrmReceivablePlan");
+
+        for (int i = 0; i < 3; i++) {
+            CrmReceivablePlan p = plans.get(i);
+            assertEquals(Integer.valueOf(i + 1), p.getPeriodNo(),
+                "periodNo 应从 1 起递增,第 " + (i+1) + " 条实际=" + p.getPeriodNo());
+            // 3000 ÷ 3 = 1000.00 精确整除,无尾差
+            assertEquals(0, new BigDecimal("1000.00").compareTo(p.getPlanAmount()),
+                "每份 planAmount = 3000/3 = 1000.00 (HALF_UP scale 2)");
+            assertEquals(start.plusMonths((long) i), p.getPlanDate(),
+                "planDate 间隔 interval=1 月,第 " + (i+1) + " 期=" + start + "+" + i + "月");
+            assertEquals(xyz.herz.ep.crm.enums.CrmDictEnums.ReceivableStatus.PENDING.code,
+                p.getStatus(), "新生成计划应为 PENDING");
+        }
+
+        // ===== (4) TR-5A.2 边界异常: periods ≤ 0 抛 IllegalArgumentException =====
+        try {
+            exec.invoke(handler, 0, start, 1, c);
+            fail("periods=0 应抛 IllegalArgumentException(通过 InvocationTargetException 包装)");
+        } catch (java.lang.reflect.InvocationTargetException ite) {
+            Throwable cause = ite.getCause();
+            assertTrue(cause instanceof IllegalArgumentException,
+                "periods=0 应抛 IllegalArgumentException,实际 cause="
+                    + (cause == null ? "null" : cause.getClass().getSimpleName() + ":" + cause.getMessage()));
+        }
+
+        try {
+            exec.invoke(handler, -2, start, 1, c);
+            fail("periods=-2 应抛 IllegalArgumentException");
+        } catch (java.lang.reflect.InvocationTargetException ite) {
+            Throwable cause = ite.getCause();
+            assertTrue(cause instanceof IllegalArgumentException,
+                "periods=-2 应抛 IllegalArgumentException,实际 cause="
+                    + (cause == null ? "null" : cause.getClass().getSimpleName()));
+        }
+
+        // ===== (5) 补充: amount=null 或 0 应抛 IllegalStateException =====
+        CrmContract cNull = new CrmContract();
+        cNull.setNo("HT-AP-NULL-" + System.nanoTime());
+        cNull.setName("金额空合同");
+        cNull.setCustomer(cu);
+        cNull.setAmount(null);
+        cNull.setSignedDate(LocalDate.now());
+        cNull.setStartDate(LocalDate.now());
+        cNull.setEndDate(LocalDate.now().plusYears(1));
+        cNull.setStatus(0);
+        contractRepo.save(cNull);
+        try {
+            exec.invoke(handler, 3, start, 1, cNull);
+            fail("contract.amount=null 应抛 IllegalStateException");
+        } catch (java.lang.reflect.InvocationTargetException ite) {
+            Throwable cause = ite.getCause();
+            assertNotNull(cause, "amount=null 时必须抛异常,但 exec 正常返回了");
+            assertTrue(cause instanceof IllegalStateException || cause instanceof IllegalArgumentException,
+                "amount=null 应抛非法状态,实际 cause=" + cause.getClass().getSimpleName() + ":" + cause.getMessage());
+        }
     }
 }

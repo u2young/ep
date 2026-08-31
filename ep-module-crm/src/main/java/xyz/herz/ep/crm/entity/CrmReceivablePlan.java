@@ -17,7 +17,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 
 import lombok.Getter;
@@ -88,6 +90,20 @@ public class CrmReceivablePlan extends BaseModel {
         )
     )
     private Integer status = 0;
+
+    /** 虚拟(非持久化): 回款进度百分比 = receivedAmount / planAmount * 100,用于 PROGRESS 视图。 */
+    @Transient
+    @EruptField(views = @View(title = "回款进度", type = xyz.erupt.annotation.sub_field.ViewType.PROGRESS))
+    private BigDecimal receivedProgress;
+
+    public BigDecimal getReceivedProgress() {
+        if (planAmount == null || BigDecimal.ZERO.compareTo(planAmount) == 0) {
+            return BigDecimal.ZERO;
+        }
+        BigDecimal received = receivedAmount == null ? BigDecimal.ZERO : receivedAmount;
+        return received.multiply(new BigDecimal("100"))
+            .divide(planAmount, 2, RoundingMode.HALF_UP);
+    }
 
     @Lob
     @EruptField(views = @View(title = "备注"), edit = @Edit(title = "备注", type = EditType.TEXTAREA))

@@ -6,6 +6,7 @@ import xyz.erupt.annotation.sub_erupt.Power;
 import xyz.erupt.annotation.sub_field.Edit;
 import xyz.erupt.annotation.sub_field.EditType;
 import xyz.erupt.annotation.sub_field.View;
+import xyz.erupt.annotation.sub_field.sub_edit.ButtonType;
 import xyz.erupt.annotation.sub_field.sub_edit.ChoiceType;
 import xyz.erupt.annotation.sub_field.sub_edit.NumberType;
 import xyz.erupt.annotation.sub_field.sub_edit.ReferenceTableType;
@@ -13,6 +14,7 @@ import xyz.erupt.annotation.sub_field.sub_edit.VL;
 import xyz.erupt.jpa.model.BaseModel;
 import xyz.herz.ep.iot.core.IotEnumChoiceFetchHandler;
 import xyz.herz.ep.iot.enums.IotDictEnums.EnableStatus;
+import xyz.herz.ep.iot.handler.IotAlarmRuleValidateButtonHandler;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -76,6 +78,27 @@ public class IotAlarmRule extends BaseModel {
                     choiceType = @ChoiceType(fetchHandler = IotEnumChoiceFetchHandler.class,
                         fetchHandlerParams = "EnableStatus")))
     private Integer status = EnableStatus.ENABLED.code;
+
+    // =================== BUTTON 辅助输入字段(均 @Transient 不持久化) ===================
+
+    /** 输入一条样例数值(如温湿度上报值),点按钮验证规则是否命中。 */
+    @Transient
+    @EruptField(
+        views = @View(title = "触发验证-样例值", show = false),
+        edit = @Edit(
+            title = "样例数值(验证规则)",
+            type = EditType.BUTTON,
+            desc = "填入一条模拟上报的数值,点右侧按钮验证当前规则是否会触发告警。阈值型规则:X ≥ T+5 → 命中",
+            numberType = @NumberType,
+            buttonType = @ButtonType(
+                handler = IotAlarmRuleValidateButtonHandler.class,
+                icon = "fa fa-flask",
+                confirm = "用当前填写的样例数值执行一次命中验证,确认继续?",
+                style = "warning"
+            )
+        )
+    )
+    private BigDecimal validateSample;
 
     @EruptField(views = @View(title = "备注"),
                 edit = @Edit(title = "备注", type = EditType.TEXTAREA))

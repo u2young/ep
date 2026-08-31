@@ -2,6 +2,7 @@ package xyz.herz.ep.mall.entity;
 
 import xyz.erupt.annotation.Erupt;
 import xyz.erupt.annotation.EruptField;
+import xyz.erupt.annotation.sub_erupt.Layout;
 import xyz.erupt.annotation.sub_erupt.Power;
 import xyz.erupt.annotation.sub_erupt.RowOperation;
 import xyz.erupt.annotation.sub_field.Edit;
@@ -40,6 +41,7 @@ import java.util.List;
 @Erupt(
     name = "交易订单",
     power = @Power(importable = true, export = true),
+    layout = @Layout(collapseActionButton = true),
     dataProxy = MallTradeOrder.Proxy.class,
     rowOperation = {
         @RowOperation(title = "付款", code = MallOrderPayHandler.CODE, icon = "fa fa-money",

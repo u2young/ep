@@ -23,6 +23,7 @@ import xyz.herz.ep.landing.jpa.LandingTemplateRepository;
 import xyz.herz.ep.landing.shorturl.ShortCodeGenerator;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -195,6 +196,55 @@ class LandingSmokeTests {
         // 已发布态再发布:失败
         String result = publishHandler.exec(List.of(p), null, new String[]{LandingPublishHandler.CODE});
         assertTrue(result.contains("失败 1"), "已发布态不应再发布: " + result);
+    }
+
+    // ============ TR-3.1/3.2 @DragSort 拖拽排序(RED→GREEN) ============
+    @Test
+    void landing_template_drag_sort_annotation_and_order() throws Exception {
+        // TR-3.2 注解: @Erupt.dragSort.field 必须 = "sort"
+        xyz.erupt.annotation.Erupt eruptAnn =
+            LandingTemplate.class.getAnnotation(xyz.erupt.annotation.Erupt.class);
+        assertNotNull(eruptAnn, "LandingTemplate 应有 @Erupt");
+        assertEquals("sort", eruptAnn.dragSort().field(),
+            "LandingTemplate 必须配置 @DragSort(field=\"sort\") 支持列表拖拽排序");
+
+        // TR-3.2 字段完整性: sort 必须存在,Integer 类型,默认值 0(用反射避免 RED 编译失败)
+        java.lang.reflect.Field sortF = LandingTemplate.class.getDeclaredField("sort");
+        sortF.setAccessible(true);
+        assertEquals(Integer.class, sortF.getType(), "LandingTemplate.sort 类型必须是 Integer");
+        LandingTemplate empty = new LandingTemplate();
+        assertEquals(0, sortF.get(empty), "LandingTemplate.sort 默认值应为 0");
+
+        java.lang.reflect.Method setSort = LandingTemplate.class.getMethod("setSort", Integer.class);
+        java.lang.reflect.Method getSort = LandingTemplate.class.getMethod("getSort");
+
+        // TR-3.1 排序查询: 存 3 条(sort=3/1/2),按 sort ASC 顺序应为 1,2,3
+        LandingTemplate t3 = new LandingTemplate();
+        t3.setName("t-sort-3"); t3.setCategory(TemplateCategory.BLANK.code);
+        setSort.invoke(t3, 3); t3.setEnabled(EnableStatus.ENABLED.code);
+        LandingTemplate t1 = new LandingTemplate();
+        t1.setName("t-sort-1"); t1.setCategory(TemplateCategory.BLANK.code);
+        setSort.invoke(t1, 1); t1.setEnabled(EnableStatus.ENABLED.code);
+        LandingTemplate t2 = new LandingTemplate();
+        t2.setName("t-sort-2"); t2.setCategory(TemplateCategory.BLANK.code);
+        setSort.invoke(t2, 2); t2.setEnabled(EnableStatus.ENABLED.code);
+        tplRepo.saveAll(List.of(t3, t1, t2));
+        // 只取本次新插入的 3 条(前缀 t-sort-),避免受 Landing 模块预置初始化模板(如空白页/海报页)干扰
+        List<LandingTemplate> ordered = tplRepo.findAll().stream()
+            .filter(t -> t.getName() != null && t.getName().startsWith("t-sort-"))
+            .sorted((a, b) -> Integer.compare(
+                (Integer) unchecked(getSort, a), (Integer) unchecked(getSort, b)))
+            .toList();
+        assertEquals(3, ordered.size(), "新建的 t-sort-* 模板应恰好 3 条");
+        assertEquals("t-sort-1", ordered.get(0).getName());
+        assertEquals("t-sort-2", ordered.get(1).getName());
+        assertEquals("t-sort-3", ordered.get(2).getName());
+    }
+
+    /** 反射工具: 忽略受检异常,便于 RED 阶段的流式 lambda 调用。 */
+    private static Object unchecked(java.lang.reflect.Method m, Object target) {
+        try { return m.invoke(target); }
+        catch (ReflectiveOperationException e) { throw new RuntimeException(e); }
     }
 
     // ============ helpers ============

@@ -21,6 +21,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,6 +80,23 @@ public class WmsStockCheck extends BaseModel {
         edit = @Edit(title = "盘点明细", type = EditType.TAB_TABLE_ADD)
     )
     private List<WmsStockCheckItem> items = new ArrayList<>();
+
+    /** 虚拟(非持久化): 盘点进度百分比 = sum(actualQty) / sum(bookQty) * 100,PROGRESS 视图。 */
+    @Transient
+    @EruptField(views = @View(title = "盘点进度", type = xyz.erupt.annotation.sub_field.ViewType.PROGRESS))
+    private BigDecimal checkProgress;
+
+    public BigDecimal getCheckProgress() {
+        if (items == null || items.isEmpty()) return BigDecimal.ZERO;
+        int totalBook = 0, totalActual = 0;
+        for (WmsStockCheckItem it : items) {
+            totalBook += it.getBookQty() != null ? it.getBookQty() : 0;
+            totalActual += it.getActualQty() != null ? it.getActualQty() : 0;
+        }
+        if (totalBook == 0) return BigDecimal.ZERO;
+        return BigDecimal.valueOf(totalActual).multiply(new BigDecimal("100"))
+            .divide(BigDecimal.valueOf(totalBook), 2, RoundingMode.HALF_UP);
+    }
 
     public static class Proxy extends WmsStateDataProxy<WmsStockCheck> {
         @Override protected String stateFieldName() { return "status"; }

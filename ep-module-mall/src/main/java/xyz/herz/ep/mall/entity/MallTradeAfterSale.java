@@ -2,6 +2,7 @@ package xyz.herz.ep.mall.entity;
 
 import xyz.erupt.annotation.Erupt;
 import xyz.erupt.annotation.EruptField;
+import xyz.erupt.annotation.sub_erupt.Layout;
 import xyz.erupt.annotation.sub_erupt.Power;
 import xyz.erupt.annotation.sub_erupt.RowOperation;
 import xyz.erupt.annotation.sub_field.Edit;
@@ -37,6 +38,7 @@ import java.math.BigDecimal;
 @Erupt(
     name = "售后单",
     power = @Power(importable = true, export = true),
+    layout = @Layout(collapseActionButton = true),
     dataProxy = MallTradeAfterSale.Proxy.class,
     rowOperation = {
         @RowOperation(title = "同意", code = MallAfterSaleAgreeHandler.CODE, icon = "fa fa-check",

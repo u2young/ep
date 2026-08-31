@@ -2,6 +2,7 @@ package xyz.herz.ep.iot.entity;
 
 import xyz.erupt.annotation.Erupt;
 import xyz.erupt.annotation.EruptField;
+import xyz.erupt.annotation.sub_erupt.Layout;
 import xyz.erupt.annotation.sub_erupt.Power;
 import xyz.erupt.annotation.sub_erupt.RowOperation;
 import xyz.erupt.annotation.sub_field.Edit;
@@ -35,6 +36,7 @@ import java.time.LocalDateTime;
     name = "设备管理",
     dataProxy = IotDevice.Proxy.class,
     power = @Power(importable = true, export = true),
+    layout = @Layout(collapseActionButton = true),
     rowOperation = {
         @RowOperation(title = "激活", code = "ACTIVATE", icon = "fa fa-bolt",
             operationHandler = IotDeviceActivateHandler.class, operationParam = { "ACTIVATE" }),
@@ -74,8 +76,10 @@ public class IotDevice extends BaseModel {
                         fetchHandlerParams = "DeviceStatus")))
     private Integer status = DeviceStatus.INACTIVE.code;
 
-    @EruptField(views = @View(title = "设备密钥"),
-                edit = @Edit(title = "设备密钥", show = false))
+    @EruptField(
+        views = @View(title = "设备密钥", type = xyz.erupt.annotation.sub_field.ViewType.PASSWORD),
+        edit = @Edit(title = "设备密钥", type = EditType.PASSWORD, show = false)
+    )
     @Column(length = 128)
     private String deviceSecret;
 

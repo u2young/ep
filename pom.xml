@@ -34,7 +34,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- ======= 版本统一管理 —— 后续改版本只改这里 ======= -->
-        <erupt.version>2.0.3</erupt.version>
+        <erupt.version>2.1.0</erupt.version>
         <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
     </properties>
 
@@ -86,9 +86,10 @@
                 <artifactId>erupt-core</artifactId>
                 <version>${erupt.version}</version>
             </dependency>
+            <!-- 2.1.0: erupt-jpa 重构为 erupt-data-jpa（data 连接器层统一） -->
             <dependency>
                 <groupId>xyz.erupt</groupId>
-                <artifactId>erupt-jpa</artifactId>
+                <artifactId>erupt-data-jpa</artifactId>
                 <version>${erupt.version}</version>
             </dependency>
             <dependency>
@@ -174,6 +175,11 @@
             <dependency>
                 <groupId>xyz.erupt</groupId>
                 <artifactId>erupt-print</artifactId>
+                <version>${erupt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>xyz.erupt</groupId>
+                <artifactId>erupt-report</artifactId>
                 <version>${erupt.version}</version>
             </dependency>
 

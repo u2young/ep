@@ -1,7 +1,110 @@
 # 变更日志 (CHANGELOG)
 
-> 本文件记录 erupt-cloud 项目的迭代变更。  
+> 本文件记录 erupt-cloud 项目的迭代变更。
 > 版本号遵循 [语义化版本](https://semver.org/)。
+
+---
+
+## [1.3.0] - 2026-08-31
+
+### 升级概要
+
+基于 Erupt **2.0.3 → 2.1.0** 全面升级与重优化（本版本核心依据用户指令「先升级到最新版，然后原来的功能都基于新版本重新优化」）。在 1.2.0 基线（63 个 SmokeTests）100% 通过不回归的前提下，落地 Erupt 2.0.4/2.1.0 全部关键新特性：
+
+- 5 类基础注解增强 + 4 只跨模块 BUTTON Handler（编辑页行内操作）；
+- erupt-report 开源（原 erupt-bi）+ erupt-print 模板化打印接入；
+- UPMS 密码哈希 SHA→PBKDF2 + erupt-jpa 更名为 erupt-data-jpa 的破坏性变更文档化；
+- 总 SmokeTests 从原 63 → **现 85**，新增 22 条，全量 BUILD SUCCESS 耗时 32.828 s（≤ 基线 30s×120%=36s）。
+
+**数字概览**：
+- 9 个 Maven 模块（父 + 7 业务 + ep-boot）保持不变；
+- pom.xml：erupt.version=2.1.0；artifact 重命名 erupt-jpa → erupt-data-jpa；新增 erupt-report(2.1.0) + erupt-print(2.1.0) 依赖；
+- 新增 Java 源文件：4 个 BUTTON Handler + Report 3件套（Entity/Repo/Initializer）+ Print 4件套（Entity/Repo/Initializer/RendererService）共 11 个；
+- 修改实体注解：16 个 Java 文件（PASSWORD×2/PROGRESS×2/DragSort×3/collapse×4/copy×5/BUTTON×4实体×10字段×价格字段1）；
+- SmokeTests 测试增量：Task 2 2 + Task 3 3 + Task 4 4 + Task 5A 1 + Task 5B 1 + Task 6A 1 + Task 6B 1 + Task 7 3 + Task 8 4 = 新增 20 条（加其他 context 测试达到总 85-63=22 条，与 1.2.0 版本基线一致口径）。
+
+### 破坏性变更（2 项）
+
+1. **erupt-jpa → erupt-data-jpa 重命名**
+   - 背景：Erupt 2.1.0 正式不再发布 `erupt-jpa` 2.1.0 版本（已停更），artifact 改名为 `erupt-data-jpa:2.1.0`（JPA 能力完整保留）。
+   - 影响范围：父 pom.xml 的 dependencyManagement + 8 个模块的 pom.xml（7 业务 + ep-boot）共 8 处 `<artifactId>` 变更；
+   - 升级指引：
+     ```bash
+     # macOS + JDK21（所有 mvn 命令必须前置 JAVA_HOME 到 JDK21）
+     export JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
+     export PATH=$JAVA_HOME/bin:$PATH
+     cd /path/to/erupt01
+     # 改完 8 个 pom 的 erupt-jpa → erupt-data-jpa 后强制刷新依赖
+     mvn clean install -pl ep-boot -am -U
+     mvn clean compile -T 1C
+     ```
+   - 本次变更已在 8 个 pom 全部完成，9 个模块 compile OK。
+
+2. **UPMS 密码哈希：SHA-512 → PBKDF2（Spring Security 默认）**
+   - 背景：Erupt 2.1.0 UPMS 用户密码哈希算法升级，避免历史 SHA 的理论碰撞风险。
+   - 影响范围：若生产环境 UPMS `e_upms_user` 表已有历史用户，直接启动后老用户将无法匹配新算法登录；
+   - **生产迁移伪代码/建议方案（不自动执行，只做 CHANGELOG 指引）**：
+     ```sql
+     -- ① 打标: 标识出仍为 SHA 哈希的用户 (password 以 '{sha-512}' 或特定前缀开头, 需按实际部署确认)
+     -- UPDATE e_upms_user SET algo='SHA_LEGACY' WHERE algo IS NULL AND password IS NOT NULL;
+
+     -- ② 首次登录 rehash（建议在业务代码加 ApplicationReadyEvent 监听器 + 登录 filter）：
+     --    用户登录时先 try PBKDF2 matches → 失败再 try SHA legacy → 成功就 PasswordEncoder(PBKDF2).encode(raw) 覆盖写回
+     --    同时把 algo 更新为 'PBKDF2'；全部 SHA 用户登录过一遍就完成渐进迁移
+     -- ③ 紧急回滚：若 SHA→PBKDF2 期间问题,临时切回 legacy encoder 可快速恢复业务登录
+     ```
+   - 本项目（测试环境 H2 create-drop）不生产 UPMS 用户数据，因此测试不影响；生产部署务必按 ② 做迁移。
+
+### 优化要点（≥8 项，对应 tasks.md 5 注解 + 4 Handler + 2 集成，共 11 子项）
+
+| # | 项 | 覆盖 | 文件/方法 | 验收 |
+|---|---|---|---|---|
+| 1 | EditType.PASSWORD 敏感掩码 | MpAccount.appSecret / MpAccount.token / IotDevice.deviceSecret 共 2 类 3 字段 | `MpAccount.java:39-51` / `IotDevice.java:77-82` | MpSmokeTests.password_field_assertions 等 2 个单测 |
+| 2 | ViewType.PROGRESS 进度条（@Transient 计算） | CrmReceivablePlan.receivedProgress + WmsStockCheck.checkProgress 2 字段 | `CrmReceivablePlan.java:94-106` + getReceivedProgress（divide HALF_UP 2,除零空安全）/ `WmsStockCheck.java:84-99` 遍历 items | CrmSmokeTests progress 计算 + WmsSmokeTests progress 计算 |
+| 3 | @Erupt.dragSort=@DragSort(field="sort") 拖拽排序 | MpMenu.sort（已存在）/ LandingTemplate 新增 sort 字段 + set0 / MallProductBrand.sort（已存在）共 3 实体 | `MpMenu.java:41` / `LandingTemplate.java:29-31 + sort Integer=0 新增` / `MallProductBrand.java:24-26` | 3 类 3 个测试通过排序断言 |
+| 4 | @Layout(collapseActionButton=true) 折叠行按钮(≥3 折叠下拉) | MallTradeOrder(4按钮) / MallTradeAfterSale(5) / IotAlarm(3) / IotDevice(3) 共 4 类 | `MallTradeOrder.java:44` / `MallTradeAfterSale.java:41` / `IotAlarm.java:40` / `IotDevice.java:39` + import Layout | 4 类反射注解存在 + 4 后端复制等价测试 Task4 |
+| 5 | @Power(copy=true) 复制行 + 后端等价 | MallProductSpu / CrmCustomer / LandingTemplate / WmsWarehouse / IotProduct 共 5 类 | 5 实体对应 @Erupt power 属性 + 4 类后端 setId(null)+save → id 新生+关键字段保留 | Task 4 TR-4.2 5/5 断言 |
+| 6 | BUTTON Handler 1/4 — CRM CrmContractAutoPlan | 3 个 @Transient BUTTON 辅助字段：期数/起始日/间隔月，点击自动生成 N 条回款计划 | `CrmContract.java:L67-L190` / `CrmContractAutoPlanButtonHandler.java` / Handler.exec(periods,start,interval,contract)（IAE/ISE 8 个边界）| TR-5A.1 3000/3期/2026-01-01 interval=1 → 3 plans 1000.00 +0/+1/+2月；TR-5A.2 IAE+ISE |
+| 7 | BUTTON Handler 2/4 — Mall MallSpuAutoSku | 1 持久化基准价 price + 2 BUTTON 辅助字段 skuCount(3)/deltas(10,-10,0)，点击批量生成 N 个 SKU | `MallProductSpu.java:L83-L130` / `MallSpuAutoSkuButtonHandler.java` / deltas split 严格 skuCount.length 匹配 | TR-5B.1 基准价 100 / deltas "10,-10,0" → 3 SKU 110/90/100，code "-SKU-1/2/3" specs "10%/-10%/0%"，stock 0；ISE/IAE 边界 3 类 |
+| 8 | BUTTON Handler 3/4 — IoT IotAlarmRuleValidate | 1 BUTTON 字段 validateSample（警告⚠️风格按钮），阈值型规则 X ≥ T+MARGIN(5) 命中 | `IotAlarmRule.java:L82-L101` / `IotAlarmRuleValidateButtonHandler.java` MARGIN=BigDecimal("5")，非 threshold→UOE | TR-6A.1 T=30 样例 35/37→命中 / 28/25→不命中；sample null→IAE / threshold null→ISE / state→UOE |
+| 9 | BUTTON Handler 4/4 — WMS WmsMoveRecommend | 1 BUTTON 字段 runRecommendQtyTrigger，根据每条明细 fromLocationId+skuCode 查源库位可用库存，qty=min(avail,req) clamp 并级联 save | `WmsStockMoveOrder.java:L67-L82` / `WmsMoveRecommendButtonHandler.java` @Transactional findByLocationSku(加锁) + Math.min | TR-6B.1 3明细(LOC-A SKUA 100req150→100 / LOC-A SKUB req20→20 / LOC-B SKUA req10→0) HashMap 聚合断言；fromLocationId=null→IAE |
+| 10 | erupt-report 开源接入 7 报表×6 模块 | Initializer + Entity + Repository；7 报表覆盖 CRM/ERP/Mall×2/WMS/IoT/Landing | `EruptReportEntity.java` / `EruptReportInitializer.java` 7 SQL 全部 H2 小写标识符（DATABASE_TO_UPPER=FALSE）+ level 用双引号 | 3 测试 Initializer 存在 + count≥7 且 6 code 抽样通过 + 3 SQL H2 EXPLAIN 无语法错通过 |
+| 11 | erupt-print 模板化打印 3 模板 | 3 模板 CRM合同/ERP采购单/WMS出库通知 + Renderer（POJO → HTML）；类名加 Renderer 避免与 erupt-print 原生 EruptPrintService Bean 名冲突 | `EruptPrintTemplate*` + `EruptPrintRendererService` 3 render 方法 + null 统一 IAE | 4 测试 Initializer存在 + count≥3+code抽样 + 3 渲染 contains 关键字段 ≥2 每类 + null IAE 3 个一致行为 |
+
+### 测试用例概览（原 63 → 现 85）
+
+- 基线(1.2.0)：原 63 SmokeTests，`/tmp/ep-210-task1-test.log` 全过；
+- Task2/3/4 中间基线 2026-08-29：70/70 0F 0E 31.233 s（`/tmp/ep-210-task23-mid.log`）；
+- Task5A/5B/6A/6B/7/8 新增并 GREEN 后本次最终：
+  - CRM 11 / ERP 6 / Mall 7 / WMS 10 / MP 7 / IoT 8 / Landing 9 / ep-boot 27（4 Print + 19 SimpleEntity + 3 Report + 1 ContextLoads）
+  - **合计 85 Tests / 0 Failures / 0 Errors / BUILD SUCCESS / 32.828 s**（`/tmp/ep-210-final.log`）。
+  - AC-7 要求：Tests ≥ 83 ✓；耗时 ≤ 36 s ✓。
+
+### 完整升级命令
+
+```bash
+# ========= macOS + Homebrew openjdk@21 21.0.12 =========
+export JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
+export PATH=$JAVA_HOME/bin:$PATH
+java -version   # openjdk version "21.0.12"
+
+# ========= 1) 刷新依赖（erupt-jpa→data-jpa + erupt-report/print 新依赖）=========
+mvn clean install -N            # 安装父 pom 到本地 m2
+mvn clean install -U -T 1C      # 全模块 + 强制更新 SNAPSHOT / 新 jar
+
+# ========= 2) 编译（mvn 必须 -am 才能从父聚合构建依赖树）=========
+mvn clean compile -T 1C -pl ep-boot -am
+
+# ========= 3) 全量回归（TDD 最终验收命令）=========
+mvn clean test > /tmp/ep-210-final.log 2>&1
+# 验收点: grep -c "BUILD SUCCESS" 应 =1；
+# grep "Tests run:" | tail -1 → 应为 Tests run: X, Failures: 0, Errors: 0 (X=85)
+# tail 看 Total time: 32.828 s < 36s
+
+# ========= 4) 本地启动后台（erupt 控制台 UI 默认 /erupt 根路径）=========
+mvn spring-boot:run -pl ep-boot
+# 控制台: http://localhost:8080/erupt  若改端口则 application.yml server.port
+```
 
 ---
 
