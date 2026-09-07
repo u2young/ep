@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>xyz.herz.ep</groupId>
+        <artifactId>ep-business-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>ep-module-proj</artifactId>
+    <name>ep-module-proj</name>
+    <description>
+        P0:项目管理模块(参考 ERPNext Projects DocType 数据模型移植)。
+        - 项目/任务树状拆解(ProjProject + ProjTask 自关联树)
+        - 工时表(ProjTimesheet:工时回写 + 计费状态)
+        - 费用归集(ProjExpenseClaim + Item 明细:提交/批准/入账)
+        - 完工%/收入确认(ProjProject.complete → fin GL 收入确认)
+        - 现金流(ProjCashFlow:流入/流出聚合)
+        - 跨模块依赖:ep-module-fin(FinPostingFacade 触发 GL)
+        - 客户/成本中心用快照(customerId+customerName/costCenterId),不 REF 跨模块实体,保持独立可测
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-security</artifactId>
+        </dependency>
+
+        <!-- 跨模块依赖:fin(FinPostingFacade 触发 GL 收入确认/费用入账) -->
+        <dependency>
+            <groupId>xyz.herz.ep</groupId>
+            <artifactId>ep-module-fin</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-upms</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>xyz.herz.ep</groupId>
+        <artifactId>ep-business-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>ep-module-sup</artifactId>
+    <name>ep-module-sup</name>
+    <description>
+        P0:服务支持模块(参考 ERPNext Support DocType 数据模型移植)。
+        - 客户工单(SupIssue:打开/已回复/已解决/已关闭/重新打开/取消 状态机)
+        - SLA 服务等级协议(SupServiceLevelAgreement + SupSlaEvaluator 计算响应/解决截止)
+        - 工单优先级(SupIssuePriority:默认 SLA 响应/解决时长)
+        - 工单分派(SupIssueAssignment + AutoAssign 按钮)
+        - 知识库(SupKnowledgeBase:草稿/已发布/归档)
+        - 单例配置(SupSupportSettings:默认 SLA/默认客服/自动分派开关)
+        - 跨模块依赖:ep-module-crm(客户 REF 关联,optional 不强制 FK)
+        - 客户用 @ManyToOne CrmCustomer(optional=true) 显示关联,不挂硬 FK
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-security</artifactId>
+        </dependency>
+
+        <!-- 跨模块依赖:crm(客户 REF 关联,SupIssue.customer → CrmCustomer) -->
+        <dependency>
+            <groupId>xyz.herz.ep</groupId>
+            <artifactId>ep-module-crm</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-upms</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

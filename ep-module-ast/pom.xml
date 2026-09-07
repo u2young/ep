@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>xyz.herz.ep</groupId>
+        <artifactId>ep-business-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>ep-module-ast</artifactId>
+    <name>ep-module-ast</name>
+    <description>
+        P0:资产管理模块(参考 ERPNext Asset DocType 数据模型移植)。
+        - 固定资产主档(AstAsset:草稿/可用/部分折旧/完全折旧/出售/报废 状态机)
+        - 资产类别(AstAssetCategory:折旧方法/残值率/会计科目映射)
+        - 资产位置(AstLocation:放置地点层级)
+        - 折旧计划表(AstDepreciationSchedule:期次/折旧日/折旧额/累计折旧/净值)
+        - 资产转移(AstAssetMovement:位置/保管人/部门/成本中心变更 状态机)
+        - 资产维修(AstAssetRepair:维修成本/维修日期 状态机)
+        - 折旧计算引擎(AstDepreciationCalculator:直线法/余额递减/双倍余额递减)
+        - 跨模块依赖:ep-module-fin(折旧自动过账 FinPostingFacade,GL 凭证集成)
+        - 会计科目用 account_code 字符串快照,不强制 REF FinAccount,避免 H2 fixture 顺序耦合
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-security</artifactId>
+        </dependency>
+
+        <!-- 跨模块依赖:fin(折旧 GL 过账 FinPostingFacade 集成) -->
+        <dependency>
+            <groupId>xyz.herz.ep</groupId>
+            <artifactId>ep-module-fin</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-upms</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

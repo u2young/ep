@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>xyz.herz.ep</groupId>
+        <artifactId>ep-business-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>ep-module-sal</artifactId>
+    <name>ep-module-sal</name>
+    <description>
+        P0:销售管理模块(参考 ERPNext Selling DocType 数据模型移植)。
+        销售深化域:覆盖 ERPNext 销售专属「报价单 + 销售订单 + 送货单 + 销售员 + 销售伙伴」完整流程。
+        - 报价单(SalQuotation:草稿/已提交/已取消/已拒绝)
+        - 销售订单(SalSalesOrder:草稿/已提交/已暂停/已取消/已完成)
+        - 送货单(SalDeliveryNote:草稿/已提交/已暂停/已取消/已发货)
+        - 销售员(SalSalesPerson:主数据,销售团队成员)
+        - 销售伙伴(SalSalesPartner:主数据,渠道/代理商)
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-upms</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

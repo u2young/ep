@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>xyz.herz.ep</groupId>
+        <artifactId>ep-business-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>ep-module-pay</artifactId>
+    <name>ep-module-pay</name>
+    <description>
+        P0:薪酬管理模块(参考 ERPNext Payroll DocType 数据模型移植)。
+        - 工资项组件(PaySalaryComponent:收入/扣款,是否计税)
+        - 工资结构(PaySalaryStructure:员工工资构成模板 + 明细)
+        - 结构明细(PaySalaryStructureItem:组件 + 固定金额)
+        - 工资单(PaySalarySlip:草稿/已提交/已过账/已取消 状态机,gross/deductions/net 派生)
+        - 工资单明细(PaySalarySlipItem:提交时从结构快照生成)
+        - 跨模块依赖:ep-module-hr(员工 REF) + ep-module-fin(GL 过账 FinPostingFacade,SALARY 凭证来源)
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-security</artifactId>
+        </dependency>
+
+        <!-- 跨模块依赖:hr(员工 REF) + fin(工资 GL 过账 FinPostingFacade) -->
+        <dependency>
+            <groupId>xyz.herz.ep</groupId>
+            <artifactId>ep-module-hr</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.herz.ep</groupId>
+            <artifactId>ep-module-fin</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-upms</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

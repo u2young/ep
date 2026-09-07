@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>xyz.herz.ep</groupId>
+        <artifactId>ep-business-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>ep-module-hr</artifactId>
+    <name>ep-module-hr</name>
+    <description>
+        P0:人力资源模块(参考 ERPNext HR DocType 数据模型移植)。
+        - 部门树(HrDepartment:树形主数据)
+        - 职位(HrDesignation:岗位主数据)
+        - 员工主档(HrEmployee:草稿/在职/试用期/离职/停用 状态机)
+        - 考勤(HrAttendance:出勤/迟到/早退/请假,签到签退派生工时)
+        - 请假类型(HrLeaveType:年假/病假/事假/调休 主数据)
+        - 请假单(HrLeaveApplication:草稿/已申请/已批准/已拒绝/已取消 状态机)
+        - 独立模块,不依赖 fin/erp;员工用 empNo+empName 快照,不 REF UPMS,保持 hr 独立可测
+        - Payroll 模块依赖 hr + fin(工资单过账 GL)
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-upms</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

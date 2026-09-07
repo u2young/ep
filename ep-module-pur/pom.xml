@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>xyz.herz.ep</groupId>
+        <artifactId>ep-business-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>ep-module-pur</artifactId>
+    <name>ep-module-pur</name>
+    <description>
+        P0:采购管理模块(参考 ERPNext Procurement DocType 数据模型移植)。
+        采购深化域:与既有 ep-module-erp 的 ErpPurchaseOrder 共存(对标 1.4.0 Fin vs ErpFinance 策略)。
+        - 请购单(PurchaseRequisition:草稿/已提交/已转单/已取消)
+        - 询价单(RequestForQuotation:草稿/已发送/已收报价/已取消)
+        - 供应商报价(SupplierQuotation:无状态机,CRUD + 是否采纳)
+        - 采购收货单(PurchaseReceipt:草稿/已提交/已收货/已取消)
+        - 采购配置(PurchaseSettings:单例,默认采购员/默认前置时间)
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-upms</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
