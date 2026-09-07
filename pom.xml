@@ -4,10 +4,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>xyz.herz.ep</groupId>
-    <artifactId>ep-business-parent</artifactId>
+    <artifactId>ep-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>ep-business-parent</name>
+    <name>ep-parent</name>
     <description>Erupt 业务中台父工程:版本收敛 + 模块聚合,为后续 erupt-cloud 架构做准备</description>
 
     <modules>

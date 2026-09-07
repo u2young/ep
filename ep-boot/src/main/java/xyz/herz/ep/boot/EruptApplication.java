@@ -19,8 +19,8 @@ import xyz.erupt.core.annotation.EruptScan;
 @EntityScan(basePackages = "xyz.herz.ep")
 @EnableJpaRepositories(basePackages = "xyz.herz.ep")
 @EruptScan("xyz.herz.ep")
-public class EruptBusinessApplication {
+public class EruptApplication {
     public static void main(String[] args) {
-        SpringApplication.run(EruptBusinessApplication.class, args);
+        SpringApplication.run(EruptApplication.class, args);
     }
 }

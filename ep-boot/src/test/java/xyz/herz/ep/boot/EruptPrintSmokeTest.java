@@ -57,7 +57,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Task 8 / AC-5 erupt-print 集成冒烟测试。
  */
-@SpringBootTest(classes = EruptBusinessApplication.class,
+@SpringBootTest(classes = EruptApplication.class,
                 webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Transactional
 @Rollback

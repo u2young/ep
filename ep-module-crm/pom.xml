@@ -4,7 +4,7 @@
 
     <parent>
         <groupId>xyz.herz.ep</groupId>
-        <artifactId>ep-business-parent</artifactId>
+        <artifactId>ep-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
@@ -15,7 +15,7 @@
         P0:CRM 业务模块。
         - 完全自包含,只依赖 common 层抽象 + erupt-core/jpa;
         - 不直接依赖 erupt-boot 打包层(启动类/配置);
-        - 后续拆分微服务时,可独立打包为一个 Business Server(比如 erupt-cloud-crm)。
+        - 后续拆分微服务时,可独立打包为一个 EP 服务(比如 erupt-cloud-crm)。
     </description>
 
     <dependencies>

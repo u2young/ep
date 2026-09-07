@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * 这里在 xyz.herz.ep.boot.report 包下自管轻量 EruptReportEntity + JPA Repository,
  * 满足「6 张报表 SQL + count≥6 + H2 EXPLAIN 通过」的 AC-4 局部验收。
  */
-@SpringBootTest(classes = EruptBusinessApplication.class,
+@SpringBootTest(classes = EruptApplication.class,
                 webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Transactional
 @Rollback

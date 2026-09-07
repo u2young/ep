@@ -60,7 +60,7 @@ git clone https://github.com/u2young/ep.git
 cd ep
 
 mvn clean package -DskipTests
-java -jar ep-boot/target/ep-business.jar
+java -jar ep-boot/target/ep.jar
 ```
 
 访问 http://localhost:8080/erupt 进入管理后台。
@@ -83,7 +83,7 @@ mvn test -pl ep-boot -Dtest=EruptReportSmokeTest,EruptPrintSmokeTest
 ## 架构概览
 
 ```
-ep-business-parent              父 pom（版本收敛 + dependencyManagement）
+ep-parent                       父 pom（版本收敛 + dependencyManagement）
 ├── ep-module-crm               客户关系管理
 ├── ep-module-erp               企业资源计划
 ├── ep-module-fin               财务会计

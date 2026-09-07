@@ -5,11 +5,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.test.annotation.Rollback;
 
-@SpringBootTest(classes = EruptBusinessApplication.class,
+@SpringBootTest(classes = EruptApplication.class,
                 webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Transactional
 @Rollback
-class EruptBusinessApplicationTests {
+class EruptApplicationTests {
     @Test
     void contextLoads() { }
 }
