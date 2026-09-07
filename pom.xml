@@ -13,11 +13,21 @@
     <modules>
         <module>ep-module-crm</module>
         <module>ep-module-erp</module>
+        <module>ep-module-fin</module>
+        <module>ep-module-mfg</module>
+        <module>ep-module-proj</module>
+        <module>ep-module-sup</module>
+        <module>ep-module-ast</module>
         <module>ep-module-mall</module>
         <module>ep-module-wms</module>
         <module>ep-module-mp</module>
         <module>ep-module-iot</module>
         <module>ep-module-landing</module>
+        <module>ep-module-hr</module>
+        <module>ep-module-pay</module>
+        <module>ep-module-qal</module>
+        <module>ep-module-pur</module>
+        <module>ep-module-stk</module>
         <module>ep-boot</module>
     </modules>
 
@@ -54,6 +64,31 @@
             </dependency>
             <dependency>
                 <groupId>xyz.herz.ep</groupId>
+                <artifactId>ep-module-fin</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>xyz.herz.ep</groupId>
+                <artifactId>ep-module-mfg</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>xyz.herz.ep</groupId>
+                <artifactId>ep-module-proj</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>xyz.herz.ep</groupId>
+                <artifactId>ep-module-sup</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>xyz.herz.ep</groupId>
+                <artifactId>ep-module-ast</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>xyz.herz.ep</groupId>
                 <artifactId>ep-module-mall</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -75,6 +110,31 @@
             <dependency>
                 <groupId>xyz.herz.ep</groupId>
                 <artifactId>ep-module-landing</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>xyz.herz.ep</groupId>
+                <artifactId>ep-module-hr</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>xyz.herz.ep</groupId>
+                <artifactId>ep-module-pay</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>xyz.herz.ep</groupId>
+                <artifactId>ep-module-qal</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>xyz.herz.ep</groupId>
+                <artifactId>ep-module-pur</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>xyz.herz.ep</groupId>
+                <artifactId>ep-module-stk</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
