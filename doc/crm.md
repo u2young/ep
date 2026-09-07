@@ -1,8 +1,35 @@
 # CRM 客户关系管理模块 — 功能与状态流转分析报告
 
+> **版本**: v1.1（设计文档 + 实现状态）  |  **更新**: 2026-09-07
+> **实现状态**: ✅ **已完成** | 冒烟单测 **26/26 全部通过**
+> **模块代码**: [ep-module-crm](../ep-module-crm/src/main/java/xyz/herz/ep/crm/)
+> **测试代码**: [CrmSmokeTests.java](../ep-module-crm/src/test/java/xyz/herz/ep/crm/CrmSmokeTests.java)
+>
 > 本报告基于芋道源码(yudao / ruoyi-vue-pro)CRM 模块的源码与官方文档，并参考 JeecgBoot CRM、RuoYi-CRM、用友 U8C、纷享销客、简道云 CRM、销帮帮等同类开源/SaaS 产品的设计,提炼出可直接指导 **Erupt 框架(Spring Boot + JPA,注解驱动)** 落地实现的设计方案。
 >
 > **重点**:不在罗列 CRUD,而在 **数据状态流转(状态机)**、**业务链路与关联关系**、**通用扩展设计(biz_type + biz_id)**、**数据权限模型**。
+
+---
+
+## 实现状态
+
+| 子项 | 状态 | 代码位置 |
+|---|---|---|
+| 枚举字典 + 状态下拉处理器 | ✅ | [CrmDictEnums.java](../ep-module-crm/src/main/java/xyz/herz/ep/crm/enums/CrmDictEnums.java) |
+| 线索实体 + 转化为客户行按钮 | ✅ | [CrmClue.java](../ep-module-crm/src/main/java/xyz/herz/ep/crm/entity/CrmClue.java) |
+| 客户实体(公海=ownerUserId IS NULL) + 5 行按钮 | ✅ | [CrmCustomer.java](../ep-module-crm/src/main/java/xyz/herz/ep/crm/entity/CrmCustomer.java) |
+| 联系人实体 | ✅ | [CrmContact.java](../ep-module-crm/src/main/java/xyz/herz/ep/crm/entity/CrmContact.java) |
+| 商机三层配置表 + 5 行按钮 | ✅ | [CrmBusinessStatusType.java](../ep-module-crm/src/main/java/xyz/herz/ep/crm/entity/CrmBusinessStatusType.java) |
+| 跟进记录(biz_type+biz_id 通用) | ✅ | [CrmFollowUpRecord.java](../ep-module-crm/src/main/java/xyz/herz/ep/crm/entity/CrmFollowUpRecord.java) |
+| 公海回收定时任务 | ✅ | [CrmCustomerPoolRecycleJob.java](../ep-module-crm/src/main/java/xyz/herz/ep/crm/job/CrmCustomerPoolRecycleJob.java) |
+| 数据权限(团队成员表) | ✅ | [CrmTeamMember.java](../ep-module-crm/src/main/java/xyz/herz/ep/crm/entity/CrmTeamMember.java) |
+| 合同(草稿→生效→作废) | ✅ | [CrmContract.java](../ep-module-crm/src/main/java/xyz/herz/ep/crm/entity/CrmContract.java) |
+| 回款计划(待回款→部分→已回款) | ✅ | [CrmReceivablePlan.java](../ep-module-crm/src/main/java/xyz/herz/ep/crm/entity/CrmReceivablePlan.java) |
+| 线索手机号去重(DataProxy.beforeAdd) | ✅ | [CrmClueStateProxy.java](../ep-module-crm/src/main/java/xyz/herz/ep/crm/core/CrmClueStateProxy.java) |
+| CRM 仪表盘(漏斗/转化率/活动热力) | ✅ | [CrmDashboardController.java](../ep-module-crm/src/main/java/xyz/herz/ep/crm/web/CrmDashboardController.java) |
+| 冒烟单测 26 场景全闭环 | ✅ | [CrmSmokeTests.java](../ep-module-crm/src/test/java/xyz/herz/ep/crm/CrmSmokeTests.java) |
+
+详细实现追踪见 [todo.md](./todo.md#1-crm-模块)。
 
 ---
 

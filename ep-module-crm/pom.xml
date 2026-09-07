@@ -42,6 +42,20 @@
             <artifactId>erupt-security</artifactId>
         </dependency>
 
+        <!-- erupt-tpl + Thymeleaf: CRM 仪表盘渲染 -->
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-tpl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
         <!-- 定时器只依赖 Spring Scheduled,不引入 erupt-job 实体模型 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

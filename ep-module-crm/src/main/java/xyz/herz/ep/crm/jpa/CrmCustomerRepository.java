@@ -9,6 +9,8 @@ import java.util.List;
 
 public interface CrmCustomerRepository extends JpaRepository<CrmCustomer, Long> {
     long countByOwnerUserId(Long ownerUserId);
+    long countByDealStatus(Integer dealStatus);
+    long countByOwnerUserIdNull();
 
     /** 公海回收候选:ownerUserId 非空 + 未锁定 + 未成交 + (最后跟进早于阈值 OR 成为负责人早于阈值) */
     @Query("select c from CrmCustomer c where c.ownerUserId is not null and c.lockStatus = 0 and c.dealStatus = 0 " +

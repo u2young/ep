@@ -1,5 +1,6 @@
 package xyz.herz.ep.crm;
 
+import xyz.herz.ep.crm.core.CrmClueStateProxy;
 import xyz.herz.ep.crm.core.CrmFollowService;
 import xyz.herz.ep.crm.entity.*;
 import xyz.herz.ep.crm.enums.CrmDictEnums;
@@ -13,10 +14,13 @@ import xyz.herz.ep.crm.handler.CrmCustomerTransferHandler;
 import xyz.herz.ep.crm.handler.CrmReceivableConfirmHandler;
 import xyz.herz.ep.crm.jpa.*;
 import xyz.herz.ep.crm.job.CrmCustomerPoolRecycleJob;
+import xyz.herz.ep.crm.web.CrmDashboardController;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,9 +65,32 @@ class CrmSmokeTests {
     @Autowired CrmContractEffectHandler contractEffectHandler;
     @Autowired CrmContractVoidHandler contractVoidHandler;
     @Autowired CrmReceivableConfirmHandler receivableConfirmHandler;
+    @Autowired CrmClueStateProxy clueStateProxy;
 
     /** ApplicationContext 用于按反射获取 Handler Bean（如 CrmContractAutoPlanButtonHandler）。 */
     @Autowired ApplicationContext applicationContext;
+
+    /**
+     * H2 内存库配合 @Transactional @Rollback 确保每个测试前后数据隔离。
+     * @BeforeEach 中的 deleteAll 在测试事务内执行，测试结束时整体回滚，
+     * 保证下一个测试从零开始。
+     */
+    @BeforeEach
+    void setUp() {
+        // 按外键依赖顺序删除，避免 FK 约束冲突
+        followRepo.deleteAll();
+        contractRepo.deleteAll();
+        recordRepo.deleteAll();
+        planRepo.deleteAll();
+        businessRepo.deleteAll();
+        statusRepo.deleteAll();
+        statusTypeRepo.deleteAll();
+        teamRepo.deleteAll();
+        poolRepo.deleteAll();
+        customerRepo.deleteAll();
+        contactRepo.deleteAll();
+        clueRepo.deleteAll();
+    }
 
     /** 1. 线索 -> 转化客户 */
     @Test
@@ -603,5 +630,265 @@ class CrmSmokeTests {
             assertTrue(cause instanceof IllegalStateException || cause instanceof IllegalArgumentException,
                 "amount=null 应抛非法状态,实际 cause=" + cause.getClass().getSimpleName() + ":" + cause.getMessage());
         }
+    }
+
+    // =================== TR-1.10 CRM DASHBOARD: Repository 统计方法可用 (RED→GREEN) ===================
+
+    @Test
+    void dashboard_repository_methods_exist() throws Exception {
+        // 1.10: 所有统计方法签名正确
+        java.lang.reflect.Method mIsNull =
+            xyz.herz.ep.crm.jpa.CrmBusinessRepository.class.getMethod("countByEndStatusIsNull");
+        assertEquals(long.class, mIsNull.getReturnType());
+
+        java.lang.reflect.Method mEndStatus =
+            xyz.herz.ep.crm.jpa.CrmBusinessRepository.class.getMethod("countByEndStatus", Integer.class);
+        assertEquals(long.class, mEndStatus.getReturnType());
+
+        java.lang.reflect.Method mFollow =
+            xyz.herz.ep.crm.jpa.CrmClueRepository.class.getMethod("countByFollowUpStatus", Integer.class);
+        assertEquals(long.class, mFollow.getReturnType());
+
+        java.lang.reflect.Method mTrans =
+            xyz.herz.ep.crm.jpa.CrmClueRepository.class.getMethod("countByTransformStatus", Integer.class);
+        assertEquals(long.class, mTrans.getReturnType());
+
+        java.lang.reflect.Method mMob =
+            xyz.herz.ep.crm.jpa.CrmClueRepository.class.getMethod("findFirstByMobile", String.class);
+        assertEquals(java.util.Optional.class, mMob.getReturnType());
+
+        java.lang.reflect.Method mDeal =
+            xyz.herz.ep.crm.jpa.CrmCustomerRepository.class.getMethod("countByDealStatus", Integer.class);
+        assertEquals(long.class, mDeal.getReturnType());
+
+        java.lang.reflect.Method mSea =
+            xyz.herz.ep.crm.jpa.CrmCustomerRepository.class.getMethod("countByOwnerUserIdNull");
+        assertEquals(long.class, mSea.getReturnType());
+    }
+
+    @Test
+    void dashboard_empty_table_stats_are_zero() {
+        // 空表时所有统计返回 0
+        assertEquals(0, clueRepo.count());
+        assertEquals(0, clueRepo.countByFollowUpStatus(1));
+        assertEquals(0, clueRepo.countByFollowUpStatus(0));
+        assertEquals(0, clueRepo.countByTransformStatus(1));
+        assertEquals(0, clueRepo.countByTransformStatus(0));
+
+        assertEquals(0, customerRepo.count());
+        assertEquals(0, customerRepo.countByDealStatus(0));
+        assertEquals(0, customerRepo.countByDealStatus(1));
+        assertEquals(0, customerRepo.countByOwnerUserIdNull());
+    }
+
+    @Test
+    void dashboard_clue_stats_accuracy() {
+        // 线索: 3条 — 0未跟进/已跟进, 0未转化/已转化
+        CrmClue c1 = new CrmClue(); c1.setName("c1"); c1.setFollowUpStatus(0); c1.setTransformStatus(0);
+        CrmClue c2 = new CrmClue(); c2.setName("c2"); c2.setFollowUpStatus(1); c2.setTransformStatus(0);
+        CrmClue c3 = new CrmClue(); c3.setName("c3"); c3.setFollowUpStatus(1); c3.setTransformStatus(1);
+        clueRepo.saveAll(List.of(c1, c2, c3));
+
+        assertEquals(3, clueRepo.count());
+        assertEquals(2, clueRepo.countByFollowUpStatus(1));  // c2 + c3
+        assertEquals(1, clueRepo.countByTransformStatus(1)); // c3 only
+        assertEquals(2, clueRepo.countByTransformStatus(0)); // c1 + c2
+    }
+
+    @Test
+    void dashboard_customer_stats_accuracy() {
+        // 客户: 4条 — 2未成交/2成交, 2有人负责/2公海
+        CrmCustomer cu1 = new CrmCustomer(); cu1.setName("cu1"); cu1.setOwnerUserId(1L); cu1.setDealStatus(0);
+        CrmCustomer cu2 = new CrmCustomer(); cu2.setName("cu2"); cu2.setOwnerUserId(2L); cu2.setDealStatus(0);
+        CrmCustomer cu3 = new CrmCustomer(); cu3.setName("cu3"); cu3.setOwnerUserId(3L); cu3.setDealStatus(1);
+        CrmCustomer cu4 = new CrmCustomer(); cu4.setName("cu4"); cu4.setDealStatus(1); // dealStatus默认=0，需显式设1
+        customerRepo.saveAll(List.of(cu1, cu2, cu3, cu4));
+
+        assertEquals(4, customerRepo.count());
+        assertEquals(2, customerRepo.countByDealStatus(0));
+        assertEquals(2, customerRepo.countByDealStatus(1));
+        assertEquals(1, customerRepo.countByOwnerUserIdNull());
+        assertEquals(1, customerRepo.countByOwnerUserId(1L)); // cu1 only
+    }
+
+    @Test
+    void dashboard_business_stats_accuracy() {
+        // 准备商机状态组
+        CrmBusinessStatusType type = new CrmBusinessStatusType();
+        type.setName("测试类型");
+        statusTypeRepo.save(type);
+
+        CrmBusiness b1 = new CrmBusiness(); b1.setName("进行中"); b1.setStatusTypeId(type.getId()); b1.setEndStatus(null);
+        CrmBusiness b2 = new CrmBusiness(); b2.setName("赢单"); b2.setStatusTypeId(type.getId()); b2.setEndStatus(1);
+        CrmBusiness b3 = new CrmBusiness(); b3.setName("输单"); b3.setStatusTypeId(type.getId()); b3.setEndStatus(2);
+        CrmBusiness b4 = new CrmBusiness(); b4.setName("无效"); b4.setStatusTypeId(type.getId()); b4.setEndStatus(3);
+        businessRepo.saveAll(List.of(b1, b2, b3, b4));
+
+        assertEquals(4, businessRepo.count());
+        assertEquals(1, businessRepo.countByEndStatusIsNull()); // b1
+        assertEquals(1, businessRepo.countByEndStatus(1));     // b2 赢
+        assertEquals(1, businessRepo.countByEndStatus(2));     // b3 输
+        assertEquals(1, businessRepo.countByEndStatus(3));     // b4 无效
+    }
+
+    /**
+     * 直接调用 Controller 方法，断言 model 中各字段值与数据一致。
+     */
+    @Autowired CrmDashboardController dashboardController;
+
+    @Test
+    void dashboard_controller_model_values() throws Exception {
+        // 插数据
+        CrmClue c1 = new CrmClue(); c1.setName("c1");
+        CrmClue c2 = new CrmClue(); c2.setName("c2"); c2.setFollowUpStatus(1); c2.setTransformStatus(1);
+        clueRepo.saveAll(List.of(c1, c2));
+
+        CrmCustomer cu = new CrmCustomer(); cu.setOwnerUserId(1L); cu.setDealStatus(0);
+        CrmCustomer sea = new CrmCustomer(); sea.setOwnerUserId(null); sea.setDealStatus(1); // 公海且已成交
+        customerRepo.saveAll(List.of(cu, sea));
+
+        // 准备商机
+        CrmBusinessStatusType type = new CrmBusinessStatusType(); type.setName("t");
+        statusTypeRepo.save(type);
+        CrmBusiness bActive = new CrmBusiness(); bActive.setName("active"); bActive.setStatusTypeId(type.getId());
+        CrmBusiness bWon = new CrmBusiness(); bWon.setName("won"); bWon.setStatusTypeId(type.getId()); bWon.setEndStatus(1);
+        CrmBusiness bLost = new CrmBusiness(); bLost.setName("lost"); bLost.setStatusTypeId(type.getId()); bLost.setEndStatus(2);
+        businessRepo.saveAll(List.of(bActive, bWon, bLost));
+
+        java.util.Map<String, Object> model = new java.util.HashMap<>();
+        dashboardController.dashboard(model, null);
+
+        assertEquals(2L,         model.get("clueTotal"));
+        assertEquals(1L,         model.get("clueFollowed"));
+        assertEquals(1L,         model.get("clueTransformed"));
+        assertEquals(2L,         model.get("customerTotal"));
+        assertEquals(1L,         model.get("customerNotDealt"));
+        assertEquals(1L,         model.get("customerSea"));
+        assertEquals(3L,         model.get("businessTotal"));
+        assertEquals(1L,         model.get("businessActive"));
+        assertEquals(1L,         model.get("businessWon"));
+        assertEquals(1L,         model.get("businessLost"));
+        assertEquals(0L,         model.get("businessInvalid"));
+        assertEquals("50.0%",    model.get("transformRate"));   // 1/2
+        assertEquals("50.0%",    model.get("winRate"));         // 1/(1+1) 不含无效
+    }
+
+    /**
+     * 空表时转化率/胜率均为 "0.0%"，不抛除零异常。
+     */
+    @Test
+    void dashboard_empty_model_no_division_by_zero() {
+        java.util.Map<String, Object> model = new java.util.HashMap<>();
+        assertDoesNotThrow(() -> dashboardController.dashboard(model, null));
+        assertEquals("0.0%", model.get("transformRate"));
+        assertEquals("0.0%", model.get("winRate"));
+    }
+
+    // =================== TR-1.11 CLUE PHONE DEDUP: beforeAdd 手机号去重 (RED→GREEN) ===================
+
+    @Test
+    void dedup_null_mobile_allowed() {
+        CrmClue clue = new CrmClue();
+        clue.setName("无手机线索");
+        // mobile = null → 不应拦截
+        assertDoesNotThrow(() -> clueStateProxy.beforeAdd(clue), "mobile=null 不应触发去重拦截");
+    }
+
+    @Test
+    void dedup_blank_mobile_allowed() {
+        CrmClue clue = new CrmClue();
+        clue.setName("空手机线索");
+        clue.setMobile("");
+        assertDoesNotThrow(() -> clueStateProxy.beforeAdd(clue), "mobile=空白字符串不应触发拦截");
+    }
+
+    @Test
+    void dedup_whitespace_mobile_allowed() {
+        CrmClue clue = new CrmClue();
+        clue.setName("空格手机线索");
+        clue.setMobile("   ");
+        assertDoesNotThrow(() -> clueStateProxy.beforeAdd(clue), "mobile=纯空格不应触发拦截");
+    }
+
+    @Test
+    void dedup_unique_mobile_allowed() {
+        CrmClue c1 = new CrmClue(); c1.setName("线索A"); c1.setMobile("13800001111");
+        CrmClue c2 = new CrmClue(); c2.setName("线索B"); c2.setMobile("13800002222");
+        clueRepo.save(c1);
+        assertDoesNotThrow(() -> clueStateProxy.beforeAdd(c2), "不同手机号应允许新建");
+    }
+
+    @Test
+    void dedup_duplicate_untransformed_rejected() {
+        CrmClue existing = new CrmClue();
+        existing.setName("已有线索");
+        existing.setMobile("13900001111");
+        clueRepo.save(existing);
+
+        CrmClue dup = new CrmClue();
+        dup.setName("重复线索");
+        dup.setMobile("13900001111");
+
+        assertThrows(IllegalArgumentException.class, () -> clueStateProxy.beforeAdd(dup),
+            "相同手机号且未转化必须拦截");
+    }
+
+    @Test
+    void dedup_error_message_contains_phone_and_id() {
+        CrmClue existing = new CrmClue();
+        existing.setName("已有线索");
+        existing.setMobile("13900001111");
+        clueRepo.save(existing);
+
+        CrmClue dup = new CrmClue();
+        dup.setName("重复线索");
+        dup.setMobile("13900001111");
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+            () -> clueStateProxy.beforeAdd(dup));
+        assertTrue(ex.getMessage().contains("13900001111"), "错误信息应包含手机号");
+        assertTrue(ex.getMessage().contains("请勿重复导入"), "错误信息应包含提示文案");
+        assertTrue(ex.getMessage().contains(String.valueOf(existing.getId())),
+            "错误信息应包含已有线索ID");
+    }
+
+    @Test
+    void dedup_same_mobile_after_transform_allowed() {
+        CrmClue existing = new CrmClue();
+        existing.setName("已转化线索");
+        existing.setMobile("13900001111");
+        clueRepo.save(existing);
+
+        // 在同事务内直接转化（不使用 handler.exec()，避免独立事务提交数据泄漏到 DB）
+        existing.setTransformStatus(1);
+        clueRepo.save(existing);
+
+        // 相同手机号的新线索应允许
+        CrmClue dup = new CrmClue();
+        dup.setName("转化后允许新建");
+        dup.setMobile("13900001111");
+        assertDoesNotThrow(() -> clueStateProxy.beforeAdd(dup),
+            "已转化线索的手机号不再占用，应允许新建");
+    }
+
+    @Test
+    void dedup_multiple_existing_different_outcomes() {
+        // 两条已有线索，手机号相同但一已转化一未转化
+        CrmClue c1 = new CrmClue(); c1.setName("c1"); c1.setMobile("13900003333");
+        CrmClue c2 = new CrmClue(); c2.setName("c2"); c2.setMobile("13900003333"); c2.setTransformStatus(1);
+        clueRepo.saveAll(List.of(c1, c2));
+
+        // c1 未转化，应拦截
+        CrmClue dup = new CrmClue(); dup.setName("dup"); dup.setMobile("13900003333");
+        assertThrows(IllegalArgumentException.class, () -> clueStateProxy.beforeAdd(dup));
+
+        // 把 c1 也转化掉
+        clueStateProxy.beforeUpdate(c1); // just validation pass
+        c1.setTransformStatus(1);
+        clueRepo.save(c1);
+
+        // 现在所有已有线索都已转化，应允许新建
+        CrmClue fresh = new CrmClue(); fresh.setName("fresh"); fresh.setMobile("13900003333");
+        assertDoesNotThrow(() -> clueStateProxy.beforeAdd(fresh));
     }
 }

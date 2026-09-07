@@ -1,6 +1,30 @@
 # 芋道 yudao 商城模块功能分析报告
 
+> **版本**: v1.1（设计文档 + 实现状态）  |  **更新**: 2026-09-07
+> **实现状态**: ✅ **已完成** | 冒烟单测 **4/4 全部通过**
+> **模块代码**: [ep-module-mall](../ep-module-mall/src/main/java/xyz/herz/ep/mall/)
+> **测试代码**: [MallSmokeTests.java](../ep-module-mall/src/test/java/xyz/herz/ep/mall/MallSmokeTests.java)
+>
 > 报告目标：分析 yudao mall 商城模块的完整功能设计,重点关注数据状态流转(状态机),为在 Erupt 框架(注解驱动,Spring Boot + JPA)上实现类似功能提供指导。
+
+---
+
+## 实现状态
+
+| 子项 | 状态 | 代码位置 |
+|---|---|---|
+| 枚举字典 + 状态下拉处理器 | ✅ | `mall.enums.MallDictEnums` / `MallEnumChoiceFetchHandler` |
+| SPU/SKU + 分类(树) + 品牌 + 上下架行按钮 | ✅ | `entity/MallProductSpu/Spk/Category/Brand` |
+| 订单状态机:待付款→待发货→待收货→已完成/已取消 + 4 行按钮 | ✅ | [MallTradeOrder.java](../ep-module-mall/src/main/java/xyz/herz/ep/mall/entity/MallTradeOrder.java) |
+| 售后(仅退款/退货退款/换货)7 态 + 5 行按钮 + 日志 | ✅ | [MallTradeAfterSale.java](../ep-module-mall/src/main/java/xyz/herz/ep/mall/entity/MallTradeAfterSale.java) |
+| 支付流水(MallPayOrder) | ✅ | [MallPayOrder.java](../ep-module-mall/src/main/java/xyz/herz/ep/mall/entity/MallPayOrder.java) |
+| 跨模块 Facade(mall→erp 库存调用) | ✅ | `mall.facade.MallStockFacade` + Handler `@Autowired(required=false)` |
+| 售后库存回滚(调 erp changeStock) | ✅ | `MallAfterSaleCompleteHandler` |
+| 冒烟单测 4 场景全闭环 | ✅ | [MallSmokeTests.java](../ep-module-mall/src/test/java/xyz/herz/ep/mall/MallSmokeTests.java) |
+
+详细实现追踪见 [todo.md](./todo.md#3-mall-模块)。
+
+---
 
 ## 1. 模块概述
 

@@ -1,8 +1,29 @@
 # WMS 模块功能分析报告（基于主流开源 WMS 项目研究）
 
+> **版本**: v1.1（设计文档 + 实现状态）  |  **更新**: 2026-09-07
+> **实现状态**: ✅ **已完成** | 冒烟单测 **5/5 全部通过**
+> **模块代码**: [ep-module-wms](../ep-module-wms/src/main/java/xyz/herz/ep/wms/)
+> **测试代码**: [WmsSmokeTests.java](../ep-module-wms/src/test/java/xyz/herz/ep/wms/WmsSmokeTests.java)
+>
 > 本报告基于对若依 wms-ruoyi（zccbbg/wms-ruoyi）、RuoYi-WMS-Vue、Trailer98/wms-system、vivibro/iWMS、openwms.org 等开源 WMS 项目源码与文档，以及海外仓 WMS、菜鸟智能仓储、医药 GSP-WMS 等行业实践的对照研究，重点剖析**数据状态流转（状态机）**与**库存四态模型**，并给出在 Erupt 框架（注解驱动，Spring Boot + JPA）上的落地建议。
 > 报告目标读者：在 Erupt 上实现 WMS（仓储管理系统）模块的开发者。
 > 芋道 yudao **没有独立的 WMS 模块**，仅有 `yudao-module-erp` 下的简易库存（erp_stock / erp_stock_record），本报告在功能对照时会与 erp 库存模块对比，说明 WMS 的独立价值。
+
+---
+
+## 实现状态
+
+| 子项 | 状态 | 代码位置 |
+|---|---|---|
+| 枚举字典 + 状态下拉处理器 | ✅ | `wms.enums.WmsDictEnums` / `WmsEnumChoiceFetchHandler` |
+| 仓库/库区/库位三级 + 库位四态(空闲/有货/锁定/盘点中) | ✅ | [WmsWarehouse.java](../ep-module-wms/src/main/java/xyz/herz/ep/wms/entity/WmsWarehouse.java) / [WmsZone.java](../ep-module-wms/src/main/java/xyz/herz/ep/wms/entity/WmsZone.java) / [WmsLocation.java](../ep-module-wms/src/main/java/xyz/herz/ep/wms/entity/WmsLocation.java) |
+| 四态库存(available/locked/inTransit/frozen) + 库存流水 | ✅ | [WmsStock.java](../ep-module-wms/src/main/java/xyz/herz/ep/wms/entity/WmsStock.java) / [WmsStockMove.java](../ep-module-wms/src/main/java/xyz/herz/ep/wms/entity/WmsStockMove.java) |
+| 入库:ASN→收货→上架(3 单状态机 + 回写 + 库存增加) | ✅ | [WmsAsn.java](../ep-module-wms/src/main/java/xyz/herz/ep/wms/entity/WmsAsn.java) / [WmsReceipt.java](../ep-module-wms/src/main/java/xyz/herz/ep/wms/entity/WmsReceipt.java) / [WmsPutaway.java](../ep-module-wms/src/main/java/xyz/herz/ep/wms/entity/WmsPutaway.java) |
+| 出库:通知→拣货(2 单状态机 + 回写 + 库存扣减) | ✅ | [WmsShipmentNotice.java](../ep-module-wms/src/main/java/xyz/herz/ep/wms/entity/WmsShipmentNotice.java) / [WmsPick.java](../ep-module-wms/src/main/java/xyz/herz/ep/wms/entity/WmsPick.java) |
+| 移库/盘点作业 + 与 ERP 库存对账 | ✅ | [WmsStockMoveOrder.java](../ep-module-wms/src/main/java/xyz/herz/ep/wms/entity/WmsStockMoveOrder.java) / [WmsStockCheck.java](../ep-module-wms/src/main/java/xyz/herz/ep/wms/entity/WmsStockCheck.java) |
+| 冒烟单测 5 场景全闭环 | ✅ | [WmsSmokeTests.java](../ep-module-wms/src/test/java/xyz/herz/ep/wms/WmsSmokeTests.java) |
+
+详细实现追踪见 [todo.md](./todo.md#4-wms-模块)。
 
 ---
 

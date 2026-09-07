@@ -1,8 +1,29 @@
 # 落地页(Landing)模块设计文档
 
-> **模块**: ep-module-landing
-> **版本**: v1.0.0
-> **定位**: 基于 amis 的可视化拖拽 H5 落地页 + 短链接 + magic-api 接口 + 留资闭环
+> **版本**: v1.1（设计文档 + 实现状态）  |  **更新**: 2026-09-07
+> **实现状态**: ✅ **已完成** | 冒烟单测 **8/8 全部通过**
+> **模块代码**: [ep-module-landing](../ep-module-landing/src/main/java/xyz/herz/ep/landing/)
+> **测试代码**: [LandingSmokeTests.java](../ep-module-landing/src/test/java/xyz/herz/ep/landing/LandingSmokeTests.java)
+
+## 实现状态
+
+| 子项 | 状态 | 代码位置 |
+|---|---|---|
+| 模块骨架(pom + erupt-core/jpa/security/tpl + thymeleaf) | ✅ | [pom.xml](../ep-module-landing/pom.xml) |
+| LandingPage 实体 + 状态机(草稿→发布→下线) | ✅ | [LandingPage.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/entity/LandingPage.java) |
+| LandingTemplate 预设模板(空白/留资/产品) | ✅ | [LandingTemplate.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/entity/LandingTemplate.java) |
+| LandingLead 留资记录 + LandingAccessLog UV 去重 | ✅ | [LandingLead.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/entity/LandingLead.java) |
+| 短码生成器(Base62 自增 ID + 1M 偏移,6 位) | ✅ | [ShortCodeGenerator.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/shorturl/ShortCodeGenerator.java) |
+| 短链 Controller /l/{code} → /p/{slug} + PV/UV 统计 | ✅ | [ShortUrlController.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/shorturl/ShortUrlController.java) |
+| H5 渲染 Controller /p/{slug} + Thymeleaf 模板 | ✅ | [LandingRenderController.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/web/LandingRenderController.java) |
+| magic-api 脚本(6 个接口) + Spring MVC 兜底 API | ✅ | [LandingApiController.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/web/LandingApiController.java) |
+| amis-editor 入口页 + amis SDK CDN 集成 | ✅ | `static/landing-editor.html` + `templates/landing/render.html` |
+| 模板初始化器(启动时插入 3 个预设模板) | ✅ | [LandingTemplateInitializer.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/config/LandingTemplateInitializer.java) |
+| 冒烟单测 8 场景全闭环 | ✅ | [LandingSmokeTests.java](../ep-module-landing/src/test/java/xyz/herz/ep/landing/LandingSmokeTests.java) |
+
+详细实现追踪见 [todo.md](./todo.md#7-landing-落地页模块)。
+
+---
 
 ## 核心业务链
 

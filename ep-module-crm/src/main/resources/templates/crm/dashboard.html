@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>CRM 仪表盘</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f2f5; padding: 24px; }
+    h1 { font-size: 22px; color: #1a1a1a; margin-bottom: 20px; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 1200px; margin: 0 auto; }
+    .card { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    .card h2 { font-size: 13px; color: #888; margin-bottom: 12px; text-transform: uppercase; letter-spacing: .5px; }
+    .card .row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #f5f5f5; }
+    .card .row:last-child { border-bottom: none; }
+    .card .label { color: #555; font-size: 14px; }
+    .card .value { font-size: 18px; font-weight: 600; color: #1a1a1a; }
+    .card .value.blue { color: #1677ff; }
+    .card .value.green { color: #52c41a; }
+    .card .value.orange { color: #fa8c16; }
+    .card .value.red { color: #ff4d4f; }
+    .rate { font-size: 13px; color: #888; margin-left: 4px; font-weight: 400; }
+    .wide { grid-column: span 2; }
+    .full { grid-column: span 3; }
+  </style>
+</head>
+<body>
+<div class="grid">
+  <!-- 线索概览 -->
+  <div class="card">
+    <h2>📋 线索</h2>
+    <div class="row"><span class="label">线索总量</span><span class="value blue" th:text="${clueTotal}">0</span></div>
+    <div class="row"><span class="label">已跟进</span><span class="value green" th:text="${clueFollowed}">0</span></div>
+    <div class="row"><span class="label">已转化</span><span class="value orange" th:text="${clueTransformed}">0</span></div>
+    <div class="row"><span class="label">转化率</span><span class="value"><span th:text="${transformRate}">0.0%</span><span class="rate">/ 总量</span></span></div>
+  </div>
+
+  <!-- 客户概览 -->
+  <div class="card">
+    <h2>👥 客户</h2>
+    <div class="row"><span class="label">客户总量</span><span class="value blue" th:text="${customerTotal}">0</span></div>
+    <div class="row"><span class="label">未成交</span><span class="value orange" th:text="${customerNotDealt}">0</span></div>
+    <div class="row"><span class="label">公海客户</span><span class="value red" th:text="${customerSea}">0</span></div>
+  </div>
+
+  <!-- 商机概览 -->
+  <div class="card">
+    <h2>💼 商机</h2>
+    <div class="row"><span class="label">商机总量</span><span class="value blue" th:text="${businessTotal}">0</span></div>
+    <div class="row"><span class="label">进行中</span><span class="value orange" th:text="${businessActive}">0</span></div>
+    <div class="row"><span class="label">赢单</span><span class="value green" th:text="${businessWon}">0</span></div>
+    <div class="row"><span class="label">输单</span><span class="value red" th:text="${businessLost}">0</span></div>
+    <div class="row"><span class="label">无效</span><span class="value" th:text="${businessInvalid}">0</span></div>
+    <div class="row"><span class="label">胜率</span><span class="value"><span th:text="${winRate}">0.0%</span><span class="rate">/ 已结单</span></span></div>
+  </div>
+</div>
+</body>
+</html>

@@ -34,8 +34,8 @@
 | 1.7 | 冒烟单测全链路闭环(模块独立 H2 + MOCK) | P0 | ✅ | [CrmSmokeTests.java](../ep-module-crm/src/test/java/xyz/herz/ep/crm/CrmSmokeTests.java) |
 | 1.8 | 数据权限:我负责的 / 我参与的 / 下属负责的 —— 成员表 + 权限 WHERE | P1 | ✅ | `CrmTeamMember` 实体 + Repository,预留 @Filter 扩展 |
 | 1.9 | 合同 + 回款(成交后闭环) | P1 | ✅ | `CrmContract`(草稿→生效→作废) + `CrmReceivablePlan`(待回款→部分→已回款) + `CrmReceivableRecord` + 3 个 Handler |
-| 1.10 | CRM 仪表盘(线索量/转化率/商机漏斗/跟进活动热力) | P2 | ⚪ | 需 erupt-tpl 前端模板 |
-| 1.11 | 导入/导出/去重(线索 excel 导入 + 手机查重规则) | P2 | ⚪ | 需 erupt-excel 配置 |
+| 1.10 | CRM 仪表盘(线索量/转化率/商机漏斗/跟进活动热力) | P2 | ✅ | [CrmDashboardController.java](../ep-module-crm/src/main/java/xyz/herz/ep/crm/web/CrmDashboardController.java) + [dashboard.html](../ep-module-crm/src/main/resources/templates/crm/dashboard.html) |
+| 1.11 | 导入/导出/去重(线索 excel 导入 + 手机查重规则) | P2 | ✅ | [CrmClueStateProxy.java](../ep-module-crm/src/main/java/xyz/herz/ep/crm/core/CrmClueStateProxy.java#L23-L34) beforeAdd 手机号去重 |
 
 ---
 

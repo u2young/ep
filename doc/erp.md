@@ -1,7 +1,30 @@
 # ERP 模块功能分析报告（基于芋道 yudao 及同类开源项目）
 
+> **版本**: v1.1（设计文档 + 实现状态）  |  **更新**: 2026-09-07
+> **实现状态**: ✅ **已完成** | 冒烟单测 **4/4 全部通过**
+> **模块代码**: [ep-module-erp](../ep-module-erp/src/main/java/xyz/herz/ep/erp/)
+> **测试代码**: [ErpSmokeTests.java](../ep-module-erp/src/test/java/xyz/herz/ep/erp/ErpSmokeTests.java)
+>
 > 本报告基于对芋道（yudao）`yudao-module-erp` 模块的源码与文档、以及 RuoYi-ERP、JeecgBoot ERP、IFP、金蝶云星空等开源/商用 ERP 的对照研究，重点剖析数据状态流转与库存计算模型，并给出在 Erupt 框架（注解驱动，Spring Boot + JPA）上的落地建议。
 > 报告目标读者：在 Erupt 上实现 ERP 进销存 + 财务模块的开发者。
+
+---
+
+## 实现状态
+
+| 子项 | 状态 | 代码位置 |
+|---|---|---|
+| 枚举字典 + 状态下拉处理器 | ✅ | [ErpDictEnums.java](../ep-module-erp/src/main/java/xyz/herz/ep/erp/enums/ErpDictEnums.java) |
+| 主数据:分类/单位/品牌/仓库/供应商/客户/账户 + 启停行按钮 | ✅ | `entity/master/Erp*`(7 个实体) |
+| 产品档案(SPU + SKU + 条码) | ✅ | [ErpProduct.java](../ep-module-erp/src/main/java/xyz/herz/ep/erp/entity/product/ErpProduct.java) / [ErpProductSku.java](../ep-module-erp/src/main/java/xyz/herz/ep/erp/entity/product/ErpProductSku.java) |
+| 统一库存变更接口 `InventoryChangeFacade` 实现 | ✅ | [ErpStockService.java](../ep-module-erp/src/main/java/xyz/herz/ep/erp/core/ErpStockService.java) |
+| 采购单(PO)状态机 + 入库审核/反审/关闭 | ✅ | [ErpPurchaseOrder.java](../ep-module-erp/src/main/java/xyz/herz/ep/erp/entity/purchase/ErpPurchaseOrder.java) |
+| 销售单(SO)状态机 + 出库审核/反审/关闭 | ✅ | [ErpSaleOrder.java](../ep-module-erp/src/main/java/xyz/herz/ep/erp/entity/sale/ErpSaleOrder.java) |
+| 其他入库 / 其他出库(盘盈亏/调拨) | ✅ | `entity/document/ErpStockIn/Out` + Handler |
+| 收付款单 + 核销(多对多核销表) | ✅ | [ErpFinancePayment.java](../ep-module-erp/src/main/java/xyz/herz/ep/erp/entity/finance/ErpFinancePayment.java) / [ErpFinanceSettlement.java](../ep-module-erp/src/main/java/xyz/herz/ep/erp/entity/finance/ErpFinanceSettlement.java) |
+| 冒烟单测 4 场景全闭环 | ✅ | [ErpSmokeTests.java](../ep-module-erp/src/test/java/xyz/herz/ep/erp/ErpSmokeTests.java) |
+
+详细实现追踪见 [todo.md](./todo.md#2-erp-模块)。
 
 ---
 

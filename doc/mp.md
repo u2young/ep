@@ -1,6 +1,29 @@
 # 芋道 yudao 微信公众号(mp)模块功能分析报告
 
+> **版本**: v1.1（设计文档 + 实现状态）  |  **更新**: 2026-09-07
+> **实现状态**: ✅ **已完成** | 冒烟单测 **5/5 全部通过**
+> **模块代码**: [ep-module-mp](../ep-module-mp/src/main/java/xyz/herz/ep/mp/)
+> **测试代码**: [MpSmokeTests.java](../ep-module-mp/src/test/java/xyz/herz/ep/mp/MpSmokeTests.java)
+>
 > 本报告基于芋道源码 yudao `yudao-module-mp` 模块(对应数据库脚本 `sql/mysql/mp-2024-05-29.sql`),并结合微信公众号官方文档、WxJava SDK 及同类开源项目(RuoYi-MP、WeJava)整理而成,用于指导在 Erupt 框架(注解驱动,Spring Boot + JPA)上实现等价功能。重点突出**数据状态流转**而非简单 CRUD。
+
+---
+
+## 实现状态
+
+| 子项 | 状态 | 代码位置 |
+|---|---|---|
+| 枚举字典 + 状态下拉处理器 | ✅ | `mp.enums.MpDictEnums` / `MpEnumChoiceFetchHandler` |
+| 账号(appId/appSecret/token) + 启停 | ✅ | [MpAccount.java](../ep-module-mp/src/main/java/xyz/herz/ep/mp/entity/MpAccount.java) |
+| 粉丝(openId/nickname) + 关注状态机 + 标签 | ✅ | [MpUser.java](../ep-module-mp/src/main/java/xyz/herz/ep/mp/entity/MpUser.java) / [MpUserTag.java](../ep-module-mp/src/main/java/xyz/herz/ep/mp/entity/MpUserTag.java) |
+| 消息记录(方向/类型/内容) | ✅ | [MpMessage.java](../ep-module-mp/src/main/java/xyz/herz/ep/mp/entity/MpMessage.java) |
+| 自动回复(关注/关键字/默认) + 启用/禁用行按钮 | ✅ | [MpAutoReply.java](../ep-module-mp/src/main/java/xyz/herz/ep/mp/entity/MpAutoReply.java) |
+| 菜单(树形) + 发布/撤回状态机 | ✅ | [MpMenu.java](../ep-module-mp/src/main/java/xyz/herz/ep/mp/entity/MpMenu.java) |
+| 素材(图片/语音/视频/缩略图) | ✅ | [MpMaterial.java](../ep-module-mp/src/main/java/xyz/herz/ep/mp/entity/MpMaterial.java) |
+| 冒烟单测 5 场景全闭环 | ✅ | [MpSmokeTests.java](../ep-module-mp/src/test/java/xyz/herz/ep/mp/MpSmokeTests.java) |
+| 接入微信 API(WxJava) + 消息回调(P1) | 🔵 | 待在 ep-module-mp 内定义 `WeChatApiFacade` 接口 |
+
+详细实现追踪见 [todo.md](./todo.md#5-mp-模块)。
 
 ---
 

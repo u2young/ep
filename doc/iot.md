@@ -1,8 +1,30 @@
 # IoT 物联网模块功能分析报告
 
+> **版本**: v1.1（设计文档 + 实现状态）  |  **更新**: 2026-09-07
+> **实现状态**: ✅ **已完成** | 冒烟单测 **5/5 全部通过**
+> **模块代码**: [ep-module-iot](../ep-module-iot/src/main/java/xyz/herz/ep/iot/)
+> **测试代码**: [IotSmokeTests.java](../ep-module-iot/src/test/java/xyz/herz/ep/iot/IotSmokeTests.java)
+>
 > 研究对象：芋道 yudao iot 模块、ThingsBoard、JetLinks、IoT-DC3、RuoYi-IoT(enjoy-iot/thinglinks-iot) 等开源 IoT 项目
 > 目标：为本项目（基于 Erupt 框架，注解驱动 + Spring Boot + JPA）实现 IoT 模块提供设计依据
 > 重点：数据状态流转（状态机）而非简单 CRUD
+
+---
+
+## 实现状态
+
+| 子项 | 状态 | 代码位置 |
+|---|---|---|
+| 枚举字典 + 状态下拉处理器 | ✅ | `iot.enums.IotDictEnums` / `IotEnumChoiceFetchHandler` |
+| 产品分类(树) + 产品(节点类型/网络类型) + 启停行按钮 | ✅ | [IotProductCategory.java](../ep-module-iot/src/main/java/xyz/herz/ep/iot/entity/IotProductCategory.java) / [IotProduct.java](../ep-module-iot/src/main/java/xyz/herz/ep/iot/entity/IotProduct.java) |
+| 物模型(属性/服务/事件 + 数据类型 + 读写模式) | ✅ | [IotThingModel.java](../ep-module-iot/src/main/java/xyz/herz/ep/iot/entity/IotThingModel.java) |
+| 设备(状态机:未激活→离线↔在线→禁用) + 3 行按钮 | ✅ | [IotDevice.java](../ep-module-iot/src/main/java/xyz/herz/ep/iot/entity/IotDevice.java) |
+| 设备消息(上行/下行 + 属性/事件/服务) | ✅ | [IotDeviceMessage.java](../ep-module-iot/src/main/java/xyz/herz/ep/iot/entity/IotDeviceMessage.java) |
+| 告警规则 + 告警(四态) + 告警日志 | ✅ | [IotAlarmRule.java](../ep-module-iot/src/main/java/xyz/herz/ep/iot/entity/IotAlarmRule.java) / [IotAlarm.java](../ep-module-iot/src/main/java/xyz/herz/ep/iot/entity/IotAlarm.java) / [IotAlarmLog.java](../ep-module-iot/src/main/java/xyz/herz/ep/iot/entity/IotAlarmLog.java) |
+| 冒烟单测 5 场景全闭环 | ✅ | [IotSmokeTests.java](../ep-module-iot/src/test/java/xyz/herz/ep/iot/IotSmokeTests.java) |
+| 接入 MQTT(EMQX) + 设备影子(P1) | 🔵 | `MqttDeviceFacade` 接口已定义,ep-module-iot/core |
+
+详细实现追踪见 [todo.md](./todo.md#6-iot-模块)。
 
 ---
 
