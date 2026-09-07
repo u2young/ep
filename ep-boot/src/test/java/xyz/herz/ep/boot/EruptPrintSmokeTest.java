@@ -121,6 +121,7 @@ class EruptPrintSmokeTest {
         assertTrue(codes.contains("QAL_INSPECTION_REPORT"), "缺少 QAL_INSPECTION_REPORT 模板,现有=" + codes);
         assertTrue(codes.contains("PUR_PURCHASE_ORDER"), "缺少 PUR_PURCHASE_ORDER 模板,现有=" + codes);
         assertTrue(codes.contains("STK_STOCK_ENTRY"), "缺少 STK_STOCK_ENTRY 模板,现有=" + codes);
+        assertTrue(codes.contains("SAL_QUOTATION"), "缺少 SAL_QUOTATION 模板,现有=" + codes);
     }
 
     // =================== (3) 3 模板渲染 contains 关键字段 (>=2 每个) ===================
@@ -627,6 +628,41 @@ class EruptPrintSmokeTest {
             () -> "库存出入库单打印应 contains 批次号 BATCH-PR-001,实际=" + snippet(html));
         assertTrue(html.contains("STK_STOCK_ENTRY"),
             () -> "库存出入库单打印应 contains print code STK_STOCK_ENTRY,实际=" + snippet(html));
+    }
+
+    // =================== (14) Sal 报价单渲染 contains 关键字段 (>=2) ===================
+    @Test
+    void t14_render_sal_quotation_contains_fields() {
+        SalQuotation q = new SalQuotation();
+        q.setQuotationNo("SAL-QTN-001");
+        q.setCustomerCode("CUST-PR-01");
+        q.setCustomerName("打印测试客户");
+        q.setOrderType(1);
+        q.setExpectedAmount(new BigDecimal("5000.00"));
+        q.setValidDate(LocalDate.of(2026, 12, 31));
+        q.setCreatedBy("打印测试人");
+        q.setStatus(0);
+        q.setRemark("打印测试备注");
+
+        SalQuotationItem i1 = new SalQuotationItem();
+        i1.setQuotation(q);
+        i1.setItemCode("ITEM-PR-01");
+        i1.setItemName("打印测试物料");
+        i1.setQty(new BigDecimal("10"));
+        i1.setUnitPrice(new BigDecimal("500.00"));
+        i1.setAmount(new BigDecimal("5000.00"));
+        q.setItems(List.of(i1));
+
+        String html = printRenderer.renderQuotation(q);
+        assertNotNull(html);
+        assertTrue(html.contains("SAL-QTN-001"),
+            () -> "报价单打印应 contains 单号 SAL-QTN-001,实际=" + snippet(html));
+        assertTrue(html.contains("打印测试客户"),
+            () -> "报价单打印应 contains 客户名 打印测试客户,实际=" + snippet(html));
+        assertTrue(html.contains("打印测试物料"),
+            () -> "报价单打印应 contains 物料名 打印测试物料,实际=" + snippet(html));
+        assertTrue(html.contains("SAL_QUOTATION"),
+            () -> "报价单打印应 contains print code SAL_QUOTATION,实际=" + snippet(html));
     }
 
     private static String snippet(String s) {

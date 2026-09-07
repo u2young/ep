@@ -99,6 +99,7 @@ class EruptReportSmokeTest {
         assertTrue(codes.contains("QAL_PASS_RATE"), "应包含 质检合格率报表,现有 codes=" + codes);
         assertTrue(codes.contains("PUR_TOP_SUPPLIER"), "应包含 采购 Top 供应商报表,现有 codes=" + codes);
         assertTrue(codes.contains("STK_VALUATION"), "应包含 库存出入库流水汇总报表,现有 codes=" + codes);
+        assertTrue(codes.contains("SAL_TOP_SALESPERSON"), "应包含 销售 Top 销售员报表,现有 codes=" + codes);
     }
 
     // =================== (3) 3 条 SQL EXPLAIN: H2 兼容,无 syntax error ===================
@@ -354,6 +355,34 @@ class EruptReportSmokeTest {
         // Stk 1 张报表: 库存出入库流水汇总
         String[] stkCodes = { "STK_VALUATION" };
         for (String code : stkCodes) {
+            String sql = code2Sql.get(code);
+            assertNotNull(sql, () -> code + " 的 SQL 不应为空,现有=" + code2Sql.keySet());
+            try {
+                List<Map<String, Object>> plan = jdbcTemplate.queryForList("EXPLAIN " + sql);
+                assertFalse(plan.isEmpty(), () -> code + " EXPLAIN 应返回至少 1 行 plan,sql=" + sql);
+            } catch (Exception ex) {
+                fail(code + " H2 EXPLAIN 语法错误: " + ex.getMessage() + "  SQL=" + sql);
+            }
+        }
+    }
+
+    // =================== (12) Sal 报表 SQL EXPLAIN: H2 兼容 ===================
+    @Test
+    @SuppressWarnings("unchecked")
+    void report_sql_explain_sal_reports_h2_compat() throws Exception {
+        Class<?> repoCls = Class.forName("xyz.herz.ep.boot.report.EruptReportRepository");
+        Object repo = applicationContext.getBean(repoCls);
+        java.lang.reflect.Method findAllM = repoCls.getMethod("findAll");
+        List<Object> all = (List<Object>) findAllM.invoke(repo);
+        java.util.Map<String, String> code2Sql = new java.util.HashMap<>();
+        for (Object row : all) {
+            java.lang.reflect.Method getCode = row.getClass().getMethod("getCode");
+            java.lang.reflect.Method getSql = row.getClass().getMethod("getSqlStatement");
+            code2Sql.put((String) getCode.invoke(row), (String) getSql.invoke(row));
+        }
+
+        String[] salCodes = { "SAL_TOP_SALESPERSON" };
+        for (String code : salCodes) {
             String sql = code2Sql.get(code);
             assertNotNull(sql, () -> code + " 的 SQL 不应为空,现有=" + code2Sql.keySet());
             try {

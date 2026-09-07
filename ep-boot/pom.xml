@@ -89,6 +89,10 @@
             <groupId>xyz.herz.ep</groupId>
             <artifactId>ep-module-stk</artifactId>
         </dependency>
+        <dependency>
+            <groupId>xyz.herz.ep</groupId>
+            <artifactId>ep-module-sal</artifactId>
+        </dependency>
 
         <!-- ============ erupt 全家桶:运行时只在 boot 层聚合 ============ -->
         <dependency>

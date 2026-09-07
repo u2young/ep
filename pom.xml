@@ -28,6 +28,7 @@
         <module>ep-module-qal</module>
         <module>ep-module-pur</module>
         <module>ep-module-stk</module>
+        <module>ep-module-sal</module>
         <module>ep-boot</module>
     </modules>
 
@@ -135,6 +136,11 @@
             <dependency>
                 <groupId>xyz.herz.ep</groupId>
                 <artifactId>ep-module-stk</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>xyz.herz.ep</groupId>
+                <artifactId>ep-module-sal</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * erupt-report 启动初始化器。
  * <p>
- * 当 ep_report 表为空时,写入 23 张跨模块报表种子 (覆盖 16 个模块: CRM/ERP/Mall×2/WMS/IoT/Landing + Fin×3 + Mfg×2 + Proj×2 + Sup×2 + Ast×2 + HR×1 + Pay×1 + Qal×1 + Pur×1 + Stk×1)。
+ * 当 ep_report 表为空时,写入 24 张跨模块报表种子 (覆盖 17 个模块: CRM/ERP/Mall×2/WMS/IoT/Landing + Fin×3 + Mfg×2 + Proj×2 + Sup×2 + Ast×2 + HR×1 + Pay×1 + Qal×1 + Pur×1 + Stk×1 + Sal×1)。
  * <p>
  * 关键约定(匹配 ep-boot/src/test/resources/application.yml):
  * H2 JDBC URL 含 DATABASE_TO_UPPER=FALSE, 所以 Hibernate ddl-auto 建的表/列全部精确小写,
@@ -274,6 +274,14 @@ public class EruptReportInitializer implements ApplicationListener<ApplicationRe
             + " where e.status = 1"
             + " group by i.item_code, i.item_name"
             + " order by i.item_code"));
+
+        // (24) SAL_TOP_SALESPERSON: 销售 Top 销售员(按销售目标 descending,取 TOP 10)
+        list.add(build("SAL_TOP_SALESPERSON", "销售 Top 销售员", "Sal", "TABLE",
+            "select sp.emp_no as emp_no, sp.name as name,"
+            + " sp.dept_code as dept_code, coalesce(sp.target_amount, 0) as target_amount,"
+            + " coalesce(sp.commission_rate, 0) as commission_rate"
+            + " from sal_sales_person sp"
+            + " order by target_amount desc limit 10"));
 
         repo.saveAll(list);
     }

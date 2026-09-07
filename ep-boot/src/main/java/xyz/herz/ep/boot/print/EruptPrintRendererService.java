@@ -21,6 +21,8 @@ import xyz.herz.ep.mfg.entity.workorder.MfgWorkOrder;
 import xyz.herz.ep.proj.entity.project.ProjProject;
 import xyz.herz.ep.sup.entity.issue.SupIssue;
 import xyz.herz.ep.wms.entity.WmsShipmentNotice;
+import xyz.herz.ep.sal.entity.quotation.SalQuotation;
+import xyz.herz.ep.sal.entity.quotation.SalQuotationItem;
 
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
@@ -557,6 +559,56 @@ public class EruptPrintRendererService {
             + "  <tr><th style=\"width:160px\">备注</th><td>" + safe(entry.getRemark()) + "</td></tr>"
             + "</tbody></table>";
         return wrap("STK_STOCK_ENTRY", "库存出入库单 / " + safe(entry.getEntryNo()), body);
+    }
+
+    // =================== Sal 报价单 ===================
+    public String renderQuotation(SalQuotation q) {
+        if (q == null) {
+            throw new IllegalArgumentException("SalQuotation 不能为空(打印前需持久化实体,传入 null 无法渲染报价单 HTML)");
+        }
+        StringBuilder rows = new StringBuilder();
+        int idx = 0;
+        if (q.getItems() != null) {
+            for (SalQuotationItem it : q.getItems()) {
+                idx++;
+                rows.append("<tr>"
+                    + "<td>" + idx + "</td>"
+                    + "<td>" + safe(it.getItemCode()) + "</td>"
+                    + "<td>" + safe(it.getItemName()) + "</td>"
+                    + "<td style=\"text-align:right\">" + fmt(it.getQty()) + "</td>"
+                    + "<td style=\"text-align:right\">" + fmtAmt(it.getUnitPrice()) + "</td>"
+                    + "<td style=\"text-align:right\">" + fmtAmt(it.getAmount()) + "</td>"
+                    + "</tr>");
+            }
+        }
+        if (idx == 0) {
+            rows.append("<tr><td colspan=\"6\" style=\"color:#999;text-align:center\">(无明细)</td></tr>");
+        }
+        String body = ""
+            + "<div class=\"meta\">"
+            + "  报价单号: <b data-field=\"no\">" + safe(q.getQuotationNo()) + "</b>"
+            + "  &nbsp;|&nbsp; 客户: <b data-field=\"customer\">" + safe(q.getCustomerName()) + "</b>"
+            + "  &nbsp;|&nbsp; 状态: <b data-field=\"status\">" + safeObj(q.getStatus()) + "</b>"
+            + "</div>"
+            + "<table class=\"tbl\"><tbody>"
+            + "  <tr><th style=\"width:160px\">客户编码</th><td>" + safe(q.getCustomerCode()) + "</td></tr>"
+            + "  <tr><th>订单类型</th><td>" + safeObj(q.getOrderType()) + "</td></tr>"
+            + "  <tr><th>预计成交金额</th><td data-field=\"expectedAmount\">" + fmtAmt(q.getExpectedAmount()) + "</td></tr>"
+            + "  <tr><th>有效期至</th><td>" + fmtDate(q.getValidDate()) + "</td></tr>"
+            + "  <tr><th>创建人</th><td>" + safe(q.getCreatedBy()) + "</td></tr>"
+            + "</tbody></table>"
+            + "<table class=\"tbl\" style=\"margin-top:16px\"><thead><tr>"
+            + "  <th style=\"width:60px\">#</th>"
+            + "  <th>物料编码</th>"
+            + "  <th>物料名称</th>"
+            + "  <th style=\"width:120px;text-align:right\">数量</th>"
+            + "  <th style=\"width:140px;text-align:right\">单价</th>"
+            + "  <th style=\"width:140px;text-align:right\">小计</th>"
+            + "</tr></thead><tbody>" + rows + "</tbody></table>"
+            + "<table class=\"tbl\" style=\"margin-top:16px\"><tbody>"
+            + "  <tr><th style=\"width:160px\">备注</th><td>" + safe(q.getRemark()) + "</td></tr>"
+            + "</tbody></table>";
+        return wrap("SAL_QUOTATION", "销售报价单 / " + safe(q.getQuotationNo()), body);
     }
 
     // ============ 小工具 ============
