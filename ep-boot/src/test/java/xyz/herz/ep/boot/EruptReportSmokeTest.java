@@ -66,8 +66,8 @@ class EruptReportSmokeTest {
         Object repo = applicationContext.getBean(repoCls);
         java.lang.reflect.Method countM = repoCls.getMethod("count");
         Long cnt = (Long) countM.invoke(repo);
-        assertTrue(cnt >= 23, () -> "报表数应 >= 23,实际 " + cnt
-            + " (16 模块: CRM/ERP/Mall×2/WMS/IoT/Landing + Fin×3 + Mfg×2 + Proj×2 + Sup×2 + Ast×2 + HR×1 + Pay×1 + Qal×1 + Pur×1 + Stk×1)");
+        assertTrue(cnt >= 24, () -> "报表数应 >= 24,实际 " + cnt
+            + " (17 模块: CRM/ERP/Mall×2/WMS/IoT/Landing + Fin×3 + Mfg×2 + Proj×2 + Sup×2 + Ast×2 + HR×1 + Pay×1 + Qal×1 + Pur×1 + Stk×1 + Sal×1)");
 
         // 抽样:至少包含 CRM_TOP_CONTRACT / ERP_PURCHASE_TREND / MALL_GMV_DAILY 三个 code
         java.lang.reflect.Method findAllM = repoCls.getMethod("findAll");

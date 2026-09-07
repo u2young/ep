@@ -1,4 +1,4 @@
-# erupt-cloud
+# erupt-plus
 
 基于 [Erupt](https://github.com/erupt-project/erupt) 注解驱动的企业级 ERP 业务系统，Java 21 + Spring Boot 3.5 构建，零前端代码实现完整的业务状态流转。
 

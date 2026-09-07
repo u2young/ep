@@ -47,6 +47,9 @@
         <!-- ======= 版本统一管理 —— 后续改版本只改这里 ======= -->
         <erupt.version>2.1.0</erupt.version>
         <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
+        <!-- 外部集成 SDK 版本收敛 -->
+        <wxjava.version>4.8.6.B</wxjava.version>
+        <paho.mqttv5.version>1.2.5</paho.mqttv5.version>
     </properties>
 
     <!-- 父工程只做版本收敛,不依赖任何具体包 -->
@@ -254,6 +257,18 @@
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
                 <version>${h2.version}</version>
+            </dependency>
+
+            <!-- ========== 外部集成 SDK ========== -->
+            <dependency>
+                <groupId>com.github.binarywang</groupId>
+                <artifactId>weixin-java-mp</artifactId>
+                <version>${wxjava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.paho</groupId>
+                <artifactId>org.eclipse.paho.mqttv5.client</artifactId>
+                <version>${paho.mqttv5.version}</version>
             </dependency>
 
             <!-- ========== 常用编译期工具 ========== -->

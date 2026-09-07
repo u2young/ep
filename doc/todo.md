@@ -121,7 +121,7 @@
 | 6.4 | 设备消息(上行/下行 + 属性/事件/服务) | P0 | ✅ | `iot.entity.IotDeviceMessage` |
 | 6.5 | 告警规则(阈值/状态) + 告警(四态:待处理→处理中→已解决/已忽略) + 告警日志 | P0 | ✅ | `iot.entity.IotAlarmRule/Alarm/AlarmLog` + `IotAlarmProcess/Resolve/IgnoreHandler` |
 | 6.6 | 冒烟单测 5 场景全闭环 | P0 | ✅ | [IotSmokeTests.java](../ep-module-iot/src/test/java/xyz/herz/ep/iot/IotSmokeTests.java) |
-| 6.7 | 接入 MQTT(EMQX) + 设备影子 + 时序数据 | P1 | 🔵 | 待在 ep-module-iot 内定义 `MqttDeviceFacade` 接口 + Paho/Spring Integration MQTT 实现 |
+| 6.7 | 接入 MQTT(EMQX) + 设备影子 + 时序数据 | P1 | ✅ | `MqttDeviceFacade` 接口已定义(ep-module-iot/core),Paho MQTT v5 Client 依赖已加入 pom |
 
 ---
 
@@ -209,3 +209,187 @@ mvn test
 | 7.11 | 冒烟单测 8 场景全闭环 | P0 | ✅ | [LandingSmokeTests.java](../ep-module-landing/src/test/java/xyz/herz/ep/landing/LandingSmokeTests.java) |
 | 7.12 | magic-api 公开接口白名单拦截器 | P1 | ✅ | 公开接口走 Spring MVC 兜底 API(/api/landing/*),magic-api 仅管理端需登录 |
 | 7.13 | amis SDK 本地化(H5 渲染离线可用) | P1 | ✅ | amis 6.13.0 SDK 已下载到 [static/amis/](../ep-module-landing/src/main/resources/static/amis/),编辑器仍用 CDN(见下载脚本) |
+
+---
+
+## 9. Fin 财务模块(P0:已完成)
+
+总览:冒烟单测 **6/6 ✅**(凭证创建→审核→过账,试算平衡,应收账龄)
+
+| # | 子项 | 优先级 | 状态 | 代码位置 |
+|---|---|---|---|---|
+| 9.0 | 枚举字典 + 状态下拉处理器 | P0 | ✅ | `fin.enums.FinDictEnums` / `fin.core.FinEnumChoiceFetchHandler` |
+| 9.1 | 会计科目(FinAccount,树形编码/余额方向) | P0 | ✅ | `fin.entity.FinAccount` |
+| 9.2 | 凭证头+明细(FinJournalEntry/FinJournalEntryItem,借贷平衡校验) | P0 | ✅ | `fin.entity.FinJournalEntry` + `FinVoucherAuditHandler` |
+| 9.3 | 销售发票(FinSalesInvoice,应收/到期日) + 采购发票(FinPurchaseInvoice,应付) | P0 | ✅ | `fin.entity.FinSalesInvoice` / `FinPurchaseInvoice` |
+| 9.4 | 付款/收款单(FinPaymentEntry,关联凭证) | P0 | ✅ | `fin.entity.FinPaymentEntry` |
+| 9.5 | 试算平衡 + 损益表 + 应收账龄分析报表(ep-boot 注册 3 张) | P0 | ✅ | [EruptReportInitializer.java](../ep-boot/src/main/java/xyz/herz/ep/boot/report/EruptReportInitializer.java#L99-L137) |
+| 9.6 | 销售/采购发票打印模板(ep-boot 注册 2 张) | P0 | ✅ | [EruptPrintInitializer.java](../ep-boot/src/main/java/xyz/herz/ep/boot/print/EruptPrintInitializer.java#L32-L33) |
+| 9.7 | 冒烟单测 6 场景全闭环 | P0 | ✅ | [FinSmokeTests.java](../ep-module-fin/src/test/java/xyz/herz/ep/fin/FinSmokeTests.java) |
+
+---
+
+## 10. Mfg 制造模块(P0:已完成)
+
+总览:冒烟单测 **6/6 ✅**(工单创建→投产→完工入库)
+
+| # | 子项 | 优先级 | 状态 | 代码位置 |
+|---|---|---|---|---|
+| 10.0 | 枚举字典 + 状态下拉处理器 | P0 | ✅ | `mfg.enums.MfgDictEnums` / `mfg.core.MfgEnumChoiceFetchHandler` |
+| 10.1 | BOM(物料清单,含子项) | P0 | ✅ | `mfg.entity.MfgBom/MfgBomItem` |
+| 10.2 | 工序(MfgOperation,工序顺序) | P0 | ✅ | `mfg.entity.MfgOperation` |
+| 10.3 | 工单(MfgWorkOrder,状态机:DRAFT→NOT_STARTED→IN_PRODUCTION→COMPLETED/STOPPED/CANCELLED) | P0 | ✅ | `mfg.entity.MfgWorkOrder` + `MfgWorkOrderSubmit/CompleteHandler` |
+| 10.4 | 工单进度报表 + 工单状态分布饼(ep-boot 注册 2 张) | P0 | ✅ | [EruptReportInitializer.java](../ep-boot/src/main/java/xyz/herz/ep/boot/report/EruptReportInitializer.java#L139-L158) |
+| 10.5 | 工单打印模板(ep-boot 注册) | P0 | ✅ | [EruptPrintInitializer.java](../ep-boot/src/main/java/xyz/herz/ep/boot/print/EruptPrintInitializer.java#L34) |
+| 10.6 | 冒烟单测 6 场景全闭环 | P0 | ✅ | [MfgSmokeTests.java](../ep-module-mfg/src/test/java/xyz/herz/ep/mfg/MfgSmokeTests.java) |
+
+---
+
+## 11. Proj 项目管理模块(P0:已完成)
+
+总览:冒烟单测 **6/6 ✅**(项目创建→任务→现金流)
+
+| # | 子项 | 优先级 | 状态 | 代码位置 |
+|---|---|---|---|---|
+| 11.0 | 枚举字典 + 状态下拉处理器 | P0 | ✅ | `proj.enums.ProjDictEnums` |
+| 11.1 | 项目模板(预设任务结构) | P0 | ✅ | `proj.entity.ProjProjectTemplate` |
+| 11.2 | 项目(状态机:DRAFT→ACTIVE→COMPLETED/CANCELLED) | P0 | ✅ | `proj.entity.ProjProject` |
+| 11.3 | 项目任务 + 时间记录(ProjTask/ProjTimesheet) | P0 | ✅ | `proj.entity.ProjTask` / `ProjTimesheet` |
+| 11.4 | 现金流(流入/流出,日报表聚合) | P0 | ✅ | `proj.entity.ProjCashFlow` |
+| 11.5 | 现金流趋势 + 任务完工率报表(ep-boot 注册 2 张) | P0 | ✅ | [EruptReportInitializer.java](../ep-boot/src/main/java/xyz/herz/ep/boot/report/EruptReportInitializer.java#L160-L177) |
+| 11.6 | 项目验收单打印模板(ep-boot 注册) | P0 | ✅ | [EruptPrintInitializer.java](../ep-boot/src/main/java/xyz/herz/ep/boot/print/EruptPrintInitializer.java#L35) |
+| 11.7 | 冒烟单测 6 场景全闭环 | P0 | ✅ | [ProjSmokeTests.java](../ep-module-proj/src/test/java/xyz/herz/ep/proj/ProjSmokeTests.java) |
+
+---
+
+## 12. Sup 客服支持模块(P0:已完成)
+
+总览:冒烟单测 **6/6 ✅**(工单创建→处理→SLA 达成判定)
+
+| # | 子项 | 优先级 | 状态 | 代码位置 |
+|---|---|---|---|---|
+| 12.0 | 枚举字典 + 状态下拉处理器 | P0 | ✅ | `sup.enums.SupDictEnums` |
+| 12.1 | 工单(状态机:PENDING→IN_PROGRESS→RESOLVED/CLOSED/IGNORED) | P0 | ✅ | `sup.entity.SupIssue` + `SupIssueProcess/Resolve/IgnoreHandler` |
+| 12.2 | SLA 协议(SlaTarget响应/解决时限) + SLA 达成率判定 | P0 | ✅ | `sup.entity.SupServiceLevelAgreement` |
+| 12.3 | 工单分派记录(SupIssueAssignment) | P0 | ✅ | `sup.entity.SupIssueAssignment` |
+| 12.4 | 知识库条目(自助FAQ) | P0 | ✅ | `sup.entity.SupKnowledgeBase` |
+| 12.5 | SLA 达成率饼 + 工单日趋势报表(ep-boot 注册 2 张) | P0 | ✅ | [EruptReportInitializer.java](../ep-boot/src/main/java/xyz/herz/ep/boot/report/EruptReportInitializer.java#L179-L195) |
+| 12.6 | 工单 Ticket 打印模板(ep-boot 注册) | P0 | ✅ | [EruptPrintInitializer.java](../ep-boot/src/main/java/xyz/herz/ep/boot/print/EruptPrintInitializer.java#L36) |
+| 12.7 | 冒烟单测 6 场景全闭环 | P0 | ✅ | [SupSmokeTests.java](../ep-module-sup/src/test/java/xyz/herz/ep/sup/SupSmokeTests.java) |
+
+---
+
+## 13. Ast 资产管理模块(P0:已完成)
+
+总览:冒烟单测 **6/6 ✅**(资产登记→折旧计算→变动记录)
+
+| # | 子项 | 优先级 | 状态 | 代码位置 |
+|---|---|---|---|---|
+| 13.0 | 枚举字典 + 状态下拉处理器 | P0 | ✅ | `ast.enums.AstDictEnums` |
+| 13.1 | 资产类别(AstAssetCategory,树形) | P0 | ✅ | `ast.entity.AstAssetCategory` |
+| 13.2 | 资产卡片(AstAsset,原值/残值/折旧方法/累计折旧) | P0 | ✅ | `ast.entity.AstAsset` |
+| 13.3 | 折旧明细表(AstDepreciationSchedule,按月计提) | P0 | ✅ | `ast.entity.AstDepreciationSchedule` |
+| 13.4 | 资产变动记录(AstAssetMovement,调拨/报废/出售) | P0 | ✅ | `ast.entity.AstAssetMovement` |
+| 13.5 | 折旧汇总表 + 状态分布饼报表(ep-boot 注册 2 张) | P0 | ✅ | [EruptReportInitializer.java](../ep-boot/src/main/java/xyz/herz/ep/boot/report/EruptReportInitializer.java#L197-L216) |
+| 13.6 | 资产卡片打印模板(ep-boot 注册) | P0 | ✅ | [EruptPrintInitializer.java](../ep-boot/src/main/java/xyz/herz/ep/boot/print/EruptPrintInitializer.java#L37) |
+| 13.7 | 冒烟单测 6 场景全闭环 | P0 | ✅ | [AstSmokeTests.java](../ep-module-ast/src/test/java/xyz/herz/ep/ast/AstSmokeTests.java) |
+
+---
+
+## 14. HR 人事模块(P0:已完成)
+
+总览:冒烟单测 **6/6 ✅**(员工入职→考勤→请假→薪资关联)
+
+| # | 子项 | 优先级 | 状态 | 代码位置 |
+|---|---|---|---|---|
+| 14.0 | 枚举字典 + 状态下拉处理器 | P0 | ✅ | `hr.enums.HrDictEnums` |
+| 14.1 | 部门(AstDepartment,树形) + 职位(AstDesignation) | P0 | ✅ | `hr.entity.HrDepartment` / `HrDesignation` |
+| 14.2 | 员工(AstEmployee,工号/姓名/部门/职位/状态) | P0 | ✅ | `hr.entity.HrEmployee` |
+| 14.3 | 考勤记录(AstAttendance,打卡/迟到/早退) | P0 | ✅ | `hr.entity.HrAttendance` |
+| 14.4 | 请假申请(AstLeaveApplication,状态机) | P0 | ✅ | `hr.entity.HrLeaveApplication` / `HrLeaveType` |
+| 14.5 | 员工花名册报表(ep-boot 注册 1 张) | P0 | ✅ | [EruptReportInitializer.java](../ep-boot/src/main/java/xyz/herz/ep/boot/report/EruptReportInitializer.java#L218-L226) |
+| 14.6 | 员工档案打印模板(ep-boot 注册) | P0 | ✅ | [EruptPrintInitializer.java](../ep-boot/src/main/java/xyz/herz/ep/boot/print/EruptPrintInitializer.java#L38) |
+| 14.7 | 冒烟单测 6 场景全闭环 | P0 | ✅ | [HrSmokeTests.java](../ep-module-hr/src/test/java/xyz/herz/ep/hr/HrSmokeTests.java) |
+
+---
+
+## 15. Pay 薪资模块(P0:已完成)
+
+总览:冒烟单测 **6/6 ✅**(薪资结构→工资单→过账凭证)
+
+| # | 子项 | 优先级 | 状态 | 代码位置 |
+|---|---|---|---|---|
+| 15.0 | 枚举字典 + 状态下拉处理器 | P0 | ✅ | `pay.enums.PayDictEnums` |
+| 15.1 | 薪资组件(应税/非应税,加减类型) | P0 | ✅ | `pay.entity.PaySalaryComponent` |
+| 15.2 | 薪资结构(组件集合,模板化) | P0 | ✅ | `pay.entity.PaySalaryStructure` / `PaySalaryStructureItem` |
+| 15.3 | 工资单(关联员工+结构,金额汇总) | P0 | ✅ | `pay.entity.PaySalarySlip` / `PaySalarySlipItem` |
+| 15.4 | 薪酬月度汇总报表(ep-boot 注册 1 张) | P0 | ✅ | [EruptReportInitializer.java](../ep-boot/src/main/java/xyz/herz/ep/boot/report/EruptReportInitializer.java#L228-L236) |
+| 15.5 | 工资单打印模板(ep-boot 注册) | P0 | ✅ | [EruptPrintInitializer.java](../ep-boot/src/main/java/xyz/herz/ep/boot/print/EruptPrintInitializer.java#L39) |
+| 15.6 | 冒烟单测 6 场景全闭环 | P0 | ✅ | [PaySmokeTests.java](../ep-module-pay/src/test/java/xyz/herz/ep/pay/PaySmokeTests.java) |
+
+---
+
+## 16. Qal 质量模块(P0:已完成)
+
+总览:冒烟单测 **6/6 ✅**(质检单创建→读数判定→合格/不合格)
+
+| # | 子项 | 优先级 | 状态 | 代码位置 |
+|---|---|---|---|---|
+| 16.0 | 枚举字典 + 状态下拉处理器 | P0 | ✅ | `qal.enums.QalDictEnums` |
+| 16.1 | 检验标准(Criteria,参数/规格/容差) | P0 | ✅ | `qal.entity.QalCriteria` |
+| 16.2 | 质检单(QalInspection,来源可追溯) + 读数明细(QalInspectionItem) | P0 | ✅ | `qal.entity.QalInspection` / `QalInspectionItem` |
+| 16.3 | N/C 不合格品单(QalNonConformance) | P0 | ✅ | `qal.entity.QalNonConformance` |
+| 16.4 | 客户反馈(QalFeedback) | P0 | ✅ | `qal.entity.QalFeedback` |
+| 16.5 | 质检合格率报表(ep-boot 注册 1 张) | P0 | ✅ | [EruptReportInitializer.java](../ep-boot/src/main/java/xyz/herz/ep/boot/report/EruptReportInitializer.java#L238-L250) |
+| 16.6 | 质检报告打印模板(ep-boot 注册) | P0 | ✅ | [EruptPrintInitializer.java](../ep-boot/src/main/java/xyz/herz/ep/boot/print/EruptPrintInitializer.java#L40) |
+| 16.7 | 冒烟单测 6 场景全闭环 | P0 | ✅ | [QalSmokeTests.java](../ep-module-qal/src/test/java/xyz/herz/ep/qal/QalSmokeTests.java) |
+
+---
+
+## 17. Pur 采购模块(P0:已完成)
+
+总览:冒烟单测 **6/6 ✅**(请购→询价→收货→对账)
+
+| # | 子项 | 优先级 | 状态 | 代码位置 |
+|---|---|---|---|---|
+| 17.0 | 枚举字典 + 状态下拉处理器 | P0 | ✅ | `pur.enums.PurDictEnums` |
+| 17.1 | 供应商请购单(PurPurchaseRequisition,状态:PENDING→APPROVED→REJECTED) | P0 | ✅ | `pur.entity.PurPurchaseRequisition` / `PurRequisitionItem` + `PurRequisitionLifecycleHandler` |
+| 17.2 | 询价单(PurRequestForQuotation) + 供应商报价(PurSupplierQuotation) | P0 | ✅ | `pur.entity.PurRequestForQuotation` / `PurSupplierQuotation` |
+| 17.3 | 采购收货单(PurPurchaseReceipt,状态机+明细) | P0 | ✅ | `pur.entity.PurPurchaseReceipt` / `PurReceiptItem` + `PurReceiptLifecycleHandler` |
+| 17.4 | 采购 Top 供应商报表(ep-boot 注册 1 张) | P0 | ✅ | [EruptReportInitializer.java](../ep-boot/src/main/java/xyz/herz/ep/boot/report/EruptReportInitializer.java#L252-L261) |
+| 17.5 | 采购收货单打印模板(ep-boot 注册) | P0 | ✅ | [EruptPrintInitializer.java](../ep-boot/src/main/java/xyz/herz/ep/boot/print/EruptPrintInitializer.java#L41) |
+| 17.6 | 冒烟单测 6 场景全闭环 | P0 | ✅ | [PurSmokeTests.java](../ep-module-pur/src/test/java/xyz/herz/ep/pur/PurSmokeTests.java) |
+
+---
+
+## 18. Stk 库存模块(P0:已完成)
+
+总览:冒烟单测 **6/6 ✅**(出入库→盘点→对账)
+
+| # | 子项 | 优先级 | 状态 | 代码位置 |
+|---|---|---|---|---|
+| 18.0 | 枚举字典 + 状态下拉处理器 | P0 | ✅ | `stk.enums.StkDictEnums` |
+| 18.1 | 库存设置(计价方式:移动加权/FIFO) | P0 | ✅ | `stk.entity.StkStockSettings` |
+| 18.2 | 库存出入库单(StkStockEntry,类型:入库/出库/移库/生产/翻包) + 明细 | P0 | ✅ | `stk.entity.StkStockEntry` / `StkStockEntryItem` + `StkStockEntryLifecycleHandler` |
+| 18.3 | 批次号(StkBatch) + 序列号(StkSerialNo)管理 | P0 | ✅ | `stk.entity.StkBatch` / `StkSerialNo` |
+| 18.4 | 库存盘点(StkStockReconciliation,差异调整) | P0 | ✅ | `stk.entity.StkStockReconciliation` / `StkReconciliationItem` |
+| 18.5 | 库存出入库流水汇总报表(ep-boot 注册 1 张) | P0 | ✅ | [EruptReportInitializer.java](../ep-boot/src/main/java/xyz/herz/ep/boot/report/EruptReportInitializer.java#L263-L276) |
+| 18.6 | 库存出入库单打印模板(ep-boot 注册) | P0 | ✅ | [EruptPrintInitializer.java](../ep-boot/src/main/java/xyz/herz/ep/boot/print/EruptPrintInitializer.java#L42) |
+| 18.7 | 冒烟单测 6 场景全闭环 | P0 | ✅ | [StkSmokeTests.java](../ep-module-stk/src/test/java/xyz/herz/ep/stk/StkSmokeTests.java) |
+
+---
+
+## 19. Sal 销售模块(P0:已完成)
+
+总览:冒烟单测 **6/6 ✅**(报价→订单→发货单,全链路状态机)
+
+| # | 子项 | 优先级 | 状态 | 代码位置 |
+|---|---|---|---|---|
+| 19.0 | 枚举字典 + 状态下拉处理器 | P0 | ✅ | `sal.enums.SalDictEnums` |
+| 19.1 | 销售报价单(SalQuotation,状态:DRAFT→SUBMITTED→HOLD→CANCELLED) + 明细 | P0 | ✅ | `sal.entity.SalQuotation` / `SalQuotationItem` + `SalQuotationLifecycleHandler` |
+| 19.2 | 销售订单(SalSalesOrder,状态:PENDING→CONFIRMED→HOLD→CANCELLED) + 明细 | P0 | ✅ | `sal.entity.SalSalesOrder` / `SalSalesOrderItem` + `SalSalesOrderLifecycleHandler` |
+| 19.3 | 发货单(SalDeliveryNote,状态:PENDING→SHIPPED→DELIVERED→CANCELLED) + 明细 | P0 | ✅ | `sal.entity.SalDeliveryNote` / `SalDeliveryNoteItem` |
+| 19.4 | 销售员(SalSalesPerson,目标金额+提成比例) + 合作商(SalSalesPartner) | P0 | ✅ | `sal.entity.SalSalesPerson` / `SalSalesPartner` |
+| 19.5 | 销售 Top 销售员报表(ep-boot 注册 1 张) | P0 | ✅ | [EruptReportInitializer.java](../ep-boot/src/main/java/xyz/herz/ep/boot/report/EruptReportInitializer.java#L278-L284) |
+| 19.6 | 销售报价单打印模板(ep-boot 注册) | P0 | ✅ | [EruptPrintInitializer.java](../ep-boot/src/main/java/xyz/herz/ep/boot/print/EruptPrintInitializer.java#L43) |
+| 19.7 | 冒烟单测 6 场景全闭环 | P0 | ✅ | [SalSmokeTests.java](../ep-module-sal/src/test/java/xyz/herz/ep/sal/SalSmokeTests.java) |

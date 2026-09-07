@@ -101,8 +101,8 @@ class EruptPrintSmokeTest {
         Class<?> repoCls = Class.forName("xyz.herz.ep.boot.print.EruptPrintTemplateRepository");
         Object repo = applicationContext.getBean(repoCls);
         Long cnt = (Long) repoCls.getMethod("count").invoke(repo);
-        assertTrue(cnt >= 14, () -> "打印模板数应 >= 14,实际 " + cnt
-            + " (14 模板: CRM/ERP/WMS/Fin×2/Mfg/Proj/Sup/Ast/HR/Pay/Qal/Pur/Stk)");
+        assertTrue(cnt >= 15, () -> "打印模板数应 >= 15,实际 " + cnt
+            + " (15 模板: CRM/ERP/WMS/Fin×2/Mfg/Proj/Sup/Ast/HR/Pay/Qal/Pur/Stk/Sal)");
 
         List<Object> all = (List<Object>) repoCls.getMethod("findAll").invoke(repo);
         java.util.Set<String> codes = new java.util.HashSet<>();
