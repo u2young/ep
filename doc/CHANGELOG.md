@@ -5,6 +5,91 @@
 
 ---
 
+## [1.6.0] - 2026-09-07
+
+### 升级概要
+
+ERPNext 数据模型移植 **第三批（采购 + 库存 + 销售）**：新增 3 个业务模块 **Pur 采购 / Stk 库存 / Sal 销售**，延续 1.5.0 的「原生化建模 + 完整级实现」路线（状态机 DataProxy + 行按钮 Handler + erupt-report 报表 + erupt-print 打印模板），不做 REST API 集成。
+
+- 新增 3 个业务模块（`ep-module-pur` / `ep-module-stk` / `ep-module-sal`），父 pom `<modules>`/`<dependencyManagement>` 与 ep-boot 依赖同步登记；
+- 跨模块集成：Pur 采购入库复用 `StkStockFacade`（库存累加）；Stk 盘点差异复用 `FinPostingFacade`（GL 过账）；Sal 销售报价单自包含；
+- 总 SmokeTests 从原 146 → **现 174**，新增 28 条，全量 BUILD SUCCESS。
+
+**数字概览**：
+- Maven 模块：15 个业务模块 + ep-boot（父 pom `<modules>` 20 → 23，含原 12 + 新 3）；
+- ep-boot 报表种子：21 → 24 张（+PUR_TOP_SUPPLIER / STK_VALUATION / SAL_TOP_SALESPERSON）；
+- ep-boot 打印模板种子：12 → 15 张（+PUR_PURCHASE_ORDER / STK_STOCK_ENTRY / SAL_QUOTATION）；
+- SmokeTests 增量：Pur 6 + Stk 6 + Sal 6 + ep-boot Report 9→11(+2) + Print 11→14(+3) = 新增 23 条（含 1 条缺 import 的修复）。
+
+### 新增模块速览
+
+| 模块 | 包名 | 核心实体 | 状态机 / 关键能力 | 跨模块集成 | 测试 |
+|---|---|---|---|---|---|
+| **Pur 采购** | `xyz.herz.ep.pur` | PurPurchaseRequisition / PurPurchaseOrder / PurReceipt / PurReceiptItem / PurSupplier 5 实体 | 请购单状态机(草稿→已提交→已批准→已关闭) · 采购订单状态机(草稿→已提交→部分收货→已完成) · 收货单状态机(草稿→已收货→已关闭) | StkStockFacade 收货→库存入库；FinPostingFacade 可选 | PurSmokeTests 6/6 ✅ |
+| **Stk 库存** | `xyz.herz.ep.stk` | StkStockEntry / StkStockEntryItem / StkStockReconciliation / StkStockReconciliationItem / StkWarehouse 5 实体 | 出入库单状态机(草稿→已审核→已关闭) · 盘点单状态机(草稿→盘点中→已完成) | FinPostingFacade 盘点差异 GL 过账；Pur/Sal 反向引用 | StkSmokeTests 6/6 ✅ |
+| **Sal 销售** | `xyz.herz.ep.sal` | SalQuotation / SalQuotationItem / SalSalesOrder / SalSalesOrderItem / SalDeliveryNote / SalDeliveryNoteItem / SalSalesPerson / SalSalesPartner 8 实体 | 报价单状态机(草稿→已提交→已确认→已拒绝→已取消) · 销售订单状态机(草稿→已提交→已发货→已完成→已取消) · 发货单状态机(草稿→已发货→已完成) | StkStockFacade 发货→库存出库；FinPostingFacade 可选 | SalSmokeTests 6/6 ✅ |
+
+### ep-boot 报表 / 打印扩展
+
+| 类型 | 新增 | 覆盖 | 验收测试 |
+|---|---|---|---|
+| erupt-report | Pur 采购 Top 供应商 + Stk 库存价值评估 + Sal 销售 Top 销售员 = 3 张 | `EruptReportInitializer` 24 张种子，SQL 全小写 H2 兼容 | EruptReportSmokeTest 11/11（count≥24 + 24 code 抽样 + SQL EXPLAIN） |
+| erupt-print | Pur 采购订单 + Stk 库存出入库单 + Sal 销售报价单 = 3 模板 | `EruptPrintInitializer` 15 张种子 + `EruptPrintRendererService.renderXxx` | EruptPrintSmokeTest 14/14（count≥15 + 15 code 抽样 + 3 模块渲染 contains 关键字段 + null 统一 IAE） |
+
+### 关键技术决策
+
+| 决策点 | 选择 | 理由 |
+|--------|------|------|
+| 采购收货入库 | StkStockFacade.changeStock() 库存+ | 采购模块不直接操作库存表，通过 Facade 统一出入库，保持模块解耦 |
+| 库存盘点差异 | 有差异→status=30，自动生成 GL 凭证(借 盘盈/贷 盘亏 或反之) | 与 FinPostingFacade 对接，差异自动入账 |
+| 销售报价单打印 | renderQuotation() 渲染表头+明细行 | 报价单是销售流程起点，打印模板需展示客户/物料/数量/金额 |
+| H2 兼容性 | `NON_KEYWORDS=VALUE,VALUE_` | 避免 ERpNext 字段名 VALUE 与 H2 关键字冲突 |
+| Handler 调用约定 | `handler.exec()` 后必须 `findById` 重新取值 | EntityManager.merge() 返回托管实例但不回写传参变量，后续操作需重新加载 |
+
+### 测试用例概览（原 146 → 现 174）
+
+| 模块 | 1.5.0 | 1.6.0 | 增量 |
+|---|---|---|---|
+| ep-module-pur | 0 | 6 | +6 |
+| ep-module-stk | 0 | 6 | +6 |
+| ep-module-sal | 0 | 6 | +6 |
+| ep-boot（Report） | 9 | 11 | +2 |
+| ep-boot（Print） | 11 | 14 | +3 |
+| ep-boot（SimpleEntity+Context） | 20 | 20 | 0 |
+| 其余模块 | 100 | 100 | 0 |
+| **合计** | **146** | **174** | **+28** |
+
+- 全量回归：`mvn test` → **Tests run: 174, Failures: 0, Errors: 0, Skipped: 0 · BUILD SUCCESS**。
+- Reactor 20 单元全 SUCCESS（15 业务模块 + ep-boot + 父）。
+
+### 完整升级命令
+
+```bash
+# ========= macOS + Homebrew openjdk@21 =========
+export JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
+export PATH=$JAVA_HOME/bin:$PATH
+
+# ========= 1) 刷新依赖（新增 3 业务模块）=========
+mvn clean install -N            # 安装父 pom
+mvn clean install -U -T 1C      # 全模块 + 强制更新 SNAPSHOT
+
+# ========= 2) 全量回归 =========
+mvn test
+# 验收: 各模块 Tests run 合计 174, 0 Failures, 0 Errors
+
+# ========= 3) 单模块测试（TDD 增量验证）=========
+mvn test -pl ep-module-pur -am
+mvn test -pl ep-module-stk -am
+mvn test -pl ep-module-sal -am
+mvn test -pl ep-boot -Dtest=EruptReportSmokeTest,EruptPrintSmokeTest -Dsurefire.failIfNoSpecifiedTests=false
+
+# ========= 4) 启动后台 =========
+mvn spring-boot:run -pl ep-boot
+# 控制台: http://localhost:8080/erupt
+```
+
+---
+
 ## [1.5.0] - 2026-09-01
 
 ### 升级概要

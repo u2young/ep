@@ -42,6 +42,8 @@ import xyz.herz.ep.wms.jpa.WmsZoneRepository;
 import xyz.herz.ep.fin.entity.invoice.FinPurchaseInvoice;
 import xyz.herz.ep.fin.entity.invoice.FinSalesInvoice;
 import xyz.herz.ep.sup.entity.issue.SupIssue;
+import xyz.herz.ep.sal.entity.quotation.SalQuotation;
+import xyz.herz.ep.sal.entity.quotation.SalQuotationItem;
 import xyz.herz.ep.boot.print.EruptPrintRendererService;
 
 import java.math.BigDecimal;
