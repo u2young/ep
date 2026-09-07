@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>xyz.herz.ep</groupId>
+        <artifactId>ep-business-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>ep-module-stk</artifactId>
+    <name>ep-module-stk</name>
+    <description>
+        P0:库存管理模块(参考 ERPNext Stock DocType 数据模型移植)。
+        库存深化域:与既有 ep-module-wms 的 WmsStock(仓位库存快照)共存,
+        覆盖 ERPNext 库存专属「出入库流水 + 序列号 + 批次 + 盘点」完整流程。
+        - 库存出入库单(StockEntry:草稿/已提交/已取消,5 种类型:入库/出库/移库/生产/翻包)
+        - 库存盘点单(StockReconciliation:草稿/已提交/已取消)
+        - 序列号(SerialNo:主数据,物料序列号追踪)
+        - 批次(Batch:主数据,物料批次追踪 + 有效期)
+        - 库存配置(StockSettings:单例,默认仓库/是否启用批次/序列号)
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>xyz.erupt</groupId>
+            <artifactId>erupt-upms</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

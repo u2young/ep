@@ -66,8 +66,8 @@ class EruptReportSmokeTest {
         Object repo = applicationContext.getBean(repoCls);
         java.lang.reflect.Method countM = repoCls.getMethod("count");
         Long cnt = (Long) countM.invoke(repo);
-        assertTrue(cnt >= 6, () -> "报表数应 >= 6,实际 " + cnt
-            + " (6 模块各 1 张以上: CRM/ERP/Mall×2/WMS/IoT/Landing)");
+        assertTrue(cnt >= 23, () -> "报表数应 >= 23,实际 " + cnt
+            + " (16 模块: CRM/ERP/Mall×2/WMS/IoT/Landing + Fin×3 + Mfg×2 + Proj×2 + Sup×2 + Ast×2 + HR×1 + Pay×1 + Qal×1 + Pur×1 + Stk×1)");
 
         // 抽样:至少包含 CRM_TOP_CONTRACT / ERP_PURCHASE_TREND / MALL_GMV_DAILY 三个 code
         java.lang.reflect.Method findAllM = repoCls.getMethod("findAll");
@@ -83,6 +83,22 @@ class EruptReportSmokeTest {
         assertTrue(codes.contains("WMS_WH_STOCK_SUM"), "应包含 WMS 各仓库库存汇总报表,现有 codes=" + codes);
         assertTrue(codes.contains("IOT_ALARM_LEVEL"), "应包含 IoT 告警级别分布报表,现有 codes=" + codes);
         assertTrue(codes.contains("LANDING_PV_UV"), "应包含 Landing PV/UV + 转化率报表,现有 codes=" + codes);
+        assertTrue(codes.contains("FIN_TRIAL_BALANCE"), "应包含 财务试算平衡表报表,现有 codes=" + codes);
+        assertTrue(codes.contains("FIN_PROFIT_LOSS"), "应包含 损益表报表,现有 codes=" + codes);
+        assertTrue(codes.contains("FIN_AR_AGING"), "应包含 应收账龄分析报表,现有 codes=" + codes);
+        assertTrue(codes.contains("MFG_WO_STATUS"), "应包含 制造工单状态分布报表,现有 codes=" + codes);
+        assertTrue(codes.contains("MFG_WO_PROGRESS"), "应包含 制造工单进度表报表,现有 codes=" + codes);
+        assertTrue(codes.contains("PROJ_CASH_FLOW"), "应包含 项目现金流趋势报表,现有 codes=" + codes);
+        assertTrue(codes.contains("PROJ_TASK_COMPLETION"), "应包含 项目任务完工率报表,现有 codes=" + codes);
+        assertTrue(codes.contains("SUP_SLA_COMPLIANCE"), "应包含 SLA 达成率报表,现有 codes=" + codes);
+        assertTrue(codes.contains("SUP_ISSUE_TREND"), "应包含 工单日趋势报表,现有 codes=" + codes);
+        assertTrue(codes.contains("AST_DEPRECIATION_SUMMARY"), "应包含 资产折旧汇总表报表,现有 codes=" + codes);
+        assertTrue(codes.contains("AST_STATUS_DISTRIBUTION"), "应包含 资产状态分布饼报表,现有 codes=" + codes);
+        assertTrue(codes.contains("HR_EMPLOYEE_ROSTER"), "应包含 员工花名册报表,现有 codes=" + codes);
+        assertTrue(codes.contains("PAY_SALARY_SUMMARY"), "应包含 薪酬月度汇总报表,现有 codes=" + codes);
+        assertTrue(codes.contains("QAL_PASS_RATE"), "应包含 质检合格率报表,现有 codes=" + codes);
+        assertTrue(codes.contains("PUR_TOP_SUPPLIER"), "应包含 采购 Top 供应商报表,现有 codes=" + codes);
+        assertTrue(codes.contains("STK_VALUATION"), "应包含 库存出入库流水汇总报表,现有 codes=" + codes);
     }
 
     // =================== (3) 3 条 SQL EXPLAIN: H2 兼容,无 syntax error ===================
@@ -108,6 +124,238 @@ class EruptReportSmokeTest {
             assertNotNull(sql, () -> code + " 的 SQL 不应为空,现有=" + code2Sql.keySet());
             // H2 EXPLAIN 格式: EXPLAIN { SELECT ... }
             // 只要不抛 BadSqlGrammar 就表示 H2 语法兼容
+            try {
+                List<Map<String, Object>> plan = jdbcTemplate.queryForList("EXPLAIN " + sql);
+                assertFalse(plan.isEmpty(), () -> code + " EXPLAIN 应返回至少 1 行 plan,sql=" + sql);
+            } catch (Exception ex) {
+                fail(code + " H2 EXPLAIN 语法错误: " + ex.getMessage() + "  SQL=" + sql);
+            }
+        }
+    }
+
+    // =================== (4) Fin 3 条报表 SQL EXPLAIN: H2 兼容(表/列对齐 fin_* 实体) ===================
+    @Test
+    @SuppressWarnings("unchecked")
+    void report_sql_explain_fin_reports_h2_compat() throws Exception {
+        Class<?> repoCls = Class.forName("xyz.herz.ep.boot.report.EruptReportRepository");
+        Object repo = applicationContext.getBean(repoCls);
+        java.lang.reflect.Method findAllM = repoCls.getMethod("findAll");
+        List<Object> all = (List<Object>) findAllM.invoke(repo);
+        java.util.Map<String, String> code2Sql = new java.util.HashMap<>();
+        for (Object row : all) {
+            java.lang.reflect.Method getCode = row.getClass().getMethod("getCode");
+            java.lang.reflect.Method getSql = row.getClass().getMethod("getSqlStatement");
+            code2Sql.put((String) getCode.invoke(row), (String) getSql.invoke(row));
+        }
+
+        // Fin 3 张报表: 试算平衡表 / 损益表 / 应收账龄
+        String[] finCodes = { "FIN_TRIAL_BALANCE", "FIN_PROFIT_LOSS", "FIN_AR_AGING" };
+        for (String code : finCodes) {
+            String sql = code2Sql.get(code);
+            assertNotNull(sql, () -> code + " 的 SQL 不应为空,现有=" + code2Sql.keySet());
+            try {
+                List<Map<String, Object>> plan = jdbcTemplate.queryForList("EXPLAIN " + sql);
+                assertFalse(plan.isEmpty(), () -> code + " EXPLAIN 应返回至少 1 行 plan,sql=" + sql);
+            } catch (Exception ex) {
+                fail(code + " H2 EXPLAIN 语法错误: " + ex.getMessage() + "  SQL=" + sql);
+            }
+        }
+    }
+
+    // =================== (5) Mfg 2 张报表 SQL EXPLAIN: H2 兼容(表/列对齐 mfg_* 实体) ===================
+    @Test
+    @SuppressWarnings("unchecked")
+    void report_sql_explain_mfg_reports_h2_compat() throws Exception {
+        Class<?> repoCls = Class.forName("xyz.herz.ep.boot.report.EruptReportRepository");
+        Object repo = applicationContext.getBean(repoCls);
+        java.lang.reflect.Method findAllM = repoCls.getMethod("findAll");
+        List<Object> all = (List<Object>) findAllM.invoke(repo);
+        java.util.Map<String, String> code2Sql = new java.util.HashMap<>();
+        for (Object row : all) {
+            java.lang.reflect.Method getCode = row.getClass().getMethod("getCode");
+            java.lang.reflect.Method getSql = row.getClass().getMethod("getSqlStatement");
+            code2Sql.put((String) getCode.invoke(row), (String) getSql.invoke(row));
+        }
+
+        // Mfg 2 张报表: 工单状态分布饼 / 工单进度表
+        String[] mfgCodes = { "MFG_WO_STATUS", "MFG_WO_PROGRESS" };
+        for (String code : mfgCodes) {
+            String sql = code2Sql.get(code);
+            assertNotNull(sql, () -> code + " 的 SQL 不应为空,现有=" + code2Sql.keySet());
+            try {
+                List<Map<String, Object>> plan = jdbcTemplate.queryForList("EXPLAIN " + sql);
+                assertFalse(plan.isEmpty(), () -> code + " EXPLAIN 应返回至少 1 行 plan,sql=" + sql);
+            } catch (Exception ex) {
+                fail(code + " H2 EXPLAIN 语法错误: " + ex.getMessage() + "  SQL=" + sql);
+            }
+        }
+    }
+
+    // =================== (6) Proj 2 张报表 SQL EXPLAIN: H2 兼容(表/列对齐 proj_* 实体) ===================
+    @Test
+    @SuppressWarnings("unchecked")
+    void report_sql_explain_proj_reports_h2_compat() throws Exception {
+        Class<?> repoCls = Class.forName("xyz.herz.ep.boot.report.EruptReportRepository");
+        Object repo = applicationContext.getBean(repoCls);
+        java.lang.reflect.Method findAllM = repoCls.getMethod("findAll");
+        List<Object> all = (List<Object>) findAllM.invoke(repo);
+        java.util.Map<String, String> code2Sql = new java.util.HashMap<>();
+        for (Object row : all) {
+            java.lang.reflect.Method getCode = row.getClass().getMethod("getCode");
+            java.lang.reflect.Method getSql = row.getClass().getMethod("getSqlStatement");
+            code2Sql.put((String) getCode.invoke(row), (String) getSql.invoke(row));
+        }
+
+        // Proj 2 张报表: 现金流趋势 / 任务完工率
+        String[] projCodes = { "PROJ_CASH_FLOW", "PROJ_TASK_COMPLETION" };
+        for (String code : projCodes) {
+            String sql = code2Sql.get(code);
+            assertNotNull(sql, () -> code + " 的 SQL 不应为空,现有=" + code2Sql.keySet());
+            try {
+                List<Map<String, Object>> plan = jdbcTemplate.queryForList("EXPLAIN " + sql);
+                assertFalse(plan.isEmpty(), () -> code + " EXPLAIN 应返回至少 1 行 plan,sql=" + sql);
+            } catch (Exception ex) {
+                fail(code + " H2 EXPLAIN 语法错误: " + ex.getMessage() + "  SQL=" + sql);
+            }
+        }
+    }
+
+    // =================== (7) Sup 2 张报表 SQL EXPLAIN: H2 兼容(表/列对齐 sup_* 实体) ===================
+    @Test
+    @SuppressWarnings("unchecked")
+    void report_sql_explain_sup_reports_h2_compat() throws Exception {
+        Class<?> repoCls = Class.forName("xyz.herz.ep.boot.report.EruptReportRepository");
+        Object repo = applicationContext.getBean(repoCls);
+        java.lang.reflect.Method findAllM = repoCls.getMethod("findAll");
+        List<Object> all = (List<Object>) findAllM.invoke(repo);
+        java.util.Map<String, String> code2Sql = new java.util.HashMap<>();
+        for (Object row : all) {
+            java.lang.reflect.Method getCode = row.getClass().getMethod("getCode");
+            java.lang.reflect.Method getSql = row.getClass().getMethod("getSqlStatement");
+            code2Sql.put((String) getCode.invoke(row), (String) getSql.invoke(row));
+        }
+
+        // Sup 2 张报表: SLA 达成率 / 工单日趋势
+        String[] supCodes = { "SUP_SLA_COMPLIANCE", "SUP_ISSUE_TREND" };
+        for (String code : supCodes) {
+            String sql = code2Sql.get(code);
+            assertNotNull(sql, () -> code + " 的 SQL 不应为空,现有=" + code2Sql.keySet());
+            try {
+                List<Map<String, Object>> plan = jdbcTemplate.queryForList("EXPLAIN " + sql);
+                assertFalse(plan.isEmpty(), () -> code + " EXPLAIN 应返回至少 1 行 plan,sql=" + sql);
+            } catch (Exception ex) {
+                fail(code + " H2 EXPLAIN 语法错误: " + ex.getMessage() + "  SQL=" + sql);
+            }
+        }
+    }
+
+    // =================== (8) Ast 2 张报表 SQL EXPLAIN: H2 兼容(表/列对齐 ast_* 实体) ===================
+    @Test
+    @SuppressWarnings("unchecked")
+    void report_sql_explain_ast_reports_h2_compat() throws Exception {
+        Class<?> repoCls = Class.forName("xyz.herz.ep.boot.report.EruptReportRepository");
+        Object repo = applicationContext.getBean(repoCls);
+        java.lang.reflect.Method findAllM = repoCls.getMethod("findAll");
+        List<Object> all = (List<Object>) findAllM.invoke(repo);
+        java.util.Map<String, String> code2Sql = new java.util.HashMap<>();
+        for (Object row : all) {
+            java.lang.reflect.Method getCode = row.getClass().getMethod("getCode");
+            java.lang.reflect.Method getSql = row.getClass().getMethod("getSqlStatement");
+            code2Sql.put((String) getCode.invoke(row), (String) getSql.invoke(row));
+        }
+
+        // Ast 2 张报表: 资产折旧汇总表 / 资产状态分布饼
+        String[] astCodes = { "AST_DEPRECIATION_SUMMARY", "AST_STATUS_DISTRIBUTION" };
+        for (String code : astCodes) {
+            String sql = code2Sql.get(code);
+            assertNotNull(sql, () -> code + " 的 SQL 不应为空,现有=" + code2Sql.keySet());
+            try {
+                List<Map<String, Object>> plan = jdbcTemplate.queryForList("EXPLAIN " + sql);
+                assertFalse(plan.isEmpty(), () -> code + " EXPLAIN 应返回至少 1 行 plan,sql=" + sql);
+            } catch (Exception ex) {
+                fail(code + " H2 EXPLAIN 语法错误: " + ex.getMessage() + "  SQL=" + sql);
+            }
+        }
+    }
+
+    // =================== (9) HR 报表 SQL EXPLAIN: H2 兼容(表/列对齐 hr_* 实体) ===================
+    @Test
+    @SuppressWarnings("unchecked")
+    void report_sql_explain_hr_reports_h2_compat() throws Exception {
+        Class<?> repoCls = Class.forName("xyz.herz.ep.boot.report.EruptReportRepository");
+        Object repo = applicationContext.getBean(repoCls);
+        java.lang.reflect.Method findAllM = repoCls.getMethod("findAll");
+        List<Object> all = (List<Object>) findAllM.invoke(repo);
+        java.util.Map<String, String> code2Sql = new java.util.HashMap<>();
+        for (Object row : all) {
+            java.lang.reflect.Method getCode = row.getClass().getMethod("getCode");
+            java.lang.reflect.Method getSql = row.getClass().getMethod("getSqlStatement");
+            code2Sql.put((String) getCode.invoke(row), (String) getSql.invoke(row));
+        }
+
+        // HR 1 张报表: 员工花名册
+        String[] hrCodes = { "HR_EMPLOYEE_ROSTER" };
+        for (String code : hrCodes) {
+            String sql = code2Sql.get(code);
+            assertNotNull(sql, () -> code + " 的 SQL 不应为空,现有=" + code2Sql.keySet());
+            try {
+                List<Map<String, Object>> plan = jdbcTemplate.queryForList("EXPLAIN " + sql);
+                assertFalse(plan.isEmpty(), () -> code + " EXPLAIN 应返回至少 1 行 plan,sql=" + sql);
+            } catch (Exception ex) {
+                fail(code + " H2 EXPLAIN 语法错误: " + ex.getMessage() + "  SQL=" + sql);
+            }
+        }
+    }
+
+    // =================== (10) Pur 报表 SQL EXPLAIN: H2 兼容(表/列对齐 pur_* 实体) ===================
+    @Test
+    @SuppressWarnings("unchecked")
+    void report_sql_explain_pur_reports_h2_compat() throws Exception {
+        Class<?> repoCls = Class.forName("xyz.herz.ep.boot.report.EruptReportRepository");
+        Object repo = applicationContext.getBean(repoCls);
+        java.lang.reflect.Method findAllM = repoCls.getMethod("findAll");
+        List<Object> all = (List<Object>) findAllM.invoke(repo);
+        java.util.Map<String, String> code2Sql = new java.util.HashMap<>();
+        for (Object row : all) {
+            java.lang.reflect.Method getCode = row.getClass().getMethod("getCode");
+            java.lang.reflect.Method getSql = row.getClass().getMethod("getSqlStatement");
+            code2Sql.put((String) getCode.invoke(row), (String) getSql.invoke(row));
+        }
+
+        // Pur 1 张报表: 采购 Top 供应商
+        String[] purCodes = { "PUR_TOP_SUPPLIER" };
+        for (String code : purCodes) {
+            String sql = code2Sql.get(code);
+            assertNotNull(sql, () -> code + " 的 SQL 不应为空,现有=" + code2Sql.keySet());
+            try {
+                List<Map<String, Object>> plan = jdbcTemplate.queryForList("EXPLAIN " + sql);
+                assertFalse(plan.isEmpty(), () -> code + " EXPLAIN 应返回至少 1 行 plan,sql=" + sql);
+            } catch (Exception ex) {
+                fail(code + " H2 EXPLAIN 语法错误: " + ex.getMessage() + "  SQL=" + sql);
+            }
+        }
+    }
+
+    // =================== (11) Stk 报表 SQL EXPLAIN: H2 兼容(表/列对齐 stk_* 实体) ===================
+    @Test
+    @SuppressWarnings("unchecked")
+    void report_sql_explain_stk_reports_h2_compat() throws Exception {
+        Class<?> repoCls = Class.forName("xyz.herz.ep.boot.report.EruptReportRepository");
+        Object repo = applicationContext.getBean(repoCls);
+        java.lang.reflect.Method findAllM = repoCls.getMethod("findAll");
+        List<Object> all = (List<Object>) findAllM.invoke(repo);
+        java.util.Map<String, String> code2Sql = new java.util.HashMap<>();
+        for (Object row : all) {
+            java.lang.reflect.Method getCode = row.getClass().getMethod("getCode");
+            java.lang.reflect.Method getSql = row.getClass().getMethod("getSqlStatement");
+            code2Sql.put((String) getCode.invoke(row), (String) getSql.invoke(row));
+        }
+
+        // Stk 1 张报表: 库存出入库流水汇总
+        String[] stkCodes = { "STK_VALUATION" };
+        for (String code : stkCodes) {
+            String sql = code2Sql.get(code);
+            assertNotNull(sql, () -> code + " 的 SQL 不应为空,现有=" + code2Sql.keySet());
             try {
                 List<Map<String, Object>> plan = jdbcTemplate.queryForList("EXPLAIN " + sql);
                 assertFalse(plan.isEmpty(), () -> code + " EXPLAIN 应返回至少 1 行 plan,sql=" + sql);

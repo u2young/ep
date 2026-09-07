@@ -77,7 +77,12 @@ public final class ErpDictEnums {
         PURCHASE_RETURN_OUT(21, "采购退货出库"),
         SALE_OUT(22, "销售出库"),
         CHECK_OUT(23, "盘亏出库"),
-        MOVE_OUT(30, "调拨出库");
+        MOVE_OUT(30, "调拨出库"),
+        // 制造/委外(T-B 扩展)
+        MANUFACTURE_OUT(40, "生产领料"),
+        MANUFACTURE_IN(41, "完工入库"),
+        SUBCONTRACT_OUT(42, "委外发料"),
+        SUBCONTRACT_IN(43, "委外收货");
         public final int code;
         public final String label;
         StockBizType(int c, String l) { this.code = c; this.label = l; }
@@ -85,7 +90,8 @@ public final class ErpDictEnums {
         /** 正数入库=true,负数出库=false,用于库存变更方向校验 */
         public boolean inbound() {
             return this == OTHER_IN || this == PURCHASE_IN || this == SALE_RETURN_IN
-                || this == CHECK_IN || this == MOVE_IN;
+                || this == CHECK_IN || this == MOVE_IN
+                || this == MANUFACTURE_IN || this == SUBCONTRACT_IN;
         }
 
         public static StockBizType of(int code) {

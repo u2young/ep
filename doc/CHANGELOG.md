@@ -5,6 +5,184 @@
 
 ---
 
+## [1.5.0] - 2026-09-01
+
+### 升级概要
+
+ERPNext 数据模型移植 **第二批（组织与质量域）**：新增 3 个业务模块 **HR 人力资源 / Pay 薪酬管理 / Qal 质量管理**，延续 1.4.0 的「原生化建模 + 完整级实现」路线（状态机 DataProxy + 行按钮 Handler + erupt-report 报表 + erupt-print 打印模板 + 跨模块 GL 集成），不做 REST API 集成。
+
+- 新增 3 个业务模块（`ep-module-hr` / `ep-module-pay` / `ep-module-qal`），父 pom `<modules>`/`<dependencyManagement>` 与 ep-boot 依赖同步登记；
+- 跨模块集成：Pay 工资单过账复用 `FinPostingFacade`（GL 借 工资费用 = 贷 实发 + 贷 代扣），`JournalSourceType` 扩展 `SALARY`；Qal 自包含（物料快照），HR 引用自身实体；
+- 总 SmokeTests 从原 124 → **现 146**，新增 22 条，全量 BUILD SUCCESS。
+
+**数字概览**：
+- Maven 模块：12 个业务模块 + ep-boot（父 pom `<modules>` 17 → 20，含原 12 + 新 3）；
+- ep-boot 报表种子：18 → 21 张（+HR 员工花名册 / Pay 薪酬月度汇总 / Qal 质检合格率）；
+- ep-boot 打印模板种子：9 → 12 张（+HR 员工档案 / Pay 工资单 / Qal 质检报告）；
+- SmokeTests 增量：HR 6 + Pay 6 + Qal 6 + ep-boot Report 8→9(+1) + Print 8→11(+3) = 新增 22 条。
+
+### 新增模块速览
+
+| 模块 | 包名 | 核心实体 | 状态机 / 关键能力 | 跨模块集成 | 测试 |
+|---|---|---|---|---|---|
+| **HR 人力资源** | `xyz.herz.ep.hr` | HrEmployee / HrDepartment / HrDesignation / HrAttendance / HrLeaveType / HrLeaveApplication 6 实体 | 员工生命周期(入职/离职/停用行按钮) · 考勤打卡 · 请假申请工作流(申请/批准/拒绝/取消) | Pay 员工 REF / ep-boot 员工花名册报表+档案打印 | HrSmokeTests 6/6 ✅ |
+| **Pay 薪酬管理** | `xyz.herz.ep.pay` | PaySalaryComponent / PaySalaryStructure / PaySalaryStructureItem / PaySalarySlip / PaySalarySlipItem 5 实体 | 工资单状态机(草稿→已提交→已过账→已取消) · 提交时从工资结构快照生成明细并派生 gross/deductions/net · 取消反向冲销 | **FinPostingFacade** 工资 GL 过账(JournalSourceType.SALARY) + HR 员工 REF | PaySmokeTests 6/6 ✅ |
+| **Qal 质量管理** | `xyz.herz.ep.qal` | QalCriteria / QalInspection / QalInspectionItem / QalNonConformance / QalFeedback 5 实体 | 质检单状态机(草稿→待检→合格/不合格→已取消) · 提交时按启用参数快照读数明细 · 上下限自动判定 · 判不合格自动生成 N/C 单 · N/C 生命周期(提交→处理→关闭) | 自包含(物料编码/名称快照,免跨模块依赖) | QalSmokeTests 6/6 ✅ |
+
+### ep-boot 报表 / 打印扩展
+
+| 类型 | 新增 | 覆盖 | 验收测试 |
+|---|---|---|---|
+| erupt-report | HR 员工花名册 + Pay 薪酬月度汇总 + Qal 质检合格率 = 3 张 | `EruptReportInitializer` 21 张种子，SQL 全小写 H2 兼容 | EruptReportSmokeTest 9/9（count≥20 + 21 code 抽样 + SQL EXPLAIN） |
+| erupt-print | HR 员工档案 + Pay 工资单 + Qal 质检报告 = 3 模板 | `EruptPrintInitializer` 12 张种子 + `EruptPrintRendererService.renderXxx` | EruptPrintSmokeTest 11/11（count≥12 + 12 code 抽样 + 9 模块渲染 contains 关键字段 + null 统一 IAE） |
+
+### 关键技术决策
+
+| 决策点 | 选择 | 理由 |
+|--------|------|------|
+| 工资 GL 分录 | 三行：借 SALARY_EXP 总额 / 贷 SALARY_PAY 实发 / 贷 SALARY_WITHHOLD 代扣 | 借贷平衡(gross = net + deductions)，代扣款项独立科目便于对账 |
+| 工资明细生成 | 提交时从工资结构快照(编码/名称/类型/金额) | 结构后续调整不影响已生成工资单，快照可追溯 |
+| 质检判定 | 有上下限自动判(lower ≤ reading ≤ upper)；无上下限(目测)采信人工勾选 | 数值型消除人为误差，目测型保留检验员判断 |
+| N/C 自动生成 | 质检单判不合格时按「NC-{质检单号}」幂等生成 | 质量追溯闭环，重复判定不产生重复 N/C |
+| 模块独立性 | Qal 物料用编码/名称快照(免 erp 依赖)，Pay 依赖 hr/fin | 遵循最小依赖原则，与 WMS customerName 快照风格一致 |
+
+### 测试用例概览（原 124 → 现 146）
+
+| 模块 | 1.4.0 | 1.5.0 | 增量 |
+|---|---|---|---|
+| ep-module-hr | 0 | 6 | +6 |
+| ep-module-pay | 0 | 6 | +6 |
+| ep-module-qal | 0 | 6 | +6 |
+| ep-boot（Report） | 8 | 9 | +1 |
+| ep-boot（Print） | 8 | 11 | +3 |
+| 其余模块 | 102 | 102 | 0 |
+| **合计** | **124** | **146** | **+22** |
+
+- 全量回归：`mvn test` → **Tests run: 146, Failures: 0, Errors: 0, Skipped: 0 · BUILD SUCCESS**。
+- Reactor 17 单元全 SUCCESS（12 业务模块 + ep-boot + 父 + 中间模块）。
+
+### 完整升级命令
+
+```bash
+# ========= macOS + Homebrew openjdk@21 =========
+export JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
+export PATH=$JAVA_HOME/bin:$PATH
+
+# ========= 1) 刷新依赖（新增 3 业务模块）=========
+mvn clean install -N            # 安装父 pom
+mvn clean install -U -T 1C      # 全模块 + 强制更新 SNAPSHOT
+
+# ========= 2) 全量回归 =========
+mvn test
+# 验收: 各模块 Tests run 合计 146, 0 Failures, 0 Errors
+
+# ========= 3) 单模块测试（TDD 增量验证）=========
+mvn test -pl ep-module-hr -am
+mvn test -pl ep-module-pay -am
+mvn test -pl ep-module-qal -am
+mvn test -pl ep-boot -Dtest=EruptReportSmokeTest,EruptPrintSmokeTest -Dsurefire.failIfNoSpecifiedTests=false
+
+# ========= 4) 启动后台 =========
+mvn spring-boot:run -pl ep-boot
+# 控制台: http://localhost:8080/erupt
+```
+
+---
+
+## [1.4.0] - 2026-08-31
+
+### 升级概要
+
+基于 ERPNext 16 核心模块的 **数据模型移植**（用户指令「调用 ERPNext 完整功能，能实现的情况下覆盖 ERPNext 所有功能」）。以 ERPNext DocType 字段/状态机/工作流定义为蓝本，在 erupt-cloud 上做**原生化建模 + 完整级实现**（不做 REST API 集成，不做双系统并存）。首批落地 5 个新业务模块，覆盖财务会计 / 生产制造 / 项目管理 / 服务支持 / 资产管理，每模块实现到「业务级 + erupt-report 报表 + erupt-print 打印模板 + 跨模块集成接口」深度。
+
+- 新增 5 个业务模块（`ep-module-fin` / `ep-module-mfg` / `ep-module-proj` / `ep-module-sup` / `ep-module-ast`），父 pom `<modules>` 与 ep-boot 依赖同步登记；
+- 跨模块集成采用 Facade 模式（`FinPostingFacade` 对外统一过账），各模块 `@Autowired(required=false)` 可选注入，保持模块独立可测；
+- 状态机统一通过 `XxxStateDataProxy` 锁定 status 字段，仅允许行按钮触发迁移；
+- 总 SmokeTests 从原 85 → **现 124**，新增 39 条，全量 BUILD SUCCESS。
+
+**数字概览**：
+- Maven 模块：9 个业务模块 + ep-boot（父 pom `<modules>` 12 → 17，含原 7 + 新 5）；
+- 新增 Java 源文件：5 模块（实体/Repository/Handler/Calculator/Facade/枚举/测试启动类）共 90+ 个；
+- ep-boot 报表种子：7 → 18 张（+Fin×3 / Mfg×2 / Proj×2 / Sup×2 / Ast×2）；
+- ep-boot 打印模板种子：3 → 9 张（+Fin×2 / Mfg / Proj / Sup / Ast）；
+- SmokeTests 增量：Fin 6 + Mfg 6 + Proj 6 + Sup 6 + Ast 6 + ep-boot report 3→8(+5) + print 4→8(+4) = 新增 39 条。
+
+### 新增模块速览
+
+| 模块 | 包名 | 核心实体 | 状态机 / 关键能力 | 跨模块集成 | 测试 |
+|---|---|---|---|---|---|
+| **Fin 财务会计** | `xyz.herz.ep.fin` | FinAccount(科目树) / FinJournalEntry(凭证) / FinSalesInvoice / FinPurchaseInvoice / FinPaymentEntry / FinBudget / FinCostCenter | 科目启停 · 凭证平账+反向冲销 · 销售/采购发票提交→GL · 收付款单→GL · 预算批准 | **FinPostingFacade** 对外统一过账门面（post/cancel，借贷不平抛 IAE） | FinSmokeTests 6/6 ✅ |
+| **Mfg 生产制造** | `xyz.herz.ep.mfg` | MfgWorkOrder / BOM / 生产计划 / 工序 / 领料 / 报工 等 8 实体 | 工单状态机(草稿→下达→生产→完工→停止) · BOM 展开 · 领料扣库存 | 调 ERP 库存 Facade | MfgSmokeTests 6/6 ✅ |
+| **Proj 项目管理** | `xyz.herz.ep.proj` | ProjProject / Task / CashFlow / 费用 / 里程碑 等 7 实体 | 项目状态机 · 任务完工率 · 现金流(流入/流出/净流) | 项目费用过账 GL(JOURNALSourceType.PROJECT_EXPENSE) | ProjSmokeTests 6/6 ✅ |
+| **Sup 服务支持** | `xyz.herz.ep.sup` | SupIssue / SupIssueAssignment / SupServiceLevelAgreement / SupKnowledgeBase / SupSupportSettings 等 6 实体 | 工单生命周期(回复/解决/关闭/重开/取消) · **SLA 引擎**(SupSlaEvaluator 多优先级时长解析) · 知识库发布归档 · 单例配置 | 工单关联 CrmCustomer(optional，快照) | SupSmokeTests 6/6 ✅ |
+| **Ast 资产管理** | `xyz.herz.ep.ast` | AstAsset / AstAssetCategory / AstLocation / AstDepreciationSchedule / AstAssetMovement / AstAssetRepair 6 实体 | 资产生命周期(草稿→可用→部分折旧→完全折旧→出售/报废) · **折旧引擎**(AstDepreciationCalculator 直线法/余额递减/双倍余额递减+末期补齐消除截断误差) · 转移单同步保管人/成本中心 · 维修单状态机 | 折旧 GL(ASSET_DEPRECIATION) + 处置 GL(ASSET_DISPOSAL) 过账 fin | AstSmokeTests 6/6 ✅ |
+
+### ep-boot 报表 / 打印扩展
+
+| 类型 | 新增 | 覆盖 | 验收测试 |
+|---|---|---|---|
+| erupt-report | Fin×3（试算平衡表 / 损益表 / 应收账龄）+ Mfg×2（工单状态饼 / 工单进度表）+ Proj×2（现金流趋势 / 任务完工率）+ Sup×2（SLA 达成率 / 工单日趋势）+ Ast×2（资产折旧汇总表 / 资产状态分布饼）= 11 张 | `EruptReportInitializer` 18 张种子，SQL 全小写 H2 兼容 | EruptReportSmokeTest 8/8（count≥17 + 18 code 抽样 + fin/mfg/proj/sup/ast 5 组 SQL EXPLAIN） |
+| erupt-print | Fin×2（销售/采购发票）+ Mfg（工单）+ Proj（验收单）+ Sup（工单 Ticket）+ Ast（资产卡片）= 6 模板 | `EruptPrintInitializer` 9 张种子 + `EruptPrintRendererService.renderXxx` | EruptPrintSmokeTest 8/8（count≥9 + 9 code 抽样 + 6 模块渲染 contains 关键字段 + null 统一 IAE） |
+
+### 关键技术决策
+
+| 决策点 | 选择 | 理由 |
+|--------|------|------|
+| 移植方式 | 数据模型移植（非 REST 集成） | ERPNext 是 Python/Frappe，与 Java/Erupt 架构完全不同；原生化建模才能复用 erupt 状态机/行按钮/报表/打印 |
+| 跨模块集成 | Facade 接口 + `@Autowired(required=false)` | 各模块独立可测，Facade 不可用时静默跳过，不阻断状态变更 |
+| GL 过账 | 统一 FinPostingFacade（post/cancel） | 借贷平衡校验集中，来源可追溯（JournalSourceType），反向冲销幂等 |
+| 折旧精度 | 末期补齐（remaining = 可折旧基数 - 累计折旧） | 消除直线法每期 833.33×12=9999.96 的截断误差，确保累计折旧精确等于可折旧基数 |
+| SLA 计算 | SupSlaEvaluator 多级 fallback | 工单指定 SLA → 默认 SLA → 优先级表 → 硬编码，确保各种配置下均有合理截止时间 |
+| 单例配置 | ApplicationReadyEvent 幂等插入 | SupSupportSettings / AstAssetCategory 等启动时插入默认值，业务方 `findFirstByOrderByIdAsc` 获取唯一配置 |
+
+### 测试用例概览（原 85 → 现 124）
+
+| 模块 | 1.3.0 | 1.4.0 | 增量 |
+|---|---|---|---|
+| ep-module-fin | 0 | 6 | +6 |
+| ep-module-mfg | 0 | 6 | +6 |
+| ep-module-proj | 0 | 6 | +6 |
+| ep-module-sup | 0 | 6 | +6 |
+| ep-module-ast | 0 | 6 | +6 |
+| ep-boot（Report） | 3 | 8 | +5 |
+| ep-boot（Print） | 4 | 8 | +4 |
+| 其余模块 | 78 | 78 | 0 |
+| **合计** | **85** | **124** | **+39** |
+
+- 全量回归：`mvn test` → **Tests run: 124, Failures: 0, Errors: 0, Skipped: 0 · BUILD SUCCESS**。
+- Reactor 14 模块全 SUCCESS（7 原业务 + 5 新业务 + ep-boot + 父）。
+
+### 完整升级命令
+
+```bash
+# ========= macOS + Homebrew openjdk@21 =========
+export JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
+export PATH=$JAVA_HOME/bin:$PATH
+java -version   # openjdk version "21.0.12"
+
+# ========= 1) 刷新依赖（新增 5 业务模块）=========
+mvn clean install -N            # 安装父 pom
+mvn clean install -U -T 1C      # 全模块 + 强制更新 SNAPSHOT
+
+# ========= 2) 编译 =========
+mvn clean compile -T 1C
+
+# ========= 3) 全量回归 =========
+mvn test
+# 验收: grep -c "BUILD SUCCESS" 应 =1
+# 各模块 Tests run 合计 124, 0 Failures, 0 Errors
+
+# ========= 4) 单模块测试（TDD 增量验证）=========
+mvn test -pl ep-module-ast -Dtest=AstSmokeTests -Dsurefire.failIfNoSpecifiedTests=false
+mvn test -pl ep-boot -Dtest=EruptReportSmokeTest,EruptPrintSmokeTest -Dsurefire.failIfNoSpecifiedTests=false
+
+# ========= 5) 启动后台 =========
+mvn spring-boot:run -pl ep-boot
+# 控制台: http://localhost:8080/erupt
+```
+
+---
+
 ## [1.3.0] - 2026-08-31
 
 ### 升级概要

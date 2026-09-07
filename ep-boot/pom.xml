@@ -31,6 +31,26 @@
         </dependency>
         <dependency>
             <groupId>xyz.herz.ep</groupId>
+            <artifactId>ep-module-fin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.herz.ep</groupId>
+            <artifactId>ep-module-mfg</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.herz.ep</groupId>
+            <artifactId>ep-module-proj</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.herz.ep</groupId>
+            <artifactId>ep-module-sup</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.herz.ep</groupId>
+            <artifactId>ep-module-ast</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.herz.ep</groupId>
             <artifactId>ep-module-mall</artifactId>
         </dependency>
         <dependency>
@@ -48,6 +68,26 @@
         <dependency>
             <groupId>xyz.herz.ep</groupId>
             <artifactId>ep-module-landing</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.herz.ep</groupId>
+            <artifactId>ep-module-hr</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.herz.ep</groupId>
+            <artifactId>ep-module-pay</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.herz.ep</groupId>
+            <artifactId>ep-module-qal</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.herz.ep</groupId>
+            <artifactId>ep-module-pur</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.herz.ep</groupId>
+            <artifactId>ep-module-stk</artifactId>
         </dependency>
 
         <!-- ============ erupt 全家桶:运行时只在 boot 层聚合 ============ -->
