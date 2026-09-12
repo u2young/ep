@@ -25,7 +25,12 @@ public class LandingEnumChoiceFetchHandler implements ChoiceFetchHandler {
         Map.entry("PageStatus",       PageStatus.values()),
         Map.entry("TemplateCategory", TemplateCategory.values()),
         Map.entry("LeadSource",       LeadSource.values()),
-        Map.entry("EnableStatus",     EnableStatus.values())
+        Map.entry("EnableStatus",     EnableStatus.values()),
+        Map.entry("SeckillStatus",    SeckillStatus.values()),
+        Map.entry("SeckillOrderStatus", SeckillOrderStatus.values()),
+        Map.entry("CouponType",       CouponType.values()),
+        Map.entry("CouponStatus",     CouponStatus.values()),
+        Map.entry("UserCouponStatus", UserCouponStatus.values())
     );
 
     @Override

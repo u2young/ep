@@ -51,4 +51,54 @@ public final class LandingDictEnums {
         public final String label;
         EnableStatus(int c, String l) { this.code = c; this.label = l; }
     }
+
+    // ================= 秒杀活动状态 =================
+    public enum SeckillStatus {
+        DRAFT(0,     "草稿"),
+        ACTIVE(10,   "进行中"),
+        ENDED(20,    "已结束");
+        public final int code;
+        public final String label;
+        SeckillStatus(int c, String l) { this.code = c; this.label = l; }
+    }
+
+    // ================= 秒杀订单状态 =================
+    public enum SeckillOrderStatus {
+        PENDING(0,    "待处理"),
+        CONFIRMED(10, "已确认"),
+        CANCELLED(20, "已取消");
+        public final int code;
+        public final String label;
+        SeckillOrderStatus(int c, String l) { this.code = c; this.label = l; }
+    }
+
+    // ================= 优惠券类型 =================
+    public enum CouponType {
+        FIXED_AMOUNT(1, "满减券(固定金额)"),
+        DISCOUNT(2,     "折扣券(百分比折扣)");
+        public final int code;
+        public final String label;
+        CouponType(int c, String l) { this.code = c; this.label = l; }
+    }
+
+    // ================= 优惠券状态 =================
+    public enum CouponStatus {
+        DRAFT(0,     "草稿"),
+        ENABLED(10,  "已启用"),
+        EXPIRED(20,  "已过期"),
+        DISABLED(30, "已禁用");
+        public final int code;
+        public final String label;
+        CouponStatus(int c, String l) { this.code = c; this.label = l; }
+    }
+
+    // ================= 用户优惠券状态 =================
+    public enum UserCouponStatus {
+        UNUSED(0,   "未使用"),
+        USED(10,    "已使用"),
+        EXPIRED(20, "已过期");
+        public final int code;
+        public final String label;
+        UserCouponStatus(int c, String l) { this.code = c; this.label = l; }
+    }
 }

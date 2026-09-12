@@ -7,37 +7,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import xyz.herz.ep.landing.entity.LandingCoupon;
 import xyz.herz.ep.landing.entity.LandingLead;
 import xyz.herz.ep.landing.entity.LandingPage;
+import xyz.herz.ep.landing.entity.LandingSeckill;
+import xyz.herz.ep.landing.entity.LandingSeckillOrder;
 import xyz.herz.ep.landing.entity.LandingTemplate;
-import xyz.herz.ep.landing.enums.LandingDictEnums.EnableStatus;
-import xyz.herz.ep.landing.enums.LandingDictEnums.LeadSource;
-import xyz.herz.ep.landing.enums.LandingDictEnums.PageStatus;
-import xyz.herz.ep.landing.jpa.LandingLeadRepository;
-import xyz.herz.ep.landing.jpa.LandingPageRepository;
-import xyz.herz.ep.landing.jpa.LandingTemplateRepository;
+import xyz.herz.ep.landing.entity.LandingUserCoupon;
+import xyz.herz.ep.landing.enums.LandingDictEnums.*;
+import xyz.herz.ep.landing.jpa.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * 落地页公开 API Controller(magic-api 兜底实现)。
- * <p>magic-api 是首选实现(脚本见 src/main/resources/magic-api/api/landing/),
- * 当 magic-api 未加载或脚本未导入时,本 Controller 提供等效功能,确保开箱即用。
- * <p>统一返回格式:{code, msg, data}(与 magic-api 配置的 response 模板一致)。
- *
  * <p>公开接口(免登):
  * <ul>
  *   <li>GET  /api/landing/page/slug/{slug} — H5 渲染取已发布页面</li>
  *   <li>GET  /api/landing/template/list    — 模板列表</li>
  *   <li>POST /api/landing/lead             — 留资提交</li>
+ *   <li>POST /api/landing/seckill/claim    — 秒杀抢购</li>
+ *   <li>GET  /api/landing/seckill/{id}     — 获取秒杀活动详情(含剩余库存)</li>
+ *   <li>POST /api/landing/coupon/claim     — 领取优惠券</li>
+ *   <li>GET  /api/landing/coupon/info      — 校验优惠券码是否有效</li>
  * </ul>
- *
- * <p>普通 Spring MVC,EruptSecurityInterceptor 不拦截(只拦 @EruptRouter),C 端免登。
  */
 @RestController
 @RequestMapping("/api/landing")
@@ -48,8 +44,228 @@ public class LandingApiController {
     @Autowired private LandingPageRepository pageRepo;
     @Autowired private LandingTemplateRepository tplRepo;
     @Autowired private LandingLeadRepository leadRepo;
+    @Autowired private LandingSeckillRepository seckillRepo;
+    @Autowired private LandingSeckillOrderRepository seckillOrderRepo;
+    @Autowired private LandingCouponRepository couponRepo;
+    @Autowired private LandingUserCouponRepository userCouponRepo;
 
-    // ============ 公开接口(免登) ============
+    // ============ 秒杀接口 ============
+
+    /** 获取秒杀活动详情(H5 展示用)。 */
+    @GetMapping("/seckill/{id}")
+    public ResponseEntity<Map<String, Object>> getSeckill(@PathVariable Long id) {
+        Optional<LandingSeckill> opt = seckillRepo.findById(id);
+        if (opt.isEmpty() || opt.get().getEnabled() == null
+                || opt.get().getEnabled() != EnableStatus.DISABLED.code) {
+            // 已禁用则返回 404;也可改为返回 status=ENDED
+        }
+        if (opt.isEmpty()) return ok(404, "秒杀活动不存在", null);
+        LandingSeckill s = opt.get();
+        Map<String, Object> data = new HashMap<>();
+        data.put("id", s.getId());
+        data.put("name", s.getName());
+        data.put("productName", s.getProductName());
+        data.put("productDesc", s.getProductDesc());
+        data.put("price", s.getPrice());
+        data.put("originalPrice", s.getOriginalPrice());
+        data.put("remainingStock", s.getRemainingStock());
+        data.put("limitPerUser", s.getLimitPerUser());
+        data.put("startTime", s.getStartTime());
+        data.put("endTime", s.getEndTime());
+        data.put("status", s.getStatus());
+        // 倒计时:距结束还有多少秒(-1 表示未开始或已结束)
+        if (s.getStatus() != null && s.getStatus() == SeckillStatus.ACTIVE.code && s.getEndTime() != null) {
+            long seconds = java.time.Duration.between(LocalDateTime.now(), s.getEndTime()).getSeconds();
+            data.put("countdownSeconds", seconds > 0 ? seconds : 0);
+        } else {
+            data.put("countdownSeconds", -1);
+        }
+        return ok(1, "ok", data);
+    }
+
+    /** 秒杀抢购:校验库存+时间+限购 → 生成订单 → 扣减剩余库存。 */
+    @PostMapping("/seckill/claim")
+    @Transactional
+    public ResponseEntity<Map<String, Object>> claimSeckill(@RequestBody Map<String, Object> body,
+                                                             HttpServletRequest req) {
+        Long seckillId = toLong(body.get("seckillId"));
+        String phone = toStr(body.get("phone"));
+        String userName = toStr(body.get("userName"));
+        if (seckillId == null || phone == null || phone.isBlank()) {
+            return ok(400, "seckillId 和 phone 必填", null);
+        }
+        Optional<LandingSeckill> opt = seckillRepo.findById(seckillId);
+        if (opt.isEmpty()) return ok(404, "秒杀活动不存在", null);
+        LandingSeckill s = opt.get();
+
+        // 状态校验:仅进行中可抢
+        if (s.getStatus() == null || s.getStatus() != SeckillStatus.ACTIVE.code) {
+            return ok(400, "当前活动不在进行中", null);
+        }
+        // 时间窗口校验
+        LocalDateTime now = LocalDateTime.now();
+        if (s.getStartTime() != null && s.getStartTime().isAfter(now)) {
+            return ok(400, "活动尚未开始", null);
+        }
+        if (s.getEndTime() != null && s.getEndTime().isBefore(now)) {
+            return ok(400, "活动已结束", null);
+        }
+        // 库存校验
+        if (s.getRemainingStock() == null || s.getRemainingStock() <= 0) {
+            return ok(400, "库存已售罄", null);
+        }
+        // 限购校验:同一手机号在同一活动中已抢多少件
+        long claimedQty = seckillOrderRepo.countBySeckillIdAndPhone(seckillId, phone);
+        int limit = s.getLimitPerUser() == null ? 1 : s.getLimitPerUser();
+        if (claimedQty >= limit) {
+            return ok(400, "已达到每人限购数量(" + limit + "件)", null);
+        }
+
+        // 创建订单
+        LandingSeckillOrder order = new LandingSeckillOrder();
+        order.setSeckillId(s.getId());
+        order.setSeckillName(s.getName());
+        order.setProductName(s.getProductName());
+        order.setPhone(phone);
+        order.setUserName(userName);
+        order.setQuantity(1);
+        order.setPaidAmount(s.getPrice());
+        order.setStatus(SeckillOrderStatus.PENDING.code);
+        order.setClaimTime(now);
+        seckillOrderRepo.save(order);
+
+        // 原子扣减剩余库存
+        int updated = s.getRemainingStock() - 1;
+        s.setRemainingStock(updated);
+        seckillRepo.save(s);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("ok", true);
+        data.put("orderId", order.getId());
+        data.put("remainingStock", updated);
+        return ok(1, "抢购成功", data);
+    }
+
+    // ============ 优惠券接口 ============
+
+    /** 校验优惠券码是否有效(供 H5 表单实时校验)。 */
+    @GetMapping("/coupon/validate")
+    public ResponseEntity<Map<String, Object>> validateCoupon(@RequestParam String code) {
+        if (code == null || code.isBlank()) {
+            return ok(400, "couponCode 必填", null);
+        }
+        Optional<LandingCoupon> opt = couponRepo.findByCouponCode(code.toUpperCase());
+        if (opt.isEmpty()) {
+            return ok(404, "优惠券码无效", null);
+        }
+        LandingCoupon c = opt.get();
+        // 仅已启用且未过期的券才有效
+        if (c.getStatus() == null || c.getStatus() != CouponStatus.ENABLED.code) {
+            return ok(400, "该优惠券未启用或已禁用", null);
+        }
+        LocalDateTime now = LocalDateTime.now();
+        if (c.getEndTime() != null && c.getEndTime().isBefore(now)) {
+            return ok(400, "优惠券已过期", null);
+        }
+        if (c.getStartTime() != null && c.getStartTime().isAfter(now)) {
+            return ok(400, "优惠券尚未开放领取", null);
+        }
+        // 总量限制
+        if (c.getTotalLimit() != null && c.getTotalLimit() > 0
+                && c.getClaimedCount() != null && c.getClaimedCount() >= c.getTotalLimit()) {
+            return ok(400, "优惠券已领完", null);
+        }
+        Map<String, Object> info = new HashMap<>();
+        info.put("couponId", c.getId());
+        info.put("name", c.getName());
+        info.put("type", c.getType());
+        info.put("value", c.getValue());
+        info.put("minAmount", c.getMinAmount());
+        info.put("limitPerUser", c.getLimitPerUser());
+        info.put("remaining", c.getTotalLimit() == null || c.getTotalLimit() == 0
+                ? -1 : c.getTotalLimit() - c.getClaimedCount());
+        return ok(1, "ok", info);
+    }
+
+    /** 领取优惠券:写入用户领券记录,累加模板已领取数。 */
+    @PostMapping("/coupon/claim")
+    @Transactional
+    public ResponseEntity<Map<String, Object>> claimCoupon(@RequestBody Map<String, Object> body,
+                                                            HttpServletRequest req) {
+        String code = toStr(body.get("couponCode"));
+        String phone = toStr(body.get("phone"));
+        if (code == null || code.isBlank() || phone == null || phone.isBlank()) {
+            return ok(400, "couponCode 和 phone 必填", null);
+        }
+        Optional<LandingCoupon> opt = couponRepo.findByCouponCode(code.toUpperCase());
+        if (opt.isEmpty()) return ok(404, "优惠券码无效", null);
+        LandingCoupon c = opt.get();
+        if (c.getStatus() == null || c.getStatus() != CouponStatus.ENABLED.code) {
+            return ok(400, "该优惠券未启用", null);
+        }
+        LocalDateTime now = LocalDateTime.now();
+        if (c.getEndTime() != null && c.getEndTime().isBefore(now)) return ok(400, "优惠券已过期");
+        if (c.getStartTime() != null && c.getStartTime().isAfter(now)) return ok(400, "优惠券尚未开放领取");
+        if (c.getTotalLimit() != null && c.getTotalLimit() > 0
+                && c.getClaimedCount() != null && c.getClaimedCount() >= c.getTotalLimit()) {
+            return ok(400, "优惠券已领完", null);
+        }
+        // 每人限购
+        long claimed = userCouponRepo.countByCouponIdAndStatus(c.getId(), UserCouponStatus.UNUSED.code);
+        int limit = c.getLimitPerUser() == null ? 1 : c.getLimitPerUser();
+        if (claimed >= limit) return ok(400, "已达到每人限领数量(" + limit + "张)", null);
+
+        // 计算到期时间
+        LocalDateTime expireTime = null;
+        if (c.getValidDays() != null && c.getValidDays() > 0) {
+            expireTime = now.plusDays(c.getValidDays());
+        }
+
+        LandingUserCoupon uc = new LandingUserCoupon();
+        uc.setCouponId(c.getId());
+        uc.setCouponName(c.getName());
+        uc.setCouponCode(c.getCouponCode());
+        uc.setPhone(phone);
+        uc.setValue(c.getValue());
+        uc.setMinAmount(c.getMinAmount());
+        uc.setStatus(UserCouponStatus.UNUSED.code);
+        uc.setClaimTime(now);
+        uc.setExpireTime(expireTime);
+        userCouponRepo.save(uc);
+
+        // 累加模板已领取数
+        c.setClaimedCount((c.getClaimedCount() == null ? 0 : c.getClaimedCount()) + 1);
+        couponRepo.save(c);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("ok", true);
+        data.put("userCouponId", uc.getId());
+        data.put("expireTime", expireTime);
+        return ok(1, "领取成功", data);
+    }
+
+    /** 查询用户已领取的优惠券列表。 */
+    @GetMapping("/coupon/list")
+    public ResponseEntity<Map<String, Object>> listUserCoupons(@RequestParam String phone) {
+        if (phone == null || phone.isBlank()) return ok(400, "phone 必填", null);
+        List<LandingUserCoupon> list = userCouponRepo.findByPhone(phone);
+        List<Map<String, Object>> data = list.stream().map(u -> {
+            Map<String, Object> m = new HashMap<>();
+            m.put("id", u.getId());
+            m.put("couponName", u.getCouponName());
+            m.put("couponCode", u.getCouponCode());
+            m.put("value", u.getValue());
+            m.put("minAmount", u.getMinAmount());
+            m.put("status", u.getStatus());
+            m.put("claimTime", u.getClaimTime());
+            m.put("expireTime", u.getExpireTime());
+            m.put("useTime", u.getUseTime());
+            return m;
+        }).collect(Collectors.toList());
+        return ok(1, "ok", data);
+    }
+
+    // ============ 原有接口 ============
 
     /** 按 slug 取已发布页面(H5 渲染用)。 */
     @GetMapping("/page/slug/{slug}")
@@ -77,15 +293,16 @@ public class LandingApiController {
         List<LandingTemplate> all = tplRepo.findAll().stream()
             .filter(t -> t.getEnabled() != null && t.getEnabled() == EnableStatus.ENABLED.code)
             .toList();
-        List<Map<String, Object>> data = all.stream().map(t -> {
+        List<Map<String, Object>> data = new ArrayList<>();
+        for (LandingTemplate t : all) {
             Map<String, Object> m = new HashMap<>();
             m.put("id", t.getId());
             m.put("name", t.getName());
             m.put("category", t.getCategory());
             m.put("schema", t.getSchema());
             m.put("thumbUrl", t.getThumbUrl());
-            return m;
-        }).collect(Collectors.toList());
+            data.add(m);
+        }
         return ok(1, "ok", data);
     }
 
@@ -124,8 +341,6 @@ public class LandingApiController {
         return ok(1, "提交成功", data);
     }
 
-    // ============ 管理接口(需登录,这里用 Erupt 后台替代,magic-api 脚本另有) ============
-
     /** 按 ID 取页面(管理端)。 */
     @GetMapping("/page/{id}")
     public ResponseEntity<Map<String, Object>> getById(@PathVariable Long id) {
@@ -144,6 +359,10 @@ public class LandingApiController {
         r.put("msg", msg);
         r.put("data", data);
         return ResponseEntity.ok(r);
+    }
+
+    private static ResponseEntity<Map<String, Object>> ok(int code, String msg) {
+        return ok(code, msg, null);
     }
 
     private static String clientIp(HttpServletRequest req) {
