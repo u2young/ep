@@ -1,0 +1,131 @@
+{
+  "type": "page",
+  "title": "",
+  "body": [
+    {
+      "type": "grid",
+      "className": "bg-gradient-to-br from-slate-800 to-slate-900 text-white p-y-4xl p-x-xl",
+      "columns": [
+        {
+          "sm": false,
+          "md": true,
+          "body": [
+            { "type": "tpl", "tpl": "<span class=\"badge bg-blue-500 text-white m-b-sm\">企业数字化转型顾问</span>", "className": "m-b-sm" },
+            { "type": "tpl", "tpl": "<h1 class=\"m-y-sm text-5xl fw-bold\">为您的企业<br>量身定制数字化方案</h1>", "className": "text-5xl fw-bold m-y-sm" },
+            { "type": "tpl", "tpl": "<p class=\"opacity-75 text-xl m-b-lg\">10 年行业经验，服务超过 200 家中大型企业<br>一键预约专家免费咨询，24 小时内回复</p>", "className": "opacity-75" },
+            { "type": "group", "className": "m-y-lg gap-3", "body": [
+              { "type": "tpl", "tpl": "<div class=\"d-flex align-items-center gap-2\"><span class=\"text-green-400\">✓</span> 免费咨询 30 分钟，了解企业现状" },
+              { "type": "tpl", "tpl": "<div class=\"d-flex align-items-center gap-2 mt-2\"><span class=\"text-green-400\">✓</span> 定制化解决方案建议书" },
+              { "type": "tpl", "tpl": "<div class=\"d-flex align-items-center gap-2 mt-2\"><span class=\"text-green-400\">✓</span> 透明报价，无隐藏费用" }
+            ]}
+          ]
+        },
+        {
+          "sm": true,
+          "md": true,
+          "body": [
+            {
+              "type": "form",
+              "title": "预约免费咨询",
+              "className": "bg-white text-dark rounded-xl p-xl shadow-lg",
+              "api": "/api/landing/lead",
+              "body": [
+                { "type": "input-text", "name": "company", "label": "公司名称", "required": true, "placeholder": "请输入公司全称" },
+                { "type": "input-text", "name": "contact", "label": "联系人", "required": true, "placeholder": "您的姓名" },
+                { "type": "input-mobile", "name": "phone", "label": "手机号", "required": true, "placeholder": "方便我们与您联系" },
+                { "type": "input-email", "name": "email", "label": "邮箱", "required": true, "placeholder": "工作邮箱" },
+                { "type": "input-select", "name": "industry", "label": "所属行业", "required": true, "options": [
+                  { "label": "制造业", "value": "manufacturing" },
+                  { "label": "零售/电商", "value": "retail" },
+                  { "label": "金融/保险", "value": "finance" },
+                  { "label": "医疗/健康", "value": "healthcare" },
+                  { "label": "教育/培训", "value": "education" },
+                  { "label": "互联网/科技", "value": "tech" },
+                  { "label": "其他", "value": "other" }
+                ]},
+                { "type": "input-select", "name": "teamSize", "label": "企业规模", "options": [
+                  { "label": "1-50人", "value": "1-50" },
+                  { "label": "51-200人", "value": "51-200" },
+                  { "label": "201-1000人", "value": "201-1000" },
+                  { "label": "1000人以上", "value": "1000+" }
+                ]},
+                { "type": "input-datetime", "name": "preferTime", "label": "偏好时间", "mode": "date", "format": "YYYY-MM-DD" },
+                { "type": "textarea", "name": "requirement", "label": "需求描述", "placeholder": "简述您当前面临的数字化挑战或期望解决的业务问题...", "rows": 3 }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "tpl",
+      "className": "p-y-xl p-x-xl text-center bg-light",
+      "tpl": "<h3 class=\"m-b-none\">我们能帮您做什么</h3>"
+    },
+    {
+      "type": "grid",
+      "className": "p-x-xl m-b-xl",
+      "columns": [
+        {
+          "type": "card",
+          "className": "text-center p-xl",
+          "body": [
+            { "type": "tpl", "tpl": "<div class=\"text-4xl m-b-sm\">📋</div>", "className": "text-4xl" },
+            { "type": "tpl", "tpl": "<h5 class=\"m-t-none\">业务流程诊断</h5>", "className": "text-lg fw-bold" },
+            { "type": "tpl", "tpl": "<p class=\"text-muted m-b-none\">深入分析现有业务流程，找出效率瓶颈，提供优化建议方案</p>", "className": "text-muted" }
+          ]
+        },
+        {
+          "type": "card",
+          "className": "text-center p-xl",
+          "body": [
+            { "type": "tpl", "tpl": "<div class=\"text-4xl m-b-sm\">🔧</div>", "className": "text-4xl" },
+            { "type": "tpl", "tpl": "<h5 class=\"m-t-none\">系统选型与实施</h5>", "className": "text-lg fw-bold" },
+            { "type": "tpl", "tpl": "<p class=\"text-muted m-b-none\">根据企业需求推荐合适的 ERP/CRM/HR 等系统，并提供实施落地服务</p>", "className": "text-muted" }
+          ]
+        },
+        {
+          "type": "card",
+          "className": "text-center p-xl",
+          "body": [
+            { "type": "tpl", "tpl": "<div class=\"text-4xl m-b-sm\">📊</div>", "className": "text-4xl" },
+            { "type": "tpl", "tpl": "<h5 class=\"m-t-none\">数据中台建设</h5>", "className": "text-lg fw-bold" },
+            { "type": "tpl", "tpl": "<p class=\"text-muted m-b-none\">搭建企业级数据仓库与 BI 平台，实现数据驱动决策</p>", "className": "text-muted" }
+          ]
+        },
+        {
+          "type": "card",
+          "className": "text-center p-xl",
+          "body": [
+            { "type": "tpl", "tpl": "<div class=\"text-4xl m-b-sm\">🤖</div>", "className": "text-4xl" },
+            { "type": "tpl", "tpl": "<h5 class=\"m-t-none\">AI 智能化升级</h5>", "className": "text-lg fw-bold" },
+            { "type": "tpl", "tpl": "<p class=\"text-muted m-b-none\">引入 AI 技术提升业务自动化水平，如智能客服、预测分析等</p>", "className": "text-muted" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "wrapper",
+      "className": "bg-white p-y-xl border-top",
+      "body": [
+        {
+          "type": "grid",
+          "className": "p-x-xl",
+          "columns": [
+            {
+              "body": [
+                { "type": "tpl", "tpl": "<h5>合作客户</h5>", "className": "text-lg fw-bold m-b-sm" },
+                { "type": "tpl", "tpl": "<div class=\"d-flex flex-wrap gap-3\"><span class=\"badge bg-light text-dark p-2\">某银行</span><span class=\"badge bg-light text-dark p-2\">某制造集团</span><span class=\"badge bg-light text-dark p-2\">某零售连锁</span><span class=\"badge bg-light text-dark p-2\">某医疗机构</span></div>", "className": "m-t-sm" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "tpl",
+      "className": "text-center text-muted py-3",
+      "tpl": "© 2024 数智咨询 | 商务合作: contact@example.com"
+    }
+  ]
+}

@@ -1,0 +1,144 @@
+{
+  "type": "page",
+  "title": "",
+  "body": [
+    {
+      "type": "grid",
+      "className": "bg-gradient-to-r from-amber-500 to-orange-600 text-white p-y-4xl p-x-xl",
+      "columns": [
+        {
+          "sm": false,
+          "md": true,
+          "body": [
+            { "type": "tpl", "tpl": "<span class=\"badge bg-white text-orange-600 m-b-sm\">限时特惠 · 名额有限</span>", "className": "m-b-sm" },
+            { "type": "tpl", "tpl": "<h1 class=\"m-y-sm text-5xl fw-bold\">成为数据驱动的增长黑客</h1>", "className": "text-5xl fw-bold m-y-sm" },
+            { "type": "tpl", "tpl": "<p class=\"opacity-80 text-xl m-b-lg\">12 周系统课程 · 实战项目驱动 · 结业证书认证<br>累计帮助 5000+ 学员成功转型数据分析岗位</p>", "className": "opacity-80" },
+            { "type": "group", "className": "m-y-lg", "body": [
+              { "type": "tpl", "tpl": "<div class=\"d-flex align-items-center gap-2\"><span>🎓</span><strong>原价 ¥3999</strong><span class=\"opacity-75 ms-2\">限时特惠 ¥1999</span></div>" },
+              { "type": "tpl", "tpl": "<div class=\"d-flex align-items-center gap-2 mt-2\"><span>📦</span>含 48 节录播课 + 12 次直播答疑 + 结业项目评审</div>" },
+              { "type": "tpl", "tpl": "<div class=\"d-flex align-items-center gap-2 mt-2\"><span>⏰</span>开课时间：2024.11.01 · 早鸟截止：10.20</div>" }
+            ]}
+          ]
+        },
+        {
+          "sm": true,
+          "md": true,
+          "body": [
+            {
+              "type": "form",
+              "title": "立即报名",
+              "className": "bg-white text-dark rounded-xl p-xl shadow-lg",
+              "api": "/api/landing/lead",
+              "body": [
+                { "type": "input-text", "name": "name", "label": "姓名", "required": true, "placeholder": "您的真实姓名" },
+                { "type": "input-mobile", "name": "phone", "label": "手机号", "required": true, "placeholder": "用于接收课程资料" },
+                { "type": "input-email", "name": "email", "label": "邮箱", "required": true, "placeholder": "用于接收上课链接" },
+                { "type": "input-select", "name": "background", "label": "当前状态", "required": true, "options": [
+                  { "label": "在校大学生", "value": "student" },
+                  { "label": "职场新人(1-3年)", "value": "junior" },
+                  { "label": "转行从业者", "value": "career-change" },
+                  { "label": "资深人士进阶", "value": "senior" }
+                ]},
+                { "type": "input-select", "name": "goal", "label": "学习目标", "required": true, "options": [
+                  { "label": "转行数据分析", "value": "switch" },
+                  { "label": "提升数据分析能力", "value": "upgrade" },
+                  { "label": "完成结业项目", "value": "project" }
+                ]}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "tpl",
+      "className": "p-y-xl p-x-xl text-center",
+      "tpl": "<h3 class=\"m-b-none\">课程大纲</h3>"
+    },
+    {
+      "type": "tabs",
+      "className": "p-x-xl m-b-xl",
+      "tabs": [
+        {
+          "title": "阶段一：基础入门（第1-4周）",
+          "body": [
+            { "type": "list", "className": "list-none p-0", "items": [
+              { "type": "tpl", "tpl": "<strong>Week 1</strong> Python 数据分析基础：环境搭建、NumPy/Pandas 核心操作" },
+              { "type": "tpl", "tpl": "<strong>Week 2</strong> SQL 数据查询与处理：多表关联、窗口函数实战" },
+              { "type": "tpl", "tpl": "<strong>Week 3</strong> 数据可视化：Matplotlib/Seaborn 企业级报表制作" },
+              { "type": "tpl", "tpl": "<strong>Week 4</strong> 第一个实战项目：电商销售数据分析报告" }
+            ]}
+          ]
+        },
+        {
+          "title": "阶段二：进阶提升（第5-8周）",
+          "body": [
+            { "type": "list", "className": "list-none p-0", "items": [
+              { "type": "tpl", "tpl": "<strong>Week 5-6</strong> 统计学与实验设计：假设检验、A/B 测试分析" },
+              { "type": "tpl", "tpl": "<strong>Week 7</strong> 商业分析框架：用户画像、漏斗分析、留存分析" },
+              { "type": "tpl", "tpl": "<strong>Week 8</strong> 第二个实战项目：用户行为分析与增长策略建议" }
+            ]}
+          ]
+        },
+        {
+          "title": "阶段三：实战项目（第9-12周）",
+          "body": [
+            { "type": "list", "className": "list-none p-0", "items": [
+              { "type": "tpl", "tpl": "<strong>Week 9-10</strong> 毕业项目选题与数据获取（真实企业数据）" },
+              { "type": "tpl", "tpl": "<strong>Week 11</strong> 项目执行：从数据清洗到可视化呈现全流程" },
+              { "type": "tpl", "tpl": "<strong>Week 12</strong> 结业答辩 + 求职辅导：简历优化 & 模拟面试" }
+            ]}
+          ]
+        }
+      ]
+    },
+    {
+      "type": "tpl",
+      "className": "bg-light p-y-xl text-center",
+      "tpl": "<h3 class=\"m-b-none\">学员成果</h3>"
+    },
+    {
+      "type": "grid",
+      "className": "p-x-xl m-b-xl",
+      "columns": [
+        {
+          "type": "card",
+          "className": "text-center p-xl",
+          "body": [
+            { "type": "tpl", "tpl": "<h2 class=\"display-3 text-primary m-b-sm\">93%</h2>", "className": "text-5xl text-primary fw-bold" },
+            { "type": "tpl", "tpl": "<p class=\"m-b-none text-muted\">学员就业率（结业 3 个月内）</p>", "className": "text-muted" }
+          ]
+        },
+        {
+          "type": "card",
+          "className": "text-center p-xl",
+          "body": [
+            { "type": "tpl", "tpl": "<h2 class=\"display-3 text-primary m-b-sm\">5000+</h2>", "className": "text-5xl text-primary fw-bold" },
+            { "type": "tpl", "tpl": "<p class=\"m-b-none text-muted\">累计培养数据分析师</p>", "className": "text-muted" }
+          ]
+        },
+        {
+          "type": "card",
+          "className": "text-center p-xl",
+          "body": [
+            { "type": "tpl", "tpl": "<h2 class=\"display-3 text-primary m-b-sm\">4.8/5</h2>", "className": "text-5xl text-primary fw-bold" },
+            { "type": "tpl", "tpl": "<p class=\"m-b-none text-muted\">学员满意度评分</p>", "className": "text-muted" }
+          ]
+        },
+        {
+          "type": "card",
+          "className": "text-center p-xl",
+          "body": [
+            { "type": "tpl", "tpl": "<h2 class=\"display-3 text-primary m-b-sm\">+52%</h2>", "className": "text-5xl text-primary fw-bold" },
+            { "type": "tpl", "tpl": "<p class=\"m-b-none text-muted\">平均薪资涨幅（转行学员）</p>", "className": "text-muted" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "tpl",
+      "className": "text-center text-muted py-3",
+      "tpl": "© 2024 DataPro 学院 | 课程咨询: study@example.com"
+    }
+  ]
+}

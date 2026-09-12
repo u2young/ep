@@ -1,0 +1,129 @@
+{
+  "type": "page",
+  "title": "",
+  "body": [
+    {
+      "type": "grid",
+      "className": "bg-gradient-to-br from-purple-900 to-indigo-800 text-white p-y-4xl p-x-xl",
+      "columns": [
+        {
+          "sm": false,
+          "md": true,
+          "body": [
+            { "type": "tpl", "tpl": "<span class=\"badge bg-white text-purple-700 m-b-sm\">线上研讨会 · 免费参与</span>", "className": "m-b-sm" },
+            { "type": "tpl", "tpl": "<h1 class=\"m-y-sm text-4xl\">2024 AI 驱动营销<br>增长实战峰会</h1>", "className": "text-5xl fw-bold m-y-sm" },
+            { "type": "tpl", "tpl": "<p class=\"opacity-80 text-xl m-b-lg\">AI 如何重塑营销获客链路？3 位实战专家，3 小时干货分享</p>", "className": "opacity-80" },
+            { "type": "group", "className": "m-y-lg", "body": [
+              { "type": "tpl", "tpl": "<div class=\"d-flex align-items-center gap-3\"><span class=\"text-2xl\">📅</span><div><strong>日期</strong><br><span class=\"opacity-75\">2024.10.25（周五）14:00-17:00</span></div></div>" },
+              { "type": "tpl", "tpl": "<div class=\"d-flex align-items-center gap-3 mt-3\"><span class=\"text-2xl\">📍</span><div><strong>形式</strong><br><span class=\"opacity-75\">线上 Zoom 直播 + 回放</span></div></div>" },
+              { "type": "tpl", "tpl": "<div class=\"d-flex align-items-center gap-3 mt-3\"><span class=\"text-2xl\">🎁</span><div><strong>福利</strong><br><span class=\"opacity-75\">参会即送 AI 营销工具包</span></div></div>" }
+            ]}
+          ]
+        },
+        {
+          "sm": true,
+          "md": true,
+          "body": [
+            {
+              "type": "form",
+              "title": "立即报名",
+              "className": "bg-white text-dark rounded-xl p-xl shadow-lg",
+              "api": "/api/landing/lead",
+              "body": [
+                { "type": "input-text", "name": "name", "label": "姓名", "required": true, "placeholder": "您的姓名" },
+                { "type": "input-text", "name": "company", "label": "公司", "required": true, "placeholder": "所在公司" },
+                { "type": "input-mobile", "name": "phone", "label": "手机号", "required": true, "placeholder": "用于接收参会链接" },
+                { "type": "input-email", "name": "email", "label": "邮箱", "required": true, "placeholder": "工作邮箱" },
+                { "type": "input-select", "name": "role", "label": "职位", "required": true, "options": [
+                  { "label": "市场/运营", "value": "marketing" },
+                  { "label": "销售", "value": "sales" },
+                  { "label": "产品经理", "value": "pm" },
+                  { "label": "技术/研发", "value": "tech" },
+                  { "label": "企业负责人", "value": "ceo" },
+                  { "label": "其他", "value": "other" }
+                ]},
+                { "type": "input-radio", "name": "interest", "label": "最关注的话题", "options": [
+                  { "label": "AI 内容生成", "value": "content" },
+                  { "label": "精准获客", "value": "acquisition" },
+                  { "label": "数据分析", "value": "analytics" },
+                  { "label": "自动化营销", "value": "automation" }
+                ]}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "tpl",
+      "className": "bg-light p-y-xl text-center",
+      "tpl": "<h3 class=\"m-b-none\">三位重磅嘉宾</h3>"
+    },
+    {
+      "type": "grid",
+      "className": "p-x-xl m-b-xl",
+      "columns": [
+        {
+          "type": "card",
+          "className": "text-center p-xl",
+          "body": [
+            { "type": "tpl", "tpl": "<div class=\"avatar-circle m-auto m-b-sm\" style=\"width:80px;height:80px;border-radius:50%;background:#6366f1;display:flex;align-items:center;justify-content:center;color:white;font-size:28px;\">王</div>", "className": "text-4xl" },
+            { "type": "tpl", "tpl": "<h5 class=\"m-t-none\">王建国</h5>", "className": "text-lg fw-bold" },
+            { "type": "tpl", "tpl": "<p class=\"text-muted m-b-none\">某头部互联网大厂 · AI 营销负责人<br><span class=\"fs-sm\">主题：AI 内容生成的最佳实践</span></p>", "className": "text-muted fs-sm" }
+          ]
+        },
+        {
+          "type": "card",
+          "className": "text-center p-xl",
+          "body": [
+            { "type": "tpl", "tpl": "<div class=\"avatar-circle m-auto m-b-sm\" style=\"width:80px;height:80px;border-radius:50%;background:#8b5cf6;display:flex;align-items:center;justify-content:center;color:white;font-size:28px;\">李</div>", "className": "text-4xl" },
+            { "type": "tpl", "tpl": "<h5 class=\"m-t-none\">李晓雪</h5>", "className": "text-lg fw-bold" },
+            { "type": "tpl", "tpl": "<p class=\"text-muted m-b-none\">增长黑客社区创始人 · 10 年营销经验<br><span class=\"fs-sm\">主题：AI 驱动的精准获客链路</span></p>", "className": "text-muted fs-sm" }
+          ]
+        },
+        {
+          "type": "card",
+          "className": "text-center p-xl",
+          "body": [
+            { "type": "tpl", "tpl": "<div class=\"avatar-circle m-auto m-b-sm\" style=\"width:80px;height:80px;border-radius:50%;background:#a78bfa;display:flex;align-items:center;justify-content:center;color:white;font-size:28px;\">陈</div>", "className": "text-4xl" },
+            { "type": "tpl", "tpl": "<h5 class=\"m-t-none\">陈志远</h5>", "className": "text-lg fw-bold" },
+            { "type": "tpl", "tpl": "<p class=\"text-muted m-b-none\">某 SaaS 企业 CMO · 数据驱动营销专家<br><span class=\"fs-sm\">主题：用 AI 重构营销数据分析</span></p>", "className": "text-muted fs-sm" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "wrapper",
+      "className": "bg-light p-y-xl",
+      "body": [
+        {
+          "type": "grid",
+          "className": "p-x-xl",
+          "columns": [
+            {
+              "body": [
+                { "type": "tpl", "tpl": "<h4>你将收获</h4>", "className": "text-lg fw-bold m-b-sm" },
+                { "type": "list", "className": "list-none p-0", "items": [
+                  { "type": "tpl", "tpl": "<span class=\"me-2\">✅</span> AI 内容生成的完整工作流与方法论" },
+                  { "type": "tpl", "tpl": "<span class=\"me-2\">✅</span> 可落地的 AI 获客链路搭建指南" },
+                  { "type": "tpl", "tpl": "<span class=\"me-2\">✅</span> 营销数据分析的 AI 工具实战技巧" },
+                  { "type": "tpl", "tpl": "<span class=\"me-2\">✅</span> 与嘉宾在线互动答疑机会" }
+                ]}
+              ]
+            },
+            {
+              "body": [
+                { "type": "tpl", "tpl": "<div class=\"bg-white rounded-xl p-xl text-center\"><h5 class=\"m-t-none\">已报名 <span class=\"text-primary display-4\">326</span> 人</h5><p class=\"text-muted m-b-sm\">还剩 <strong class=\"text-danger\">4</strong> 个名额</p><small class=\"text-muted\">上次峰会满员提前关闭报名</small></div>", "className": "text-center" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "tpl",
+      "className": "text-center text-muted py-3",
+      "tpl": "© 2024 AI 营销峰会组委会 | 如有疑问请联系: events@example.com"
+    }
+  ]
+}

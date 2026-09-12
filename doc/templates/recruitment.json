@@ -1,0 +1,102 @@
+{
+  "type": "page",
+  "title": "",
+  "body": [
+    {
+      "type": "grid",
+      "className": "bg-gradient-to-br from-emerald-700 to-teal-900 text-white p-y-4xl p-x-xl",
+      "columns": [
+        {
+          "sm": false,
+          "md": true,
+          "body": [
+            { "type": "tpl", "tpl": "<span class=\"badge bg-emerald-200 text-emerald-800 m-b-sm\">诚聘英才</span>", "className": "m-b-sm" },
+            { "type": "tpl", "tpl": "<h1 class=\"m-y-sm text-5xl fw-bold\">加入我们,<br>一起改变世界</h1>", "className": "text-5xl fw-bold m-y-sm" },
+            { "type": "tpl", "tpl": "<p class=\"opacity-80 text-xl m-b-lg\">我们提供有竞争力的薪酬、弹性工作制和广阔的成长空间<br>正在寻找有激情的你</p>", "className": "opacity-80" },
+            { "type": "group", "className": "m-y-lg gap-2", "body": [
+              { "type": "tpl", "tpl": "<div class=\"d-flex align-items-center gap-2\"><span>🏢</span> 一线城市核心地段 · 现代化办公环境" },
+              { "type": "tpl", "tpl": "<div class=\"d-flex align-items-center gap-2 mt-2\"><span>📈</span> 扁平化管理 · 结果导向 · 拒绝内卷" },
+              { "type": "tpl", "tpl": "<div class=\"d-flex align-items-center gap-2 mt-2\"><span>🎁</span> 六险一金 · 年度体检 · 弹性考勤" }
+            ]}
+          ]
+        },
+        {
+          "sm": true,
+          "md": true,
+          "body": [
+            {
+              "type": "form",
+              "title": "投递意向职位",
+              "className": "bg-white text-dark rounded-xl p-xl shadow-lg",
+              "api": "/api/landing/lead",
+              "body": [
+                { "type": "input-text", "name": "name", "label": "姓名", "required": true, "placeholder": "您的姓名" },
+                { "type": "input-mobile", "name": "phone", "label": "手机号", "required": true, "placeholder": "用于接收面试通知" },
+                { "type": "input-email", "name": "email", "label": "邮箱", "required": true, "placeholder": "用于发送 Offer" },
+                { "type": "input-text", "name": "resume", "label": "简历链接", "placeholder": "GitHub / 个人博客 / 在线简历" },
+                { "type": "input-select", "name": "position", "label": "意向职位", "required": true, "options": [
+                  { "label": "前端工程师", "value": "frontend" },
+                  { "label": "后端工程师", "value": "backend" },
+                  { "label": "产品经理", "value": "pm" },
+                  { "label": "UI/UX 设计师", "value": "designer" },
+                  { "label": "数据分析师", "value": "analyst" },
+                  { "label": "市场运营", "value": "marketing" }
+                ]},
+                { "type": "input-select", "name": "experience", "label": "工作经验", "options": [
+                  { "label": "应届生", "value": "fresh" },
+                  { "label": "1-3 年", "value": "1-3" },
+                  { "label": "3-5 年", "value": "3-5" },
+                  { "label": "5 年以上", "value": "5+" }
+                ]},
+                { "type": "textarea", "name": "message", "label": "自我介绍", "placeholder": "用一句话介绍自己...", "rows": 2 }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "tpl",
+      "className": "p-y-xl p-x-xl text-center bg-light",
+      "tpl": "<h3 class=\"m-b-none\">开放职位</h3>"
+    },
+    {
+      "type": "table",
+      "className": "p-x-xl m-b-xl bg-white rounded shadow-sm",
+      "columns": [
+        { "label": "职位", "name": "position", "sortable": true },
+        { "label": "部门", "name": "department" },
+        { "label": "地点", "name": "location" },
+        { "label": "人数", "name": "headcount" }
+      ],
+      "data": [
+        { "position": "高级前端工程师", "department": "技术研发部", "location": "北京·望京", "headcount": "3" },
+        { "position": "后端工程师（Go）", "department": "技术研发部", "location": "北京·望京", "headcount": "2" },
+        { "position": "产品经理", "department": "产品部", "location": "上海·浦东", "headcount": "1" },
+        { "position": "UI/UX 设计师", "department": "设计部", "location": "远程可", "headcount": "1" },
+        { "position": "数据分析师", "department": "数据部", "location": "北京·望京", "headcount": "2" },
+        { "position": "市场运营专员", "department": "市场部", "location": "上海·浦东", "headcount": "2" }
+      ]
+    },
+    {
+      "type": "tpl",
+      "className": "bg-white p-y-xl text-center border-top",
+      "tpl": "<h3 class=\"m-b-none\">员工福利</h3>"
+    },
+    {
+      "type": "grid",
+      "className": "p-x-xl m-b-xl",
+      "columns": [
+        { "type": "card", "className": "text-center p-xl", "body": [{ "type": "tpl", "tpl": "<div class=\"text-4xl m-b-sm\">💰</div><h5>竞争力薪酬</h5><p class=\"text-muted m-b-none\">高于行业水平的薪资 + 年度奖金 + 股权激励</p>" }] },
+        { "type": "card", "className": "text-center p-xl", "body": [{ "type": "tpl", "tpl": "<div class=\"text-4xl m-b-sm\">🏖️</div><h5>弹性工作制</h5><p class=\"text-muted m-b-none\">不打卡 ·  flexible hours · 混合办公</p>" }] },
+        { "type": "card", "className": "text-center p-xl", "body": [{ "type": "tpl", "tpl": "<div class=\"text-4xl m-b-sm\">📚</div><h5>成长基金</h5><p class=\"text-muted m-b-none\">每年 ¥5000 学习预算 · 技术分享会 · 外部培训</p>" }] },
+        { "type": "card", "className": "text-center p-xl", "body": [{ "type": "tpl", "tpl": "<div class=\"text-4xl m-b-sm\">🎉</div><h5>团队建设</h5><p class=\"text-muted m-b-none\">季度团建 · 年度旅游 · 节日礼金 · 生日福利</p>" }] }
+      ]
+    },
+    {
+      "type": "tpl",
+      "className": "text-center text-muted py-3",
+      "tpl": "© 2024 创新科技有限公司 · HR 邮箱: hr@example.com"
+    }
+  ]
+}

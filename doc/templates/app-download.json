@@ -1,0 +1,141 @@
+{
+  "type": "page",
+  "title": "",
+  "body": [
+    {
+      "type": "grid",
+      "className": "bg-gradient-to-br from-pink-500 to-rose-600 text-white p-y-4xl p-x-xl",
+      "columns": [
+        {
+          "sm": false,
+          "md": true,
+          "body": [
+            { "type": "tpl", "tpl": "<img src=\"https://via.placeholder.com/120x120/ffffff/ff6b9d?text=G\" class=\"rounded-3 mb-3\" alt=\"logo\" style=\"width:80px;height:80px;\">", "className": "m-b-sm" },
+            { "type": "tpl", "tpl": "<h1 class=\"m-y-sm text-5xl fw-bold\">GlowUp<br>美妆生活</h1>", "className": "text-5xl fw-bold m-y-sm" },
+            { "type": "tpl", "tpl": "<p class=\"opacity-80 text-xl m-b-lg\">发现你的独特之美<br>百万用户信赖的美妆社区</p>", "className": "opacity-80" },
+            { "type": "group", "className": "m-y-lg gap-2", "body": [
+              {
+                "type": "button",
+                "label": "🍎 App Store 下载",
+                "level": "primary",
+                "className": "bg-white text-pink-600 fw-bold w-100",
+                "actionType": "link",
+                "link": "https://apps.apple.com"
+              },
+              {
+                "type": "button",
+                "label": "▶ Google Play 下载",
+                "level": "outline",
+                "className": "bg-transparent text-white border-white w-100",
+                "actionType": "link",
+                "link": "https://play.google.com"
+              }
+            ]},
+            { "type": "tpl", "tpl": "<p class=\"opacity-75 fs-sm m-t-sm\">iOS 12+ / Android 8.0+ · 免费下载</p>", "className": "opacity-75 fs-sm" }
+          ]
+        },
+        {
+          "sm": true,
+          "md": true,
+          "body": [
+            {
+              "type": "tpl",
+              "tpl": "<div style=\"background:rgba(255,255,255,0.15);border-radius:20px;height:400px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.8);flex-direction:column;gap:1rem;\"><div style=\"font-size:64px;\">📱</div><div>App 截图占位区<br><small>替换为实际手机截图</small></div></div>",
+              "className": "rounded-3 shadow"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "tpl",
+      "className": "bg-white p-y-xl text-center",
+      "tpl": "<h3 class=\"m-b-none\">APP 亮点功能</h3>"
+    },
+    {
+      "type": "grid",
+      "className": "p-x-xl m-b-xl",
+      "columns": [
+        {
+          "type": "card",
+          "className": "text-center p-xl",
+          "body": [
+            { "type": "tpl", "tpl": "<div class=\"text-5xl m-b-sm\">💄</div>", "className": "text-5xl" },
+            { "type": "tpl", "tpl": "<h5 class=\"m-t-none\">AI 试妆</h5>", "className": "text-lg fw-bold" },
+            { "type": "tpl", "tpl": "<p class=\"text-muted m-b-none\">AR 实时虚拟试妆，口红/眼影/粉底一键上脸</p>", "className": "text-muted" }
+          ]
+        },
+        {
+          "type": "card",
+          "className": "text-center p-xl",
+          "body": [
+            { "type": "tpl", "tpl": "<div class=\"text-5xl m-b-sm\">📖</div>", "className": "text-5xl" },
+            { "type": "tpl", "tpl": "<h5 class=\"m-t-none\">美妆教程</h5>", "className": "text-lg fw-bold" },
+            { "type": "tpl", "tpl": "<p class=\"text-muted m-b-none\">10万+ 优质化妆教程，新手也能快速上手</p>", "className": "text-muted" }
+          ]
+        },
+        {
+          "type": "card",
+          "className": "text-center p-xl",
+          "body": [
+            { "type": "tpl", "tpl": "<div class=\"text-5xl m-b-sm\">🛒</div>", "className": "text-5xl" },
+            { "type": "tpl", "tpl": "<h5 class=\"m-t-none\">正品商城</h5>", "className": "text-lg fw-bold" },
+            { "type": "tpl", "tpl": "<p class=\"text-muted m-b-none\">品牌直供，正品保障，首单立减 50 元</p>", "className": "text-muted" }
+          ]
+        },
+        {
+          "type": "card",
+          "className": "text-center p-xl",
+          "body": [
+            { "type": "tpl", "tpl": "<div class=\"text-5xl m-b-sm\">💬</div>", "className": "text-5xl" },
+            { "type": "tpl", "tpl": "<h5 class=\"m-t-none\">社区互动</h5>", "className": "text-lg fw-bold" },
+            { "type": "tpl", "tpl": "<p class=\"text-muted m-b-none\">百万美妆达人分享心得，寻找志同道合的闺蜜</p>", "className": "text-muted" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "tpl",
+      "className": "bg-light p-y-xl text-center",
+      "tpl": "<h3 class=\"m-b-none\">用户好评</h3>"
+    },
+    {
+      "type": "grid",
+      "className": "p-x-xl m-b-xl",
+      "columns": [
+        {
+          "type": "card",
+          "className": "p-xl",
+          "body": [
+            { "type": "tpl", "tpl": "<div class=\"text-warning m-b-sm\">★★★★★</div>", "className": "text-warning" },
+            { "type": "tpl", "tpl": "<p class=\"m-b-sm\">AI 试妆功能太厉害了！每次出门前都能快速找到适合的妆容搭配。</p>", "className": "m-b-sm" },
+            { "type": "tpl", "tpl": "<strong>—— 小美，25岁，美妆爱好者</strong>", "className": "text-muted fs-sm" }
+          ]
+        },
+        {
+          "type": "card",
+          "className": "p-xl",
+          "body": [
+            { "type": "tpl", "tpl": "<div class=\"text-warning m-b-sm\">★★★★★</div>", "className": "text-warning" },
+            { "type": "tpl", "tpl": "<p class=\"m-b-sm\">商城价格比专柜便宜很多，而且都是正品，已经回购好多次了。</p>", "className": "m-b-sm" },
+            { "type": "tpl", "tpl": "<strong>—— 莉莉，30岁，全职妈妈</strong>", "className": "text-muted fs-sm" }
+          ]
+        },
+        {
+          "type": "card",
+          "className": "p-xl",
+          "body": [
+            { "type": "tpl", "tpl": "<div class=\"text-warning m-b-sm\">★★★★★</div>", "className": "text-warning" },
+            { "type": "tpl", "tpl": "<p class=\"m-b-sm\">社区里的小姐姐们都很友好，新手小白也能学到很多东西！</p>", "className": "m-b-sm" },
+            { "type": "tpl", "tpl": "<strong>—— 欣欣，22岁，大学生</strong>", "className": "text-muted fs-sm" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "tpl",
+      "className": "text-center text-muted py-3",
+      "tpl": "© 2024 GlowUp 美妆生活 | 联系我们: hello@glowup.com"
+    }
+  ]
+}
