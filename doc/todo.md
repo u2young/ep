@@ -213,6 +213,13 @@ mvn test
 | 7.11 | 冒烟单测 8 场景全闭环 | P0 | ✅ | [LandingSmokeTests.java](../ep-module-landing/src/test/java/xyz/herz/ep/landing/LandingSmokeTests.java) |
 | 7.12 | magic-api 公开接口白名单拦截器 | P1 | ✅ | 公开接口走 Spring MVC 兜底 API(/api/landing/*),magic-api 仅管理端需登录 |
 | 7.13 | amis SDK 本地化(H5 渲染离线可用) | P1 | ✅ | amis 6.13.0 SDK 已下载到 [static/amis/](../ep-module-landing/src/main/resources/static/amis/),编辑器仍用 CDN(见下载脚本) |
+| 7.14 | 秒杀活动实体(LandingSeckill) + 状态机 DRAFT→ACTIVE→ENDED + 行按钮 | P1 | ✅ | [LandingSeckill.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/entity/LandingSeckill.java) + SeckillActiveHandler/SeckillEndHandler |
+| 7.15 | 秒杀订单实体(LandingSeckillOrder) | P1 | ✅ | [LandingSeckillOrder.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/entity/LandingSeckillOrder.java) |
+| 7.16 | 优惠券模板实体(LandingCoupon) + 状态机 DRAFT→ENABLED→DISABLED + 行按钮 | P1 | ✅ | [LandingCoupon.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/entity/LandingCoupon.java) + CouponEnableHandler/CouponDisableHandler |
+| 7.17 | 用户领券实体(LandingUserCoupon) | P1 | ✅ | [LandingUserCoupon.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/entity/LandingUserCoupon.java) |
+| 7.18 | 秒杀/优惠券 API(抢购/领券/校验/查询) + 限购与库存校验 | P1 | ✅ | [LandingApiController.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/web/LandingApiController.java) |
+| 7.19 | 枚举扩展(SeckillStatus/SeckillOrderStatus/CouponType/CouponStatus/UserCouponStatus) | P1 | ✅ | [LandingDictEnums.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/enums/LandingDictEnums.java) |
+| 7.20 | 冒烟单测扩至 11 场景(秒杀状态机/优惠券状态机/领取限制/抢购扣库存) | P0 | ✅ | [LandingSmokeTests.java](../ep-module-landing/src/test/java/xyz/herz/ep/landing/LandingSmokeTests.java) |
 
 ---
 

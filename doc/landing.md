@@ -1,7 +1,7 @@
 # 落地页(Landing)模块设计文档
 
-> **版本**: v1.1（设计文档 + 实现状态）  |  **更新**: 2026-09-07
-> **实现状态**: ✅ **已完成** | 冒烟单测 **8/8 全部通过**
+> **版本**: v1.2（设计文档 + 实现状态）  |  **更新**: 2026-09-12
+> **实现状态**: ✅ **已完成** | 冒烟单测 **11/11 全部通过**
 > **模块代码**: [ep-module-landing](../ep-module-landing/src/main/java/xyz/herz/ep/landing/)
 > **测试代码**: [LandingSmokeTests.java](../ep-module-landing/src/test/java/xyz/herz/ep/landing/LandingSmokeTests.java)
 
@@ -19,7 +19,11 @@
 | magic-api 脚本(6 个接口) + Spring MVC 兜底 API | ✅ | [LandingApiController.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/web/LandingApiController.java) |
 | amis-editor 入口页 + amis SDK CDN 集成 | ✅ | `static/landing-editor.html` + `templates/landing/render.html` |
 | 模板初始化器(启动时插入 3 个预设模板) | ✅ | [LandingTemplateInitializer.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/config/LandingTemplateInitializer.java) |
-| 冒烟单测 8 场景全闭环 | ✅ | [LandingSmokeTests.java](../ep-module-landing/src/test/java/xyz/herz/ep/landing/LandingSmokeTests.java) |
+| 冒烟单测 11 场景全闭环 | ✅ | [LandingSmokeTests.java](../ep-module-landing/src/test/java/xyz/herz/ep/landing/LandingSmokeTests.java) |
+| 秒杀活动实体(LandingSeckill) + 状态机 DRAFT→ACTIVE→ENDED | ✅ | [LandingSeckill.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/entity/LandingSeckill.java) |
+| 秒杀订单实体(LandingSeckillOrder) | ✅ | [LandingSeckillOrder.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/entity/LandingSeckillOrder.java) |
+| 优惠券模板实体(LandingCoupon) + 状态机 DRAFT→ENABLED→DISABLED | ✅ | [LandingCoupon.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/entity/LandingCoupon.java) |
+| 用户领券实体(LandingUserCoupon) | ✅ | [LandingUserCoupon.java](../ep-module-landing/src/main/java/xyz/herz/ep/landing/entity/LandingUserCoupon.java) |
 
 详细实现追踪见 [todo.md](./todo.md#7-landing-落地页模块)。
 
@@ -131,6 +135,11 @@ Spring MVC 兜底 API(`/api/landing/*`)确保开箱即用。
 | GET | /api/landing/template/list | 模板列表 | 公开 |
 | POST | /api/landing/lead | 留资提交 | 公开 |
 | GET | /api/landing/page/{id} | 按 ID 取页面 | 管理 |
+| GET | /api/landing/seckill/{id} | 获取秒杀活动详情(含倒计时) | 公开 |
+| POST | /api/landing/seckill/claim | 秒杀抢购 | 公开 |
+| GET | /api/landing/coupon/validate?code=XXX | 校验优惠券码有效性 | 公开 |
+| POST | /api/landing/coupon/claim | 领取优惠券 | 公开 |
+| GET | /api/landing/coupon/list?phone=XXX | 查询用户领券列表 | 公开 |
 
 magic-api web UI:http://localhost:8080/magic/web (erupt/erupt)
 
