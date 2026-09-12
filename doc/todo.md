@@ -110,7 +110,7 @@
 
 ## 6. IoT 模块(P0:MVP 完成)
 
-总览:冒烟单测 **5/5 ✅**(产品/物模型 CRUD、设备生命周期未激活→激活→禁用→启用、告警全链路处理→解决/忽略、消息记录 CRUD、状态机非法前置状态强校验)
+总览:冒烟单测 **11/11 ✅**(产品/物模型 CRUD、设备生命周期、告警全链路、消息记录 CRUD、状态机强校验、遥测处理、指令下发、禁用设备拒绝、告警规则阈值验证按钮)
 
 | # | 子项 | 优先级 | 状态 | 代码位置 |
 |---|---|---|---|---|
@@ -120,8 +120,12 @@
 | 6.3 | 设备(状态机:未激活→离线↔在线→禁用) + 激活/启用/禁用行按钮 | P0 | ✅ | `iot.entity.IotDevice` + `IotDeviceActivate/Enable/DisableHandler` |
 | 6.4 | 设备消息(上行/下行 + 属性/事件/服务) | P0 | ✅ | `iot.entity.IotDeviceMessage` |
 | 6.5 | 告警规则(阈值/状态) + 告警(四态:待处理→处理中→已解决/已忽略) + 告警日志 | P0 | ✅ | `iot.entity.IotAlarmRule/Alarm/AlarmLog` + `IotAlarmProcess/Resolve/IgnoreHandler` |
-| 6.6 | 冒烟单测 5 场景全闭环 | P0 | ✅ | [IotSmokeTests.java](../ep-module-iot/src/test/java/xyz/herz/ep/iot/IotSmokeTests.java) |
-| 6.7 | 接入 MQTT(EMQX) + 设备影子 + 时序数据 | P1 | ✅ | `MqttDeviceFacade` 接口已定义(ep-module-iot/core),Paho MQTT v5 Client 依赖已加入 pom |
+| 6.6 | 冒烟单测 11 场景全闭环 | P0 | ✅ | [IotSmokeTests.java](../ep-module-iot/src/test/java/xyz/herz/ep/iot/IotSmokeTests.java) |
+| 6.7 | 遥测处理(TelemetryProcessor):设备上报 → lastOnlineTime + 在线状态 + 消息记录 | P1 | ✅ | [TelemetryProcessor.java](../ep-module-iot/src/main/java/xyz/herz/ep/iot/core/TelemetryProcessor.java) |
+| 6.8 | 发送指令行按钮(IotDeviceSendCommandHandler) + MockMqttDeviceFacade | P1 | ✅ | [IotDeviceSendCommandHandler.java](../ep-module-iot/src/main/java/xyz/herz/ep/iot/handler/IotDeviceSendCommandHandler.java) / [MockMqttDeviceFacade.java](../ep-module-iot/src/main/java/xyz/herz/ep/iot/core/MockMqttDeviceFacade.java) |
+| 6.9 | 仪表盘 REST API(IoTDashboardController) | P1 | ✅ | [IoTDashboardController.java](../ep-module-iot/src/main/java/xyz/herz/ep/iot/web/IoTDashboardController.java) |
+| 6.10 | MQTT v5 接入(MqttDeviceFacade 接口 + MqttDeviceFacadeImpl Paho) | P1 | ✅ | [MqttDeviceFacade.java](../ep-module-iot/src/main/java/xyz/herz/ep/iot/core/MqttDeviceFacade.java) / [MqttDeviceFacadeImpl.java](../ep-module-iot/src/main/java/xyz/herz/ep/iot/core/MqttDeviceFacadeImpl.java) |
+| 6.11 | 告警规则阈值验证行按钮(IotAlarmRuleValidateButtonHandler) | P1 | ✅ | [IotAlarmRuleValidateButtonHandler.java](../ep-module-iot/src/main/java/xyz/herz/ep/iot/handler/IotAlarmRuleValidateButtonHandler.java) |
 
 ---
 

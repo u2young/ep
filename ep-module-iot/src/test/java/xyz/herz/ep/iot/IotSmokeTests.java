@@ -1,5 +1,7 @@
 package xyz.herz.ep.iot;
 
+import xyz.herz.ep.iot.core.MockMqttDeviceFacade;
+import xyz.herz.ep.iot.core.TelemetryProcessor;
 import xyz.herz.ep.iot.entity.*;
 import xyz.herz.ep.iot.enums.IotDictEnums.*;
 import xyz.herz.ep.iot.handler.*;
@@ -10,6 +12,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -25,6 +29,9 @@ import static org.junit.jupiter.api.Assertions.*;
  *   <li>告警全链路:创建告警 → 处理 → 解决;创建告警 → 忽略</li>
  *   <li>消息记录 CRUD</li>
  *   <li>状态机强校验:非法前置状态抛 IllegalStateException</li>
+ *   <li>TelemetryProcessor:遥测上报 → lastOnlineTime 更新 + 设备在线 + 消息写入</li>
+ *   <li>SendCommandHandler:下推指令通过 Mock MQTT 发布</li>
+ *   <li>SendCommandHandler:对禁用设备拒绝发送指令</li>
  * </ol>
  */
 @SpringBootTest(classes = IotTestApplication.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -48,6 +55,9 @@ class IotSmokeTests {
     @Autowired IotAlarmProcessHandler alarmProcess;
     @Autowired IotAlarmResolveHandler alarmResolve;
     @Autowired IotAlarmIgnoreHandler alarmIgnore;
+    @Autowired TelemetryProcessor telemetryProcessor;
+    @Autowired IotDeviceSendCommandHandler sendCommandHandler;
+    @Autowired MockMqttDeviceFacade mockMqtt;
 
     /** 反射获取 BUTTON Handler Bean。 */
     @Autowired ApplicationContext applicationContext;
@@ -314,6 +324,68 @@ class IotSmokeTests {
             "复制 IotProduct 应保留节点类型");
         assertEquals(src.getNetType(), cpDb.getNetType(),
             "复制 IotProduct 应保留联网类型");
+    }
+
+    // =================== helpers ===================
+
+    /** 6. TelemetryProcessor: 上报遥测 → 设备 lastOnlineTime + 消息记录 + 离线→在线 */
+    @Test
+    void telemetry_processor_updates_device_and_message() {
+        IotProduct p = basicProduct();
+        IotDevice d = new IotDevice();
+        d.setProduct(p);
+        d.setName("设备-D");
+        d.setCode("DEV-" + System.nanoTime());
+        d.setStatus(DeviceStatus.OFFLINE.code);
+        d.setLastOnlineTime(null);
+        deviceRepo.save(d);
+
+        Long msgId = telemetryProcessor.process(d.getId(), "{\"temperature\":36.5}", "test-msg-1");
+        assertNotNull(msgId);
+
+        IotDevice refreshed = deviceRepo.findById(d.getId()).orElseThrow();
+        assertEquals(DeviceStatus.ONLINE.code, refreshed.getStatus(), "遥测上报应使离线设备变为在线");
+        assertNotNull(refreshed.getLastOnlineTime(), "lastOnlineTime 应被更新");
+
+        IotDeviceMessage msg = msgRepo.findById(msgId).orElseThrow();
+        assertEquals(1, msg.getDirection(), "方向应为上行(1)");
+        assertEquals("1", msg.getType(), "遥测消息 type 应为 PROPERTY.code='1'");
+        assertEquals("{\"temperature\":36.5}", msg.getPayload());
+    }
+
+    /** 7. SendCommandHandler: 发送下推指令(MQTT Mock) */
+    @Test
+    void send_command_handler_publishes_via_mock_mqtt() {
+        IotProduct p = basicProduct();
+        IotDevice d = new IotDevice();
+        d.setProduct(p);
+        d.setName("设备-E");
+        d.setCode("DEV-" + System.nanoTime());
+        d.setStatus(DeviceStatus.ONLINE.code);
+        deviceRepo.save(d);
+
+        String result = sendCommandHandler.exec(
+                List.of(d), null, new String[]{"{\"action\":\"reboot\"}"});
+        assertEquals("已下发指令 1 台", result);
+
+        List<String> published = mockMqtt.getPublishedMessages();
+        assertTrue(published.stream().anyMatch(m -> m.contains("devices/" + d.getCode() + "/commands")),
+                "MQTT 应发布到设备指令 Topic");
+    }
+
+    /** 8. SendCommandHandler: 对禁用设备发送指令应抛异常 */
+    @Test
+    void send_command_rejects_disabled_device() {
+        IotProduct p = basicProduct();
+        IotDevice d = new IotDevice();
+        d.setProduct(p);
+        d.setName("设备-F");
+        d.setCode("DEV-" + System.nanoTime());
+        d.setStatus(DeviceStatus.DISABLED.code);
+        deviceRepo.save(d);
+
+        assertThrows(IllegalStateException.class, () ->
+                sendCommandHandler.exec(List.of(d), null, new String[]{"{}"}));
     }
 
     // =================== helpers ===================

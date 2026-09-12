@@ -1,4 +1,4 @@
-# IoT 模块冒烟测试: 独立内存 H2, 不依赖 ep-boot 层
+# IoT 模块冒烟测试: 独立内存 H2, 不依赖 ep-boot 层; Mock MQTT(无需真实 Broker)
 spring:
   datasource:
     url: jdbc:h2:mem:iot-test;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=FALSE;NON_KEYWORDS=VALUE,VALUE_
@@ -11,6 +11,12 @@ spring:
 
 erupt:
   app-name: IoT Test
+
+# 激活 Mock MQTT(无需真实 EMQX Broker)
+ep:
+  iot:
+    mqtt:
+      mock: true
 
 logging:
   level:

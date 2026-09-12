@@ -18,6 +18,7 @@ import xyz.herz.ep.iot.enums.IotDictEnums.DeviceStatus;
 import xyz.herz.ep.iot.handler.IotDeviceActivateHandler;
 import xyz.herz.ep.iot.handler.IotDeviceDisableHandler;
 import xyz.herz.ep.iot.handler.IotDeviceEnableHandler;
+import xyz.herz.ep.iot.handler.IotDeviceSendCommandHandler;
 
 import jakarta.persistence.*;
 import lombok.Getter;
