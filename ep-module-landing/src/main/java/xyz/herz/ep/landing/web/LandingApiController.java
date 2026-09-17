@@ -351,6 +351,42 @@ public class LandingApiController {
         return ok(1, "ok", opt.get());
     }
 
+    /** 落地页概要列表(编辑器"选择页面"模式用,不含大文本 content)。 */
+    @GetMapping("/page/list")
+    public ResponseEntity<Map<String, Object>> pageList() {
+        List<Map<String, Object>> data = pageRepo.findAll(org.springframework.data.domain.Sort.by(
+                        org.springframework.data.domain.Sort.Direction.DESC, "id")).stream()
+                .map(p -> {
+                    Map<String, Object> m = new HashMap<>();
+                    m.put("id", p.getId());
+                    m.put("slug", p.getSlug());
+                    m.put("name", p.getName());
+                    m.put("status", p.getStatus());
+                    m.put("shortCode", p.getShortCode());
+                    return m;
+                }).collect(Collectors.toList());
+        return ok(1, "ok", data);
+    }
+
+    /** 保存落地页 amis schema(编辑器 Ctrl+S / 保存按钮调用)。 */
+    @PostMapping("/page/{id}")
+    @Transactional
+    public ResponseEntity<Map<String, Object>> savePage(@PathVariable Long id,
+                                                        @RequestBody Map<String, Object> body) {
+        Optional<LandingPage> opt = pageRepo.findById(id);
+        if (opt.isEmpty()) {
+            return ok(404, "页面不存在", null);
+        }
+        Object content = body.get("content");
+        if (content == null || content.toString().isBlank()) {
+            return ok(400, "content 不能为空", null);
+        }
+        LandingPage p = opt.get();
+        p.setContent(content.toString());
+        pageRepo.save(p);
+        return ok(1, "保存成功", null);
+    }
+
     // ============ helpers ============
 
     private static ResponseEntity<Map<String, Object>> ok(int code, String msg, Object data) {

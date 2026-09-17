@@ -147,7 +147,8 @@ magic-api web UI:http://localhost:8080/magic/web (erupt/erupt)
 
 ### 编辑器(amis-editor 6.x)
 
-- 入口:`/static/landing-editor.html?id={pageId}`
+- 入口:菜单「落地页管理 → 页面设计器」打开 `/landing-editor.html`(无 id 时先选择页面),或 `/landing-editor.html?id={pageId}` 直接编辑
+- 注意:静态资源 URL 不带 /static 前缀(Spring Boot 将 classpath:/static/ 映射到根路径)
 - 从后端拉取页面 JSON → amis-editor 渲染拖拽画布 → Ctrl+S 保存
 - SDK 来源:CDN `cdn.jsdelivr.net/npm/amis-editor@6.7.3`(可换本地)
 

@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8"/>
-    <title>落地页编辑器</title>
+    <title>落地页设计器</title>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <style>
         html, body { height: 100%; margin: 0; }
@@ -11,75 +11,136 @@
             display: flex; align-items: center; justify-content: center;
             height: 100%; font-size: 16px; color: #666;
         }
+        /* ===== 列表选择模式 ===== */
+        .picker { max-width: 860px; margin: 0 auto; padding: 40px 20px; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
+        .picker h1 { font-size: 22px; margin-bottom: 6px; }
+        .picker .sub { color: #888; font-size: 13px; margin-bottom: 24px; }
+        .picker .hint { background: #eef4ff; border: 1px solid #d6e2ff; color: #3a5fd9; border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-bottom: 20px; }
+        .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+        .card { background: #fff; border: 1px solid #e8eaf0; border-radius: 10px; padding: 16px 18px; box-shadow: 0 1px 4px rgba(0,0,0,.05); }
+        .card h3 { font-size: 15px; margin: 0 0 6px; }
+        .card .slug { color: #888; font-size: 12px; margin-bottom: 10px; word-break: break-all; }
+        .card .meta { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+        .badge { display: inline-block; border-radius: 4px; padding: 1px 8px; font-size: 12px; }
+        .b-draft    { background: #f0f2f5; color: #666; }
+        .b-pub      { background: #e6f7e9; color: #1a7f37; }
+        .b-off      { background: #fdeeee; color: #b42318; }
+        .btn { display: inline-block; background: #4f6ef2; color: #fff; border-radius: 6px; padding: 6px 14px; font-size: 13px; text-decoration: none; }
+        .btn:hover { background: #3d5be0; }
+        .empty { text-align: center; color: #999; padding: 60px 0; font-size: 14px; }
     </style>
 </head>
 <body>
+<!-- 编辑器 SDK:本地自包含 bundle(amis-editor 6.13.0 全量打包,与 amis@6.13.0 sdk 配套),不依赖 CDN -->
+<link rel="stylesheet" href="/amis/sdk.css"/>
+<link rel="stylesheet" href="/amis/editor/bundle.css?v=3"/>
+<script src="/amis/editor/bundle.js?v=3"></script>
 <div id="root">
-    <div class="loading">正在加载 amis 编辑器...</div>
+    <div class="loading">正在加载落地页设计器...</div>
 </div>
-<!-- amis-editor SDK: 优先本地,失败用 CDN 6.x -->
 <script>
-    // 本地 SDK 加载失败时,从 CDN 加载 amis-editor 6.x
-    function loadScript(src, onerror) {
-        var s = document.createElement('script');
-        s.src = src;
-        s.onerror = onerror;
-        document.head.appendChild(s);
-    }
-
-    // 落地页 ID 从 query 取
+    // 落地页 ID 从 query 取;无 id 时进入"选择页面"列表模式
     var pageId = new URLSearchParams(location.search).get('id');
     var API_BASE = '/api/landing';
 
-    // 1. 先从后端拉取页面 JSON
-    fetch(API_BASE + '/page/' + pageId)
-        .then(function (r) { return r.json(); })
-        .then(function (res) {
-            if (!res || res.code !== 1 || !res.data) {
-                document.getElementById('root').innerHTML =
-                    '<div class="loading">页面不存在(id=' + pageId + ')</div>';
-                return null;
-            }
-            var schema;
-            try {
-                schema = res.data.content ? JSON.parse(res.data.content) : { type: 'page', body: [] };
-            } catch (e) {
-                schema = { type: 'page', body: [] };
-            }
-            return schema;
-        })
-        .then(function (schema) {
-            if (schema == null) return;
+    if (!pageId) {
+        renderPicker();
+    } else {
+        startEditMode(pageId);
+    }
 
-            // 2. 加载 amis-editor(CDN 6.13.0)
-            var editorCss = document.createElement('link');
-            editorCss.rel = 'stylesheet';
-            editorCss.href = 'https://cdn.jsdelivr.net/npm/amis-editor@6.13.0/lib/editor.css';
-            document.head.appendChild(editorCss);
-
-            loadScript('https://cdn.jsdelivr.net/npm/amis-editor@6.13.0/lib/editor.js', function () {
-                document.getElementById('root').innerHTML =
-                    '<div class="loading">amis-editor 加载失败,请检查网络</div>';
-            });
-
-            // 等 AMD 模块加载
-            var checkLoaded = setInterval(function () {
-                if (window.amisEditorRequire) {
-                    clearInterval(checkLoaded);
-                    startEditor(schema);
+    // ===== 列表选择模式:无 ?id= 时展示所有落地页 =====
+    function renderPicker() {
+        fetch(API_BASE + '/page/list')
+            .then(function (r) { return r.json(); })
+            .then(function (res) {
+                var root = document.getElementById('root');
+                var pages = (res && res.code === 1 && res.data) ? res.data : [];
+                var html = '<div class="picker">'
+                    + '<h1>落地页设计器</h1>'
+                    + '<div class="sub">选择一个落地页进入可视化编辑</div>'
+                    + '<div class="hint">提示:没有想要的页面?请先到后台「落地页管理 → 落地页」新建页面(填写 Slug 与名称),再回到这里刷新。</div>';
+                if (!pages.length) {
+                    html += '<div class="empty">暂无落地页,请先在后台创建</div>';
+                } else {
+                    html += '<div class="cards">';
+                    pages.forEach(function (p) {
+                        html += '<div class="card">'
+                            + '<h3>' + esc(p.name) + '</h3>'
+                            + '<div class="slug">/p/' + esc(p.slug) + '</div>'
+                            + '<div class="meta">' + statusBadge(p.status)
+                            + (p.shortCode ? '<span class="badge b-draft">短码 ' + esc(p.shortCode) + '</span>' : '')
+                            + '</div>'
+                            + '<a class="btn" href="/landing-editor.html?id=' + p.id + '">编辑此页 →</a>'
+                            + '</div>';
+                    });
+                    html += '</div>';
                 }
-            }, 100);
-        });
+                html += '</div>';
+                root.innerHTML = html;
+            })
+            .catch(function () {
+                document.getElementById('root').innerHTML = '<div class="loading">页面列表加载失败</div>';
+            });
+    }
 
-    function startEditor(schema) {
-        var amisEditor = window.amisEditorRequire('amis-editor');
-        var editor = amisEditor.Editor({
-            container: document.getElementById('root'),
-            schema: schema,
+    function statusBadge(s) {
+        if (s === 10) return '<span class="badge b-pub">已发布</span>';
+        if (s === 20) return '<span class="badge b-off">已下线</span>';
+        return '<span class="badge b-draft">草稿</span>';
+    }
+
+    function esc(s) {
+        return s == null ? '' : String(s).replace(/[&<>"]/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+        });
+    }
+
+    // ===== 编辑模式:有 ?id= 时加载 amis-editor =====
+    function startEditMode(pid) {
+        // 1. 先从后端拉取页面 JSON
+        fetch(API_BASE + '/page/' + pid)
+            .then(function (r) { return r.json(); })
+            .then(function (res) {
+                if (!res || res.code !== 1 || !res.data) {
+                    document.getElementById('root').innerHTML =
+                        '<div class="loading">页面不存在(id=' + pid + ')，<a href="/landing-editor.html">返回列表</a></div>';
+                    return null;
+                }
+                var schema;
+                try {
+                    schema = res.data.content ? JSON.parse(res.data.content) : { type: 'page', body: [] };
+                } catch (e) {
+                    schema = { type: 'page', body: [] };
+                }
+                return schema;
+            })
+            .then(function (schema) {
+                if (schema == null) return;
+                startEditor(pid, schema);
+            });
+    }
+
+    function startEditor(pid, schema) {
+        var bundle = window.AmisEditorBundle;
+        if (!bundle || !bundle.Editor || !window.ReactDOM) {
+            document.getElementById('root').innerHTML =
+                '<div class="loading">编辑器 SDK 加载失败</div>';
+            return;
+        }
+        // Editor 是 React 组件(官方用法):value 传初始 schema,onChange 记录最新值
+        // plugins 传插件类数组,由 Editor 内部实例化
+        window.CURRENT_SCHEMA = schema;
+        var el = window.React.createElement(bundle.Editor, {
+            theme: 'cxd',
+            value: schema,
+            plugins: bundle.pluginClasses,
+            className: 'is-fixed',
             onChange: function (newSchema) {
                 window.CURRENT_SCHEMA = newSchema;
             }
         });
+        window.ReactDOM.render(el, document.getElementById('root'));
 
         // 保存按钮(可通过键盘 Ctrl+S 或自定义按钮触发)
         window.savePage = function () {
@@ -87,11 +148,11 @@
                 alert('无内容可保存');
                 return;
             }
-            fetch(API_BASE + '/page/' + pageId, {
+            fetch(API_BASE + '/page/' + pid, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    id: parseInt(pageId),
+                    id: parseInt(pid),
                     content: JSON.stringify(window.CURRENT_SCHEMA)
                 })
             })
