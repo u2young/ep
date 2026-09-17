@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>落地页模块 · 使用指南</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #333; line-height: 1.7; padding: 32px 16px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  header { background: linear-gradient(135deg, #4f6ef2, #7c5cf0); color: #fff; border-radius: 12px; padding: 28px 32px; margin-bottom: 24px; }
+  header h1 { font-size: 24px; margin-bottom: 8px; }
+  header p { opacity: .92; font-size: 14px; }
+  h2 { font-size: 18px; margin: 28px 0 12px; padding-left: 10px; border-left: 4px solid #4f6ef2; }
+  .card { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid #eef0f4; }
+  th { color: #666; font-weight: 600; background: #fafbfd; }
+  td code { background: #f0f2f8; border-radius: 4px; padding: 1px 6px; font-size: 12.5px; color: #4f6ef2; }
+  ol.flow { list-style: none; counter-reset: step; }
+  ol.flow li { counter-increment: step; position: relative; padding: 8px 0 8px 40px; font-size: 14px; }
+  ol.flow li::before { content: counter(step); position: absolute; left: 0; top: 8px; width: 26px; height: 26px; border-radius: 50%; background: #4f6ef2; color: #fff; text-align: center; line-height: 26px; font-size: 13px; }
+  .tips li { font-size: 14px; margin: 6px 0 6px 20px; }
+  .tag { display: inline-block; background: #eef2ff; color: #4f6ef2; border-radius: 4px; padding: 0 8px; font-size: 12px; margin-right: 6px; }
+  /* 数据生命周期图组件 */
+  .fchain { background: #fff; border-radius: 10px; padding: 16px 20px 10px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  .fchain h3 { font-size: 13px; color: #888; font-weight: 600; margin-bottom: 10px; }
+  .flowviz { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-bottom: 12px; }
+  .fnode { border: 1.5px solid #4f6ef2; color: #4f6ef2; border-radius: 6px; padding: 3px 10px; font-size: 12.5px; font-weight: 500; background: #f7f9ff; }
+  .fnode.solid { background: #4f6ef2; color: #fff; }
+  .fnode.ghost { border-color: #c8cdd8; color: #8a90a0; background: #fbfbfd; }
+  .fnode.asset { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.data { border-color: #f59e0b; color: #b45309; background: #fffaf0; border-style: dashed; }
+  .fnode.end { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .farrow { color: #b6bcc9; font-size: 13px; }
+  .fnote { font-size: 11.5px; color: #a0a6b5; margin: -4px 0 10px; padding-bottom: 8px; }
+  /* 场景示例 */
+  .scene { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; border-left: 4px solid #4f6ef2; }
+  .scene h3 { font-size: 15px; margin-bottom: 10px; }
+  .scene p { font-size: 13.5px; margin: 7px 0; }
+  .scene b.k { color: #3d5be0; }
+  .scene .res { background: #f4f6ff; border-radius: 6px; padding: 8px 12px; font-size: 12.5px; margin-top: 10px; color: #4a5570; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>落地页模块 · 使用指南</h1>
+    <p>营销落地页全流程管理：amis 可视化建页 → 发布短链 → 访客留资 → 数据回流分析</p>
+  </header>
+
+  <h2>它能做什么</h2>
+  <div class="card">
+    <p>面向运营人员的 <strong>营销落地页工作台</strong>。无需写代码，通过 amis 可视化编辑器拖拽搭建活动页/留资页，发布后自动生成短链接，访客通过短链/直链打开 H5 页面提交表单，留资数据与访问统计自动回流到本后台。</p>
+  </div>
+
+  <h2>菜单功能说明</h2>
+  <div class="card">
+    <table>
+      <tr><th style="width:150px">菜单</th><th>用途</th></tr>
+      <tr><td>落地页</td><td>核心功能。管理页面状态机（草稿 → 已发布 → 已下线），发布自动生成 6 位短码；记录 PV / UV 访问统计</td></tr>
+      <tr><td>落地页模板</td><td>预设页面模板（空白 / 留资 / 产品 / 海报 / 活动），新建落地页时可快速套用</td></tr>
+      <tr><td>秒杀活动</td><td>配置限时秒杀活动，含开始结束时间与库存，页面内自动渲染倒计时</td></tr>
+      <tr><td>优惠券模板</td><td>定义优惠券面额、适用范围与库存，供页面领取</td></tr>
+      <tr><td>留资记录</td><td>访客提交的表单数据：手机号、来源渠道（短链 / 直链 / 二维码）、扩展字段</td></tr>
+      <tr><td>秒杀订单</td><td>用户抢购秒杀活动产生的订单记录</td></tr>
+      <tr><td>用户优惠券</td><td>用户领取到的优惠券实例与使用状态</td></tr>
+      <tr><td>访问日志</td><td>页面访问明细，按「页面 + IP + 指纹」唯一去重，支撑 UV 统计</td></tr>
+    </table>
+  </div>
+
+  <h2>快速上手</h2>
+  <div class="card">
+    <ol class="flow">
+      <li><strong>建模板（可选）</strong>：在「落地页模板」中预设常用页面结构，或直接跳过</li>
+      <li><strong>建页面</strong>：在「落地页」新建页面，填写 slug（直链标识）与名称，保存为草稿</li>
+      <li><strong>可视化编辑</strong>：进入 amis 编辑器拖拽搭建页面（表单、秒杀、优惠券组件），保存后回到列表</li>
+      <li><strong>发布</strong>：点击「发布」按钮，系统生成 6 位短码，页面可被访问</li>
+      <li><strong>推广</strong>：把短链 <code>/l/{短码}</code> 或直链 <code>/p/{slug}</code> 投放到广告/二维码</li>
+      <li><strong>看数据</strong>：在「留资记录」查看线索，在落地页列表查看 PV / UV</li>
+    </ol>
+  </div>
+
+  <h2>场景示例：奶茶品牌新品上市战役</h2>
+  <div class="scene">
+    <p>「茶语」奶茶要推秋季新品「桂花乌龙」，运营小美接到任务：<b class="k">两周内收集 500 条试饮预约</b>，并搞一波限时优惠。</p>
+    <p><b class="k">第 1 天</b>：小美在「落地页」新建页面 <code>guihua-2026</code>，从模板库套了「留资页」模板，进设计器拖入产品图轮播 + 表单（手机号 + 门店偏好）+ 倒计时秒杀组件，保存草稿。</p>
+    <p><b class="k">第 2 天</b>：点「发布」，生成短码。电梯广告二维码指向短链 <code>/l/A3fK9q</code>，朋友圈广告投直链 <code>/p/guihua-2026</code>——两条渠道分开投放，方便对比效果。</p>
+    <p><b class="k">第 5 天</b>：配置了「周五晚 8 点 1 元券秒杀」和满 30 减 5 的优惠券模板挂到页面上。当晚 200 张秒杀券 3 分钟抢完，后台「秒杀订单」实时刷屏。</p>
+    <p><b class="k">第 14 天</b>：活动收官。小美看后台数据：PV 8600、UV 5100，「留资记录」导出 632 条——其中电梯渠道 411 条、朋友圈 221 条，<b class="k">下一期投放预算立刻有了依据</b>。随后点「下线」，短链提示活动结束，但已投出的二维码依然有效（返回 410 而非 404）。</p>
+    <div class="res">对应菜单路径：落地页(建页/发布) → 页面设计器(拖拽) → 秒杀活动/优惠券模板(配置) → 留资记录/访问日志(看效果) → 秒杀订单/用户优惠券(查明细)</div>
+  </div>
+
+  <h2>数据生命周期</h2>
+
+  <div class="fchain">
+    <h3>① 页面资产的产生与发布（核心状态机）</h3>
+    <div class="flowviz">
+      <span class="fnode asset">落地页模板</span><span class="farrow">套用/引用 →</span>
+      <span class="fnode solid">草稿(0)</span><span class="farrow">— 「发布」→</span>
+      <span class="fnode">已发布(10) + 生成短码</span><span class="farrow">— 「下线」→</span>
+      <span class="fnode">已下线(20) · 短链返回410</span><span class="farrow">— 「重新发布」→</span>
+      <span class="fnode">已发布(复用原短码)</span>
+    </div>
+    <div class="fnote">发布/下线通过行按钮触发，状态机约束：只有草稿和已下线状态可发布；重新发布复用短码，已投递的短链永不变更</div>
+  </div>
+
+  <div class="fchain">
+    <h3>② 访客数据的生产链路（发布之后自动发生）</h3>
+    <div class="flowviz">
+      <span class="fnode ghost">访客打开 /l/{短码} 或 /p/{slug}</span><span class="farrow">→</span>
+      <span class="fnode data">访问日志(PV / UV去重)</span><span class="farrow">＋</span>
+      <span class="fnode solid">提交表单</span><span class="farrow">→</span>
+      <span class="fnode data">留资记录(手机号+来源渠道)</span>
+    </div>
+    <div class="flowviz">
+      <span class="fnode ghost">页面内互动</span><span class="farrow">→</span>
+      <span class="fnode data">秒杀订单</span><span class="farrow">＋</span>
+      <span class="fnode data">用户优惠券(模板→领取→使用)</span>
+    </div>
+    <div class="fnote">UV 按「页面 + IP + 指纹」唯一去重；留资/订单/领券均由 C 端公开 API 产生，运营只在后台查看，不手工录入</div>
+  </div>
+
+  <div class="fchain">
+    <h3>③ 数据关联与终点</h3>
+    <div class="flowviz">
+      <span class="fnode asset">模板</span><span class="farrow">1 → N</span><span class="fnode">落地页</span><span class="farrow">1 → N</span>
+      <span class="fnode data">访问日志 / 留资 / 秒杀订单 / 用户优惠券</span>
+    </div>
+    <div class="fnote">终点规则：删除均为逻辑删除（数据保留可恢复）；访问日志与留资为业务凭证只增不改；页面删除不影响已产生的留资数据</div>
+  </div>
+
+  <h2>使用提示</h2>
+  <div class="card">
+    <ul class="tips">
+      <li><span class="tag">状态机</span>发布按钮仅在草稿 / 已下线状态下可用；下线后短链返回 410，重新发布<strong>复用原短码</strong></li>
+      <li><span class="tag">免登访问</span>C 端页面（/p/{slug}、/l/{code}）与留资接口无需登录，管理后台数据需登录查看</li>
+      <li><span class="tag">UV 去重</span>同一访客（IP + UA 指纹）对同一页面重复访问只计一次 UV</li>
+      <li><span class="tag">接口</span>留资/秒杀/领券均为公开 API（<code>/api/landing/*</code>），便于对接小程序或第三方投放</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>

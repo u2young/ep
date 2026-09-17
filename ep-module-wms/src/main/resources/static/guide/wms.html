@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WMS仓储管理 · 使用指南</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #333; line-height: 1.7; padding: 32px 16px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  header { background: linear-gradient(135deg, #10b981, #0d9488); color: #fff; border-radius: 12px; padding: 28px 32px; margin-bottom: 24px; }
+  header h1 { font-size: 24px; margin-bottom: 8px; }
+  header p { opacity: .92; font-size: 14px; }
+  h2 { font-size: 18px; margin: 28px 0 12px; padding-left: 10px; border-left: 4px solid #0d9488; }
+  .card { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid #eef0f4; }
+  th { color: #666; font-weight: 600; background: #fafbfd; }
+  td code { background: #f0f2f8; border-radius: 4px; padding: 1px 6px; font-size: 12.5px; color: #0d9488; }
+  ol.flow { list-style: none; counter-reset: step; }
+  ol.flow li { counter-increment: step; position: relative; padding: 8px 0 8px 40px; font-size: 14px; }
+  ol.flow li::before { content: counter(step); position: absolute; left: 0; top: 8px; width: 26px; height: 26px; border-radius: 50%; background: #0d9488; color: #fff; text-align: center; line-height: 26px; font-size: 13px; }
+  .tips li { font-size: 14px; margin: 6px 0 6px 20px; }
+  .tag { display: inline-block; background: #ccfbf1; color: #0f766e; border-radius: 4px; padding: 0 8px; font-size: 12px; margin-right: 6px; }
+  /* 数据生命周期图组件 */
+  .fchain { background: #fff; border-radius: 10px; padding: 16px 20px 10px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  .fchain h3 { font-size: 13px; color: #888; font-weight: 600; margin-bottom: 10px; }
+  .flowviz { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-bottom: 12px; }
+  .fnode { border: 1.5px solid #0d9488; color: #0f766e; border-radius: 6px; padding: 3px 10px; font-size: 12.5px; font-weight: 500; background: #f7fdfc; }
+  .fnode.solid { background: #0d9488; color: #fff; }
+  .fnode.ghost { border-color: #c8cdd8; color: #8a90a0; background: #fbfbfd; }
+  .fnode.asset { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.data { border-color: #f59e0b; color: #b45309; background: #fffaf0; border-style: dashed; }
+  .fnode.warn { border-color: #ef4444; color: #b91c1c; background: #fff5f5; }
+  .fnode.ok { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.end { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .farrow { color: #b6bcc9; font-size: 13px; }
+  .fnote { font-size: 11.5px; color: #a0a6b5; margin: -4px 0 10px; padding-bottom: 8px; }
+  /* 场景示例 */
+  .scene { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; border-left: 4px solid #0d9488; }
+  .scene h3 { font-size: 15px; margin-bottom: 10px; }
+  .scene p { font-size: 13.5px; margin: 7px 0; }
+  .scene b.k { color: #0f766e; }
+  .scene .res { background: #f0faf8; border-radius: 6px; padding: 8px 12px; font-size: 12.5px; margin-top: 10px; color: #4a5570; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>WMS仓储管理 · 使用指南</h1>
+    <p>管的是实物：它在哪里（库位）、什么状态（四态库存）、按什么策略流转（单据状态机）</p>
+  </header>
+
+  <h2>它能做什么</h2>
+  <div class="card">
+    <p>面向仓储作业人员的 <strong>仓库执行管理系统</strong>。区别于 ERP 的「账面库存」，WMS 管到 <strong>仓库 → 库区 → 库位</strong> 三级物理位置，库存分<strong>可用 / 锁定 / 在途 / 冻结</strong>四态。入库走「到货通知 → 收货 → 上架」状态机，出库走「发货通知 → 拣货 → 发货」链路，每一步都有单据可查。</p>
+  </div>
+
+  <h2>菜单功能说明</h2>
+  <div class="card">
+    <table>
+      <tr><th style="width:130px">分组</th><th>菜单与用途</th></tr>
+      <tr><td>基础数据</td><td><strong>仓库</strong>（多仓档案）、<strong>库区</strong>（收货区/存储区/拣货区等类型）、<strong>库位</strong>（货架-层-位坐标 + ABC 分类，上架推荐的目标）</td></tr>
+      <tr><td>库存核心</td><td><strong>库存</strong>（SKU × 仓库 × 库位多维余额，四态数量）、<strong>库存移动</strong>（每笔增减的流水明细，只增不改）、<strong>盘点单/明细</strong>（账实核对，生成盈亏调整）</td></tr>
+      <tr><td>入库链路</td><td><strong>到货通知</strong>（上游预报"将要来什么"）→ <strong>收货单</strong>（实物签收，支持分批收货）→ <strong>上架单</strong>（系统推荐库位，实物上架确认）</td></tr>
+      <tr><td>出库链路</td><td><strong>发货通知</strong>（下游出库需求）→ <strong>拣货单</strong>（按库位生成拣货任务）→ 发货完成回写通知单</td></tr>
+      <tr><td>库内作业</td><td><strong>移库单</strong>（库位间调拨，主表 + 明细），执行后同步更新库位库存</td></tr>
+    </table>
+  </div>
+
+  <h2>快速上手</h2>
+  <div class="card">
+    <ol class="flow">
+      <li><strong>建仓</strong>：先建「仓库」，再在仓库下建「库区」，最后建「库位」（编码如 A-01-02 表示 货架-排-层）</li>
+      <li><strong>入库</strong>：收到采购预报后录「到货通知」→ 货到执行「收货」（可多次）→ 生成「上架单」按推荐库位上架 → 库存增加</li>
+      <li><strong>出库</strong>：下游推送「发货通知」→ 按库存分配生成「拣货单」→ 仓员按库位拣货 → 执行发货，库存扣减</li>
+      <li><strong>库内</strong>：库位调整用「移库单」；定期用「盘点单」核对账实，差异生成调整</li>
+    </ol>
+  </div>
+
+  <h2>场景示例：1000 箱矿泉水的仓储之旅</h2>
+  <div class="scene">
+    <p>「惠民超市」的中心仓收到采购部预报：<b class="k">1000 箱矿泉水</b>周二入库。仓管老李一周的操作如下：</p>
+    <p><b class="k">周二上午</b>：老李在「到货通知」录入 ASN（品名、数量 1000、预计到达）。<b class="k">周三</b>货车到，第一车 600 箱——建「收货单」先收 600 箱（<b class="k">分批收货</b>），周四第二车 400 箱到齐后完成收货。系统提示上架库位 <code>A-03-01</code>（A 区饮料存储位、空位充足、C 类大宗商品），老李扫码确认，两张「上架单」全部完成，<b class="k">A-03-01 库位可用库存 +1000</b>。</p>
+    <p><b class="k">周四下午</b>：电商渠道要 200 箱发前置仓。「发货通知」录入后系统<b class="k">自动锁定 200</b>（可用变 800，锁定 200）——防止别的订单把这些货卖掉。老李按「拣货单」提示走到 A-03-01 搬货 200 箱，点「完成拣货」并发货，库存真正扣减：<b class="k">可用 800 · 锁定 0</b>。</p>
+    <p><b class="k">月底盘点</b>：A 区盘点，A-03-01 实际 797 箱，账面 800——差 3 箱（水是易损耗品）。盘点单记录差异，完成时生成盈亏调整 <b class="k">−3</b>，账实一致。</p>
+    <p><b class="k">次月</b>：饮料销售旺季结束，老李用「移库单」把 A-03-01 剩余的 197 箱中的 100 箱挪到 B 区滞销位（<b class="k">位置变了，总数没变</b>——移库只改库位分布）。</p>
+    <div class="res">期间任何时候有库存疑问：打开「库存移动」，按 SKU 过滤，每一笔 +600/+400/+1000上架/−200发货/−3盘亏/移库 都清清楚楚，带来源单据号</div>
+  </div>
+
+  <h2>数据生命周期</h2>
+
+  <div class="fchain">
+    <h3>① 入库链：一票货从预告到上架</h3>
+    <div class="flowviz">
+      <span class="fnode solid">到货通知ASN(预告)</span><span class="farrow">— 生成 →</span>
+      <span class="fnode">收货单(实物签收·可分批)</span><span class="farrow">— 完成收货 →</span>
+      <span class="fnode">上架单(系统推荐库位)</span><span class="farrow">— 完成上架 →</span>
+      <span class="fnode ok">库存(可用 +N)</span>
+    </div>
+    <div class="fnote">每步由单据按钮推进；收货支持分批（多次收货直到完成）；上架时按库位空闲 + ABC 分类推荐库位，允许改为实际库位</div>
+  </div>
+
+  <div class="fchain">
+    <h3>② 出库链：一票货从需求到离场</h3>
+    <div class="flowviz">
+      <span class="fnode solid">发货通知(出库需求)</span><span class="farrow">— 分配库存(锁定) →</span>
+      <span class="fnode">拣货单(按库位生成任务)</span><span class="farrow">— 完成拣货·发货 →</span>
+      <span class="fnode ok">库存扣减(锁定转扣减)</span><span class="farrow">→</span>
+      <span class="fnode end">通知单完成</span>
+    </div>
+    <div class="fnote">出库分配即产生「锁定」库存——先占坑再扣减，防止超卖；发货完成后自动回写通知单状态</div>
+  </div>
+
+  <div class="fchain">
+    <h3>③ 库存四态：每一件货的实时身份</h3>
+    <div class="flowviz">
+      <span class="fnode ok">可用</span><span class="farrow">=</span>
+      <span class="fnode">总量</span><span class="farrow">−</span>
+      <span class="fnode warn">锁定(出库已分配)</span><span class="farrow">−</span>
+      <span class="fnode warn">在途(入库未上架)</span><span class="farrow">−</span>
+      <span class="fnode warn">冻结(盘点/质量问题)</span>
+    </div>
+    <div class="fnote">库存记录维度 = SKU × 仓库 × 库位；任何数量变化必经单据按钮触发，系统同步写「库存移动」流水</div>
+  </div>
+
+  <div class="fchain">
+    <h3>④ 库内作业与数据终点</h3>
+    <div class="flowviz">
+      <span class="fnode">移库单</span>：<span class="fnode ghost">草稿</span><span class="farrow">→</span><span class="fnode ghost">执行中(库存位置迁移)</span><span class="farrow">→</span><span class="fnode end">完成</span>
+    </div>
+    <div class="flowviz">
+      <span class="fnode">盘点单</span>：<span class="fnode ghost">草稿</span><span class="farrow">→</span><span class="fnode ghost">盘点中(账实核对·冻结)</span><span class="farrow">→</span><span class="fnode ok">完成(差异生成盈亏调整)</span>
+    </div>
+    <div class="fnote">终点规则：业务单据完成后不可删除（审计留痕）；「库存移动」流水只增不改，每笔含来源单据类型与单号，是库存追溯的最终依据</div>
+  </div>
+
+  <h2>使用提示</h2>
+  <div class="card">
+    <ul class="tips">
+      <li><span class="tag">单据驱动</span>所有库存变动必须通过单据按钮（完成收货 / 完成上架 / 完成拣货 / 执行移库）触发，不允许手改库存</li>
+      <li><span class="tag">四态库存</span>可用 = 总量 − 锁定 − 在途 − 冻结；出库分配即锁定，发货扣减</li>
+      <li><span class="tag">上架推荐</span>上架单自动推荐空库位（优先同库区、ABC 分类匹配），仓员可改实际库位</li>
+      <li><span class="tag">流水追溯</span>任何库存疑问先查「库存移动」流水，每笔含来源单据类型与单号</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>

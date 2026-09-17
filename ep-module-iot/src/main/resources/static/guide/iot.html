@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IoT物联网 · 使用指南</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #333; line-height: 1.7; padding: 32px 16px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  header { background: linear-gradient(135deg, #0ea5e9, #2563eb); color: #fff; border-radius: 12px; padding: 28px 32px; margin-bottom: 24px; }
+  header h1 { font-size: 24px; margin-bottom: 8px; }
+  header p { opacity: .92; font-size: 14px; }
+  h2 { font-size: 18px; margin: 28px 0 12px; padding-left: 10px; border-left: 4px solid #0ea5e9; }
+  .card { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid #eef0f4; }
+  th { color: #666; font-weight: 600; background: #fafbfd; }
+  td code { background: #f0f2f8; border-radius: 4px; padding: 1px 6px; font-size: 12.5px; color: #0ea5e9; }
+  ol.flow { list-style: none; counter-reset: step; }
+  ol.flow li { counter-increment: step; position: relative; padding: 8px 0 8px 40px; font-size: 14px; }
+  ol.flow li::before { content: counter(step); position: absolute; left: 0; top: 8px; width: 26px; height: 26px; border-radius: 50%; background: #0ea5e9; color: #fff; text-align: center; line-height: 26px; font-size: 13px; }
+  .tips li { font-size: 14px; margin: 6px 0 6px 20px; }
+  .tag { display: inline-block; background: #e0f2fe; color: #0369a1; border-radius: 4px; padding: 0 8px; font-size: 12px; margin-right: 6px; }
+  /* 数据生命周期图组件 */
+  .fchain { background: #fff; border-radius: 10px; padding: 16px 20px 10px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  .fchain h3 { font-size: 13px; color: #888; font-weight: 600; margin-bottom: 10px; }
+  .flowviz { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-bottom: 12px; }
+  .fnode { border: 1.5px solid #0ea5e9; color: #0284c7; border-radius: 6px; padding: 3px 10px; font-size: 12.5px; font-weight: 500; background: #f7fbff; }
+  .fnode.solid { background: #0ea5e9; color: #fff; }
+  .fnode.ghost { border-color: #c8cdd8; color: #8a90a0; background: #fbfbfd; }
+  .fnode.asset { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.data { border-color: #f59e0b; color: #b45309; background: #fffaf0; border-style: dashed; }
+  .fnode.warn { border-color: #ef4444; color: #b91c1c; background: #fff5f5; }
+  .fnode.end { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .farrow { color: #b6bcc9; font-size: 13px; }
+  .fnote { font-size: 11.5px; color: #a0a6b5; margin: -4px 0 10px; padding-bottom: 8px; }
+  /* 场景示例 */
+  .scene { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; border-left: 4px solid #0ea5e9; }
+  .scene h3 { font-size: 15px; margin-bottom: 10px; }
+  .scene p { font-size: 13.5px; margin: 7px 0; }
+  .scene b.k { color: #0284c7; }
+  .scene .res { background: #f0f8ff; border-radius: 6px; padding: 8px 12px; font-size: 12.5px; margin-top: 10px; color: #4a5570; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>IoT物联网 · 使用指南</h1>
+    <p>连接万物、统一模型、规则驱动、实时反馈 —— 设备接入与管理的全生命周期平台</p>
+  </header>
+
+  <h2>它能做什么</h2>
+  <div class="card">
+    <p>面向设备运维与产品经理的 <strong>物联网设备管理平台</strong>。以「产品 → 物模型 → 设备」为主线：先定义产品与协议，再为产品建模（属性/服务/事件），最后逐台登记设备并激活。设备上下行消息全程留痕，配合告警规则实现「数据上报 → 阈值匹配 → 自动告警」闭环。</p>
+  </div>
+
+  <h2>菜单功能说明</h2>
+  <div class="card">
+    <table>
+      <tr><th style="width:150px">菜单</th><th>用途</th></tr>
+      <tr><td>产品档案</td><td>产品定义：ProductKey、节点类型（直连/网关/子设备）、接入协议（MQTT/HTTP/COAP/TCP 等）、数据格式与认证方式</td></tr>
+      <tr><td>产品分类</td><td>多级分类树，组织管理产品档案</td></tr>
+      <tr><td>物模型</td><td>按产品定义三要素：<strong>属性</strong>（可读/可写/读写）、<strong>服务</strong>（可调用方法）、<strong>事件</strong>（info/alert/error 级别上报）</td></tr>
+      <tr><td>设备管理</td><td>设备登记与生命周期：未激活 → 在线/离线 → 禁用；含密钥、固件版本、最后在线时间</td></tr>
+      <tr><td>设备消息</td><td>上下行消息日志：属性上报、属性读写、服务调用、事件、上下线，支持按设备/类型/方向排查</td></tr>
+      <tr><td>告警规则</td><td>基于物模型属性配置阈值告警（如温度 &gt; 80℃），含严重级别</td></tr>
+      <tr><td>告警中心</td><td>规则命中的告警实例，集中查看与处理</td></tr>
+      <tr><td>告警日志</td><td>告警处理动作留痕（确认/处理/关闭）</td></tr>
+    </table>
+  </div>
+
+  <h2>快速上手</h2>
+  <div class="card">
+    <ol class="flow">
+      <li><strong>建分类</strong>：在「产品分类」规划品类树（如 智能家居 → 传感器）</li>
+      <li><strong>建产品</strong>：在「产品档案」创建产品，选择节点类型与接入协议，系统生成 ProductKey</li>
+      <li><strong>定义物模型</strong>：为产品添加属性（如 temperature 温度）、服务、事件</li>
+      <li><strong>登记设备</strong>：在「设备管理」添加设备并绑定产品，获取设备密钥</li>
+      <li><strong>激活联调</strong>：设备按协议连接平台完成激活，状态转「在线」；在「设备消息」核对上下行数据</li>
+      <li><strong>配告警</strong>：在「告警规则」设定阈值，触发后在「告警中心」跟进处理</li>
+    </ol>
+  </div>
+
+  <h2>场景示例：冷链仓库温控监控</h2>
+  <div class="scene">
+    <p>「鲜达」冷链公司在 3 个仓库放了 <b class="k">120 台温湿度传感器</b>，冷链要求库温 ≤ 8℃，超温 15 分钟内必须有人处理。</p>
+    <p><b class="k">准备阶段</b>：运维老张建产品「冷链温湿度传感器」（MQTT 直连），物模型里定义属性 <code>temperature</code>（可读）和 <code>humidity</code>，再把 120 台设备逐台登记，把设备密钥烧录进硬件。</p>
+    <p><b class="k">上线</b>：设备通电后 MQTT CONNECT 自动激活，列表里 120 台全部「在线」——不需要任何手工操作。每 30 秒一次温度上报，「设备消息」里能看到完整的上报流水。</p>
+    <p><b class="k">配置告警</b>：老张建规则「temperature &gt; 8，持续 15 分钟，级别：严重」，绑定到三个仓库的所有设备。</p>
+    <p><b class="k">某夜 2:14</b>：三号仓冷机故障，温度爬到 12℃。2:29 告警触发，值班员在「告警中心」看到红色条目，到场重启冷机，2:50 在告警日志里记录「冷机重启，温度回落 5.2℃」，关闭告警。<b class="k">全程 36 分钟，损失可控</b>——没有这套系统，第二天早上才发现就是一冷库报废货。</p>
+    <p><b class="k">复盘</b>：老张在「设备消息」按时间筛三号仓上报数据，看到温度从 8.3℃ 一路爬升的完整曲线，确认冷机是渐变故障而非传感器误报。</p>
+    <div class="res">对应菜单路径：产品档案(定义) → 物模型(temperature/humidity) → 设备管理(登记/激活) → 告警规则(阈值) → 告警中心+告警日志(处置闭环) → 设备消息(取证复盘)</div>
+  </div>
+
+  <h2>数据生命周期</h2>
+
+  <div class="fchain">
+    <h3>① 配置资产链：定义在先、设备在后</h3>
+    <div class="flowviz">
+      <span class="fnode asset">产品分类</span><span class="farrow">归类 →</span>
+      <span class="fnode asset">产品档案(ProductKey)</span><span class="farrow">建模 →</span>
+      <span class="fnode asset">物模型(属性/服务/事件)</span><span class="farrow">挂载 →</span>
+      <span class="fnode solid">设备(获取密钥)</span>
+    </div>
+    <div class="fnote">物模型属性标识符（identifier）是后续消息解析、告警规则匹配的共同基础——改模型要趁早</div>
+  </div>
+
+  <div class="fchain">
+    <h3>② 设备生命周期状态机（核心）</h3>
+    <div class="flowviz">
+      <span class="fnode solid">未激活(0)</span><span class="farrow">— 首次连接(MQTT CONNECT / 注册上报) →</span>
+      <span class="fnode">在线(1)</span><span class="farrow">⇄ 心跳超时/断连 ⇄ 重连 →</span>
+      <span class="fnode">离线(2)</span>
+    </div>
+    <div class="flowviz">
+      <span class="fnode">任意状态</span><span class="farrow">— 「禁用」(强制踢出连接) →</span>
+      <span class="fnode warn">已禁用</span><span class="farrow">— 「启用」→ 重置为未激活 / 自动重连在线</span>
+    </div>
+    <div class="flowviz">
+      <span class="fnode">未激活 / 离线 / 已禁用</span><span class="farrow">— 「删除」→</span>
+      <span class="fnode end">数据移除（在线设备不可删）</span>
+    </div>
+    <div class="fnote">上下线由平台自动判定：MQTT 看心跳与遗嘱消息、HTTP 按上报超时判定；每次转换自动写 last_online_time / last_offline_time 并向规则引擎上报 ONLINE / OFFLINE 事件</div>
+  </div>
+
+  <div class="fchain">
+    <h3>③ 数据流：消息 → 规则 → 告警闭环</h3>
+    <div class="flowviz">
+      <span class="fnode ghost">设备上报 / 指令下发</span><span class="farrow">→</span>
+      <span class="fnode data">设备消息(全量留痕)</span><span class="farrow">→ 规则引擎匹配 →</span>
+      <span class="fnode warn">告警中心</span><span class="farrow">— 确认/处理 →</span>
+      <span class="fnode data">告警日志(处理留痕)</span><span class="farrow">→</span>
+      <span class="fnode end">关闭</span>
+    </div>
+    <div class="fnote">设备消息是排查一切的依据；告警规则基于物模型属性阈值（如温度 &gt; 80℃），属性上报即匹配</div>
+  </div>
+
+  <div class="fchain">
+    <h3>④ 数据关联与终点</h3>
+    <div class="flowviz">
+      <span class="fnode asset">产品</span><span class="farrow">1 → N</span><span class="fnode">设备</span><span class="farrow">1 → N</span><span class="fnode data">设备消息</span>
+      <span class="farrow">　</span><span class="fnode asset">告警规则</span><span class="farrow">1 → N</span><span class="fnode warn">告警</span><span class="farrow">1 → N</span><span class="fnode data">告警日志</span>
+    </div>
+    <div class="fnote">终点规则：产品/设备/规则均为逻辑删除；设备消息与告警日志是运行凭证，只增不改，不随设备删除而清理</div>
+  </div>
+
+  <h2>使用提示</h2>
+  <div class="card">
+    <ul class="tips">
+      <li><span class="tag">状态机</span>设备按钮操作（激活 / 启用 / 禁用）受状态机约束，禁用设备不能收发消息</li>
+      <li><span class="tag">物模型先行</span>建议先完善物模型再量产设备，属性标识符（identifier）是消息解析与告警规则的基础</li>
+      <li><span class="tag">排查顺序</span>设备不在线 → 查设备状态与密钥；数据没上报 → 查「设备消息」里是否有记录；没触发告警 → 查规则阈值与属性标识符是否匹配</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>

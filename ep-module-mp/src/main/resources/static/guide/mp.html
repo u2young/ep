@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>微信公众号 · 使用指南</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #333; line-height: 1.7; padding: 32px 16px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  header { background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; border-radius: 12px; padding: 28px 32px; margin-bottom: 24px; }
+  header h1 { font-size: 24px; margin-bottom: 8px; }
+  header p { opacity: .92; font-size: 14px; }
+  h2 { font-size: 18px; margin: 28px 0 12px; padding-left: 10px; border-left: 4px solid #16a34a; }
+  .card { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid #eef0f4; }
+  th { color: #666; font-weight: 600; background: #fafbfd; }
+  td code { background: #f0f2f8; border-radius: 4px; padding: 1px 6px; font-size: 12.5px; color: #16a34a; }
+  ol.flow { list-style: none; counter-reset: step; }
+  ol.flow li { counter-increment: step; position: relative; padding: 8px 0 8px 40px; font-size: 14px; }
+  ol.flow li::before { content: counter(step); position: absolute; left: 0; top: 8px; width: 26px; height: 26px; border-radius: 50%; background: #16a34a; color: #fff; text-align: center; line-height: 26px; font-size: 13px; }
+  .tips li { font-size: 14px; margin: 6px 0 6px 20px; }
+  .tag { display: inline-block; background: #dcfce7; color: #15803d; border-radius: 4px; padding: 0 8px; font-size: 12px; margin-right: 6px; }
+  /* 数据生命周期图组件 */
+  .fchain { background: #fff; border-radius: 10px; padding: 16px 20px 10px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  .fchain h3 { font-size: 13px; color: #888; font-weight: 600; margin-bottom: 10px; }
+  .flowviz { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-bottom: 12px; }
+  .fnode { border: 1.5px solid #16a34a; color: #15803d; border-radius: 6px; padding: 3px 10px; font-size: 12.5px; font-weight: 500; background: #f7fdf9; }
+  .fnode.solid { background: #16a34a; color: #fff; }
+  .fnode.ghost { border-color: #c8cdd8; color: #8a90a0; background: #fbfbfd; }
+  .fnode.asset { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.data { border-color: #f59e0b; color: #b45309; background: #fffaf0; border-style: dashed; }
+  .fnode.warn { border-color: #ef4444; color: #b91c1c; background: #fff5f5; }
+  .fnode.end { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .farrow { color: #b6bcc9; font-size: 13px; }
+  .fnote { font-size: 11.5px; color: #a0a6b5; margin: -4px 0 10px; padding-bottom: 8px; }
+  /* 场景示例 */
+  .scene { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; border-left: 4px solid #16a34a; }
+  .scene h3 { font-size: 15px; margin-bottom: 10px; }
+  .scene p { font-size: 13.5px; margin: 7px 0; }
+  .scene b.k { color: #15803d; }
+  .scene .res { background: #f2faf5; border-radius: 6px; padding: 8px 12px; font-size: 12.5px; margin-top: 10px; color: #4a5570; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>微信公众号 · 使用指南</h1>
+    <p>微信生态在本地数据库的投影：粉丝、消息、素材、菜单、自动回复全量留存与可视化运营</p>
+  </header>
+
+  <h2>它能做什么</h2>
+  <div class="card">
+    <p>面向新媒体运营的 <strong>公众号运营后台</strong>。把分散在微信服务器上的运营资源（粉丝、消息、素材、菜单、标签、自动回复）同步到本地数据库，补齐微信原生短板：消息留存超过 3 天、自定义业务路由、统计二次加工。支持多公众号账号管理。</p>
+  </div>
+
+  <h2>菜单功能说明</h2>
+  <div class="card">
+    <table>
+      <tr><th style="width:140px">菜单</th><th>用途</th></tr>
+      <tr><td>公众号账号</td><td>接入入口：配置 appid / secret / token / aeskey，一个账号一套凭证；其余菜单数据都归属账号</td></tr>
+      <tr><td>微信菜单</td><td>本地编辑公众号底部菜单（一级最多 3 个、二级 5 个），编辑后同步发布到微信</td></tr>
+      <tr><td>自动回复</td><td>三类回复规则：关注回复、消息回复、关键字回复（匹配模式支持包含 / 相等）</td></tr>
+      <tr><td>素材</td><td>图文 / 图片 / 语音 / 视频素材库，上传后可被菜单、自动回复、群发引用</td></tr>
+      <tr><td>消息</td><td>粉丝消息全量留痕（微信只保留 3 天，这里永久留存），支持客服消息回复（粉丝 48h 内有交互时）</td></tr>
+      <tr><td>用户</td><td>粉丝列表：关注/取关自动同步、备注、打标签</td></tr>
+      <tr><td>用户标签</td><td>粉丝分组标签（每号上限 100 个），可批量为粉丝打标签</td></tr>
+    </table>
+  </div>
+
+  <h2>快速上手</h2>
+  <div class="card">
+    <ol class="flow">
+      <li><strong>接入账号</strong>：在「公众号账号」录入 appid / secret 等凭证，保存后系统自动管理 access_token（7200s 自动续期）</li>
+      <li><strong>同步粉丝</strong>：在「用户」点击同步，拉取粉丝列表；按需建「用户标签」分组</li>
+      <li><strong>配回复</strong>：在「自动回复」配置关注自动欢迎语与关键字回复</li>
+      <li><strong>发菜单</strong>：在「微信菜单」搭建底部菜单结构，点击发布同步到微信</li>
+      <li><strong>传素材</strong>：在「素材」上传图文/图片素材，供后续群发与回复引用</li>
+      <li><strong>看消息</strong>：粉丝互动消息在「消息」中永久可查，可及时客服回复</li>
+    </ol>
+  </div>
+
+  <h2>场景示例：独立书店的公众号运营</h2>
+  <div class="scene">
+    <p>「青柠书屋」是一家独立书店，公众号有 <b class="k">1.2 万粉丝</b>。运营小陈接手后第一件事：把公众号接到本系统。</p>
+    <p><b class="k">接入</b>：在「公众号账号」填入 appid / secret，菜单同步拉取到全部粉丝。「用户」里 1.2 万条粉丝记录（昵称、头像、关注时间），小陈建了「活跃读者」「购书群成员」两个标签，把常互动的 800 人打上标签。</p>
+    <p><b class="k">自动回复</b>：「自动回复」里配了两条——<b class="k">关注回复</b>：欢迎语 + 新客 9 折码；<b class="k">关键字回复</b>：粉丝发送“书单”自动推送当月书单图文。当晚就有 37 个新关注领了 9 折码。</p>
+    <p><b class="k">菜单与素材</b>：小陈在「微信菜单」搭了三个一级菜单（新书速递 / 每月书单 / 到店指引），「素材」上传了 6 篇图文，点「发布」同步到微信——三分钟搞定，不用碰微信公众平台后台。</p>
+    <p><b class="k">一个月后</b>：粉丝留言“上次的咖啡书会照片还有吗？”——微信后台已经查不到这条 5 天前的消息，但小陈在系统「消息」里<b class="k">秒搜到原文并回复了她</b>。月底看数据：取关的 63 人记录也都在，取关时间集中在涨价周——结论出来了。</p>
+    <div class="res">对应菜单路径：公众号账号(接入) → 用户+用户标签(粉丝运营) → 自动回复(欢迎语/关键字) → 素材(图文库) → 微信菜单(发布) → 消息(永久留痕+客服回复)</div>
+  </div>
+
+  <h2>数据生命周期</h2>
+
+  <div class="fchain">
+    <h3>① 粉丝生命周期：关注 / 取关循环</h3>
+    <div class="flowviz">
+      <span class="fnode ghost">微信侧关注事件</span><span class="farrow">回调 →</span>
+      <span class="fnode solid">用户记录(已关注·同步资料)</span><span class="farrow">— 打标签 →</span>
+      <span class="fnode asset">用户标签分组</span>
+    </div>
+    <div class="flowviz">
+      <span class="fnode solid">已关注</span><span class="farrow">— 取关事件 →</span>
+      <span class="fnode warn">已取关(记录保留·更新时间留痕)</span><span class="farrow">— 再次关注 →</span>
+      <span class="fnode solid">已关注(同一条记录复用)</span>
+    </div>
+    <div class="fnote">粉丝数据由微信回调自动产生和更新，不需要也不应该手工录入；支持手动同步全量粉丝列表</div>
+  </div>
+
+  <div class="fchain">
+    <h3>② 消息生命周期：3 天 → 永久</h3>
+    <div class="flowviz">
+      <span class="fnode ghost">粉丝发消息</span><span class="farrow">回调 →</span>
+      <span class="fnode solid">消息入库(永久留存)</span><span class="farrow">→ 命中规则? →</span>
+      <span class="fnode asset">自动回复(关注/消息/关键字)</span>
+    </div>
+    <div class="flowviz">
+      <span class="fnode solid">消息入库</span><span class="farrow">— 运营在 48h 交互窗口内 →</span>
+      <span class="fnode">客服消息回复</span><span class="farrow">超时 →</span>
+      <span class="fnode end">仅留档不可回复</span>
+    </div>
+    <div class="fnote">微信服务器只保留 3 天消息，本系统永久留痕——这是消息数据最大的价值；自动回复按开关与匹配模式（包含/相等）实时判定</div>
+  </div>
+
+  <div class="fchain">
+    <h3>③ 运营资产：菜单与素材</h3>
+    <div class="flowviz">
+      <span class="fnode">微信菜单</span>：<span class="fnode ghost">本地编辑</span><span class="farrow">— 发布同步 →</span><span class="fnode solid">已上线</span><span class="farrow">个性化菜单只能删除重建 →</span><span class="fnode end">重建</span>
+    </div>
+    <div class="flowviz">
+      <span class="fnode">素材</span>：<span class="fnode ghost">本地上传</span><span class="farrow">→ 被引用 →</span><span class="fnode data">菜单 / 自动回复 / 群发</span><span class="farrow">本地留存 →</span><span class="fnode end">长期保留</span>
+    </div>
+    <div class="fnote">access_token 由系统集中管理（7200s 自动续期），所有微信 API 调用凭它进行，凭证失效是大多数接口报错的根因</div>
+  </div>
+
+  <div class="fchain">
+    <h3>④ 数据关联与终点</h3>
+    <div class="flowviz">
+      <span class="fnode asset">公众号账号</span><span class="farrow">1 → N</span><span class="fnode data">粉丝 / 消息 / 素材 / 菜单 / 自动回复 / 标签</span>
+      <span class="farrow">　</span><span class="fnode asset">粉丝</span><span class="farrow">N ↔ N</span><span class="fnode asset">标签</span>
+    </div>
+    <div class="fnote">终点规则：账号为归属根节点，删除账号不影响历史数据但停止同步；粉丝取关记录保留；消息与素材永久留存</div>
+  </div>
+
+  <h2>使用提示</h2>
+  <div class="card">
+    <ul class="tips">
+      <li><span class="tag">服务器配置</span>微信公众号后台需将服务器 URL 指向本系统回调地址并启用，消息才会推送进来</li>
+      <li><span class="tag">个性化菜单</span>微信限制：个性化菜单不可编辑，只能删除重建；发布前先在本地核对结构</li>
+      <li><span class="tag">客服消息</span>仅当粉丝 48 小时内有交互时才能主动发客服消息</li>
+      <li><span class="tag">token 自动续期</span>access_token 由系统集中管理并自动刷新，无需人工干预</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>

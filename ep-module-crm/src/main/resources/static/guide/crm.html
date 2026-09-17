@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRM客户管理 · 使用指南</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #333; line-height: 1.7; padding: 32px 16px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  header { background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; border-radius: 12px; padding: 28px 32px; margin-bottom: 24px; }
+  header h1 { font-size: 24px; margin-bottom: 8px; }
+  header p { opacity: .92; font-size: 14px; }
+  h2 { font-size: 18px; margin: 28px 0 12px; padding-left: 10px; border-left: 4px solid #ef4444; }
+  .card { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid #eef0f4; }
+  th { color: #666; font-weight: 600; background: #fafbfd; }
+  td code { background: #f0f2f8; border-radius: 4px; padding: 1px 6px; font-size: 12.5px; color: #ef4444; }
+  ol.flow { list-style: none; counter-reset: step; }
+  ol.flow li { counter-increment: step; position: relative; padding: 8px 0 8px 40px; font-size: 14px; }
+  ol.flow li::before { content: counter(step); position: absolute; left: 0; top: 8px; width: 26px; height: 26px; border-radius: 50%; background: #ef4444; color: #fff; text-align: center; line-height: 26px; font-size: 13px; }
+  .tips li { font-size: 14px; margin: 6px 0 6px 20px; }
+  .tag { display: inline-block; background: #fee2e2; color: #b91c1c; border-radius: 4px; padding: 0 8px; font-size: 12px; margin-right: 6px; }
+  /* 数据生命周期图组件 */
+  .fchain { background: #fff; border-radius: 10px; padding: 16px 20px 10px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  .fchain h3 { font-size: 13px; color: #888; font-weight: 600; margin-bottom: 10px; }
+  .flowviz { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-bottom: 12px; }
+  .fnode { border: 1.5px solid #ef4444; color: #b91c1c; border-radius: 6px; padding: 3px 10px; font-size: 12.5px; font-weight: 500; background: #fffafa; }
+  .fnode.solid { background: #ef4444; color: #fff; }
+  .fnode.ghost { border-color: #c8cdd8; color: #8a90a0; background: #fbfbfd; }
+  .fnode.asset { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.data { border-color: #f59e0b; color: #b45309; background: #fffaf0; border-style: dashed; }
+  .fnode.warn { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .fnode.ok { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.end { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .farrow { color: #b6bcc9; font-size: 13px; }
+  .fnote { font-size: 11.5px; color: #a0a6b5; margin: -4px 0 10px; padding-bottom: 8px; }
+  /* 场景示例 */
+  .scene { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; border-left: 4px solid #ef4444; }
+  .scene h3 { font-size: 15px; margin-bottom: 10px; }
+  .scene p { font-size: 13.5px; margin: 7px 0; }
+  .scene b.k { color: #b91c1c; }
+  .scene .res { background: #fff5f5; border-radius: 6px; padding: 8px 12px; font-size: 12.5px; margin-top: 10px; color: #4a5570; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>CRM客户管理 · 使用指南</h1>
+    <p>围绕销售漏斗展开：线索 → 客户 → 商机 → 合同 → 回款，每一步都更接近成交</p>
+  </header>
+
+  <h2>它能做什么</h2>
+  <div class="card">
+    <p>面向销售团队与销售管理者的 <strong>客户关系管理系统</strong>。管理从模糊线索到确定交易的全过程：销售录入线索并跟进，转化成客户后创建商机推进阶段，赢单后签订合同、按计划回款。支持客户公海自动回收、团队协作与跟进留痕。</p>
+  </div>
+
+  <h2>菜单功能说明</h2>
+  <div class="card">
+    <table>
+      <tr><th style="width:160px">菜单</th><th>用途</th></tr>
+      <tr><td>客户</td><td>客户档案管理：跟进状态、成交标记、锁定；负责人为空即进入公海</td></tr>
+      <tr><td>联系人</td><td>客户下的关键联系人，可标记决策人，支持层级关系</td></tr>
+      <tr><td>线索</td><td>模糊销售信息入口：录入 → 分配 → 跟进 → <strong>转化为客户</strong></td></tr>
+      <tr><td>商机</td><td>成交机会管理，按阶段推进（阶段可配置），支持赢单 / 输单 / 无效结束</td></tr>
+      <tr><td>商机状态类型 / 商机状态</td><td>可配置的阶段流：状态组下定义各阶段名称、赢单率与排序</td></tr>
+      <tr><td>合同</td><td>与客户签订的合同，登记金额与期限，关联回款</td></tr>
+      <tr><td>回款计划 / 回款记录</td><td>按期数规划回款（可设提前提醒天数），实际回款逐笔登记</td></tr>
+      <tr><td>跟进记录</td><td>通用于线索/客户/商机/合同的跟进流水（拜访、电话、纪要）</td></tr>
+      <tr><td>团队成员</td><td>商机/合同等对象的协作成员与权限（读写）</td></tr>
+      <tr><td>客户公海配置</td><td>公海规则：未跟进 N 天 / 未成交 N 天自动掉入公海，认领上限</td></tr>
+    </table>
+  </div>
+
+  <h2>快速上手</h2>
+  <div class="card">
+    <ol class="flow">
+      <li><strong>配基础</strong>：管理员先配置「商机状态类型」阶段流与「客户公海配置」规则</li>
+      <li><strong>录线索</strong>：销售把展会名单、广告询盘录入「线索」，持续跟进</li>
+      <li><strong>转客户</strong>：意向明确的线索执行「转化」，生成客户与联系人</li>
+      <li><strong>推商机</strong>：为有采购意向的客户创建商机，随推进更新阶段（赢单率上升）</li>
+      <li><strong>签合同</strong>：赢单后录入合同金额与期限</li>
+      <li><strong>收回款</strong>：按「回款计划」登记每笔回款，系统校验累计回款不超合同金额</li>
+    </ol>
+  </div>
+
+  <h2>场景示例：销售小王的 38 万大单</h2>
+  <div class="scene">
+    <p>小王是收银系统公司的销售。3 月的行业展会上，他扫了 40 多张名片，全部录入「线索」。</p>
+    <p><b class="k">线索期</b>：其中一条是「 chain 餐饮集团 王经理，30 家连锁店想升级收银」。小王打电话跟进了 2 次，判断预算充足——点「转化」，系统自动生成客户「chain 餐饮集团」和联系人「王经理（决策人）」。</p>
+    <p><b class="k">商机期</b>：创建商机「50 门店收银系统采购」，挂在客户下，选用默认阶段流。之后 6 周里他不断推进阶段：<b class="k">初步接触 → 需求确认(40%) → 方案报价(60%) → 商务谈判(80%)</b>，每次电话拜访都写跟进记录。拉了技术顾问小陈进「团队成员」一起做方案。</p>
+    <p><b class="k">插曲</b>：5 月小王去外地支援别的项目，21 天没动这条客户——系统定时任务按「未跟进超 15 天」规则<b class="k">把它掉进了公海</b>。同事小李认领了它。小王回来跟小李协商，领导仲裁后小李把客户转让回小王。从那以后他养成了每天写跟进记录的习惯。</p>
+    <p><b class="k">成交</b>：6 月赢单，签订 <b class="k">38 万合同</b>（软件 30 万 + 硬件 8 万），回款计划分 3 期：签约 50%、上线 30%、验收 20%。到 9 月，三期回款记录全部登记完成，客户标记「已成交」。</p>
+    <div class="res">对应菜单路径：线索(录入/跟进/转化) → 客户+联系人(转化生成) → 商机(阶段推进/团队成员) → 合同(签订) → 回款计划+回款记录(分期回款) —— 全程跟进记录贯穿</div>
+  </div>
+
+  <h2>数据生命周期</h2>
+
+  <div class="fchain">
+    <h3>① 销售漏斗主线：一条数据的完整旅程</h3>
+    <div class="flowviz">
+      <span class="fnode solid">线索(录入/分配)</span><span class="farrow">— 跟进·转化 →</span>
+      <span class="fnode asset">客户 + 联系人</span><span class="farrow">创建 →</span>
+      <span class="fnode">商机(阶段推进)</span><span class="farrow">— 赢单 →</span>
+      <span class="fnode ok">合同</span><span class="farrow">规划 →</span>
+      <span class="fnode data">回款计划</span><span class="farrow">— 逐期登记 →</span>
+      <span class="fnode data">回款记录(结清)</span>
+    </div>
+    <div class="fnote">「转化」把线索升级为客户+联系人，线索本身转为已转化终态；每条数据的 owner（负责人）字段贯穿全程，决定数据可见性</div>
+  </div>
+
+  <div class="fchain">
+    <h3>② 关键状态机</h3>
+    <div class="flowviz">
+      <span class="fnode">线索</span>：
+      <span class="fnode ghost">未处理</span><span class="farrow">→</span><span class="fnode ghost">跟进中</span>
+      <span class="farrow">→</span><span class="fnode ok">已转化</span>
+      <span class="farrow">/</span><span class="fnode end">无效</span>
+    </div>
+    <div class="flowviz">
+      <span class="fnode">商机</span>：
+      <span class="fnode ghost">按阶段推进(阶段可配置)</span>
+      <span class="farrow">→</span><span class="fnode ok">赢单</span>
+      <span class="farrow">/</span><span class="fnode warn">输单</span>
+      <span class="farrow">/</span><span class="fnode end">无效</span>
+    </div>
+    <div class="flowviz">
+      <span class="fnode">回款计划</span>：
+      <span class="fnode ghost">未收款</span><span class="farrow">— 登记回款记录 →</span><span class="fnode ok">已收款(累计不得超合同金额)</span>
+    </div>
+    <div class="fnote">商机阶段流由「商机状态类型 → 商机状态」配置驱动（各阶段赢单率可设）；阶段推进、赢单/输单/无效均为行按钮操作</div>
+  </div>
+
+  <div class="fchain">
+    <h3>③ 公海循环：客户资源的流转池</h3>
+    <div class="flowviz">
+      <span class="fnode solid">销售私海(有负责人)</span><span class="farrow">— 超期未跟进/未成交 · 定时任务回收 →</span>
+      <span class="fnode warn">公海(负责人为空)</span><span class="farrow">— 他人「认领」→</span>
+      <span class="fnode solid">新负责人私海</span>
+    </div>
+    <div class="fnote">回收规则由「客户公海配置」驱动：未跟进 N 天 / 未成交 N 天自动掉公海，每人有认领上限；跟进记录的最近时间是回收判定依据</div>
+  </div>
+
+  <div class="fchain">
+    <h3>④ 数据关联与终点</h3>
+    <div class="flowviz">
+      <span class="fnode asset">客户</span><span class="farrow">1 → N</span><span class="fnode data">联系人 / 商机 / 合同</span>
+      <span class="farrow">　</span><span class="fnode asset">合同</span><span class="farrow">1 → N</span><span class="fnode data">回款计划 / 回款记录</span>
+      <span class="farrow">　</span><span class="fnode data">跟进记录(挂线索/客户/商机/合同)</span>
+    </div>
+    <div class="fnote">终点规则：所有实体逻辑删除；线索以转化/无效收口；商机以赢单/输单/无效收口；回款累计校验不可超合同金额，数据闭环完整</div>
+  </div>
+
+  <h2>使用提示</h2>
+  <div class="card">
+    <ul class="tips">
+      <li><span class="tag">公海回收</span>超过「客户公海配置」设定天数未跟进/未成交的客户会被定时任务自动掉入公海，供他人认领，防止销售囤客户</li>
+      <li><span class="tag">商机结束</span>商机只能以赢单 / 输单 / 无效三种方式结束，赢单后建议立即创建合同</li>
+      <li><span class="tag">回款校验</span>回款记录累计金额不可超过合同金额，录入时系统自动校验</li>
+      <li><span class="tag">跟进留痕</span>每次接触客户后务必写「跟进记录」，它同时是公海回收天数的判定依据</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>

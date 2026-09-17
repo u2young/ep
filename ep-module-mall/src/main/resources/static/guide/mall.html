@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>商城管理 · 使用指南</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #333; line-height: 1.7; padding: 32px 16px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  header { background: linear-gradient(135deg, #ec4899, #8b5cf6); color: #fff; border-radius: 12px; padding: 28px 32px; margin-bottom: 24px; }
+  header h1 { font-size: 24px; margin-bottom: 8px; }
+  header p { opacity: .92; font-size: 14px; }
+  h2 { font-size: 18px; margin: 28px 0 12px; padding-left: 10px; border-left: 4px solid #ec4899; }
+  .card { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid #eef0f4; }
+  th { color: #666; font-weight: 600; background: #fafbfd; }
+  td code { background: #f0f2f8; border-radius: 4px; padding: 1px 6px; font-size: 12.5px; color: #ec4899; }
+  ol.flow { list-style: none; counter-reset: step; }
+  ol.flow li { counter-increment: step; position: relative; padding: 8px 0 8px 40px; font-size: 14px; }
+  ol.flow li::before { content: counter(step); position: absolute; left: 0; top: 8px; width: 26px; height: 26px; border-radius: 50%; background: #ec4899; color: #fff; text-align: center; line-height: 26px; font-size: 13px; }
+  .tips li { font-size: 14px; margin: 6px 0 6px 20px; }
+  .tag { display: inline-block; background: #fce7f3; color: #be185d; border-radius: 4px; padding: 0 8px; font-size: 12px; margin-right: 6px; }
+  /* 数据生命周期图组件 */
+  .fchain { background: #fff; border-radius: 10px; padding: 16px 20px 10px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  .fchain h3 { font-size: 13px; color: #888; font-weight: 600; margin-bottom: 10px; }
+  .flowviz { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-bottom: 12px; }
+  .fnode { border: 1.5px solid #ec4899; color: #be185d; border-radius: 6px; padding: 3px 10px; font-size: 12.5px; font-weight: 500; background: #fffafb; }
+  .fnode.solid { background: #ec4899; color: #fff; }
+  .fnode.ghost { border-color: #c8cdd8; color: #8a90a0; background: #fbfbfd; }
+  .fnode.asset { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.data { border-color: #f59e0b; color: #b45309; background: #fffaf0; border-style: dashed; }
+  .fnode.warn { border-color: #ef4444; color: #b91c1c; background: #fff5f5; }
+  .fnode.ok { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.end { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .farrow { color: #b6bcc9; font-size: 13px; }
+  .fnote { font-size: 11.5px; color: #a0a6b5; margin: -4px 0 10px; padding-bottom: 8px; }
+  /* 场景示例 */
+  .scene { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; border-left: 4px solid #ec4899; }
+  .scene h3 { font-size: 15px; margin-bottom: 10px; }
+  .scene p { font-size: 13.5px; margin: 7px 0; }
+  .scene b.k { color: #be185d; }
+  .scene .res { background: #fdf3f8; border-radius: 6px; padding: 8px 12px; font-size: 12.5px; margin-top: 10px; color: #4a5570; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>商城管理 · 使用指南</h1>
+    <p>商品中心 + 交易中心 + 支付：从上架成交到售后的电商全链路</p>
+  </header>
+
+  <h2>它能做什么</h2>
+  <div class="card">
+    <p>面向电商运营的 <strong>商城管理后台</strong>，覆盖商品中心（SPU/SKU、分类、品牌）、交易中心（订单、售后）与支付中心（支付单）。管理商品上架与规格库存，跟进订单履约（发货/收货），处理退款退货售后流程。</p>
+  </div>
+
+  <h2>菜单功能说明</h2>
+  <div class="card">
+    <table>
+      <tr><th style="width:150px">菜单</th><th>用途</th></tr>
+      <tr><td>商品 SPU</td><td>商品主档：名称、卖点、详情、上下架状态；一个 SPU 挂多个 SKU</td></tr>
+      <tr><td>商品 SKU</td><td>规格组合实例（如 红色/XL）：各自的价格、库存、条码</td></tr>
+      <tr><td>商品分类</td><td>商品类目树，商城前台导航的数据来源</td></tr>
+      <tr><td>商品品牌</td><td>品牌档案：品牌名、图标、状态</td></tr>
+      <tr><td>交易订单</td><td>订单主表：状态流转（待付款 → 待发货 → 待收货 → 已完成）、收货地址、金额</td></tr>
+      <tr><td>订单明细</td><td>订单商品行快照：下单时的商品名、价格、数量（不受后续改价影响）</td></tr>
+      <tr><td>售后单</td><td>退款/退货申请：类型、原因、凭证，走同意 → 买家寄回 → 收货 → 退款完成流程</td></tr>
+      <tr><td>售后日志</td><td>售后单每次状态变更的操作留痕</td></tr>
+      <tr><td>支付单</td><td>订单的支付/退款流水，记录支付渠道与回调状态</td></tr>
+    </table>
+  </div>
+
+  <h2>快速上手</h2>
+  <div class="card">
+    <ol class="flow">
+      <li><strong>建基础</strong>：先维护「商品分类」与「商品品牌」</li>
+      <li><strong>上商品</strong>：创建 SPU 填写基础信息与详情，再为它生成 SKU 组合并定价、填库存，最后上架</li>
+      <li><strong>接订单</strong>：买家下单支付后，订单进入「待发货」，在「交易订单」执行发货</li>
+      <li><strong>履约</strong>：买家确认收货（或超时自动确认）后订单「已完成」，货款按「支付单」对账</li>
+      <li><strong>处理售后</strong>：买家申请后按流程操作——同意 → 收到退货 → 完成退款，每步自动记入售后日志</li>
+    </ol>
+  </div>
+
+  <h2>场景示例：一件羽绒服的订单旅程</h2>
+  <div class="scene">
+    <p>上货：运营小周建了 SPU「极寒系列羽绒服 90 白鸭绒」，生成 SKU <b class="k">黑色 / XL（库存 50 · 售价 899）</b>，上架。同一天，买家小张下了单。</p>
+    <p><b class="k">下单</b>：小张提交订单 899 元——订单状态「待付款」，<b class="k">库存 50 → 锁定 1</b>。他犹豫了 20 分钟才付款，没超过 30 分钟支付超时线。支付回调后状态「待发货」，<b class="k">库存真扣 → 49 · 销量 +1</b>，支付单记录微信支付 899 元成功。</p>
+    <p><b class="k">履约</b>：次日仓库点了「发货」，填顺丰单号，状态「待收货」。第 5 天小张确认收货，订单「已完成」，自动加了 89 积分。</p>
+    <p><b class="k">售后</b>：第 7 天小张发现拉链卡顿，在订单里对这件商品<b class="k">发起退货退款</b>（售后针对订单项，同单里买的围巾不受影响）。商家点「同意」，小张寄回填单号，商家收货验货通过，「退款成功」——899 元原路退回微信，<b class="k">SKU 库存回滚 +1（恢复 50）</b>。全程 4 步操作，「售后日志」里每一步谁在什么时间点的都有记录。</p>
+    <p><b class="k">过程中商品改价</b>：期间小周把 XL 提价到 999——但小张的订单明细仍显示 899，<b class="k">订单快照不受改价影响</b>，售后退款也按快照 899 执行。</p>
+    <div class="res">对应菜单路径：商品SPU/SKU(上架·改价) → 交易订单+订单明细(下单→发货→完成) → 支付单(收款/退款流水) → 售后单+售后日志(退货退款闭环)</div>
+  </div>
+
+  <h2>数据生命周期</h2>
+
+  <div class="fchain">
+    <h3>① 商品资产：SPU → SKU 的组织方式</h3>
+    <div class="flowviz">
+      <span class="fnode asset">分类树 + 品牌</span><span class="farrow">挂靠 →</span>
+      <span class="fnode asset">商品SPU(主档·详情)</span><span class="farrow">— 规格组合 →</span>
+      <span class="fnode solid">商品SKU(价格·库存·条码)</span><span class="farrow">— 上架 →</span>
+      <span class="fnode ok">可售</span>
+    </div>
+    <div class="fnote">SPU 上下架控制前台可见性；SKU 是库存与订单结算的最小单位</div>
+  </div>
+
+  <div class="fchain">
+    <h3>② 订单状态机（核心）：每一步的触发与副作用</h3>
+    <div class="flowviz">
+      <span class="fnode solid">待付款(0)</span><span class="farrow">— 支付回调 →</span>
+      <span class="fnode">待发货(10)</span><span class="farrow">— 商家发货 →</span>
+      <span class="fnode">待收货(20)</span><span class="farrow">— 确认/超时自动 →</span>
+      <span class="fnode ok">已完成(30)</span>
+    </div>
+    <div class="flowviz">
+      <span class="fnode warn">取消出口</span>：
+      <span class="fnode ghost">待付款</span><span class="farrow">— 用户取消/支付超时(15-30min) →</span><span class="fnode end">已取消(40)·释放锁定库存·返还券和积分</span>
+    </div>
+    <div class="fnote">下单锁定库存 → 支付真扣库存并累加销量 → 取消释放库存 → 完成触发分销返佣与积分；订单明细是下单时刻的商品快照，改价不影响历史订单</div>
+  </div>
+
+  <div class="fchain">
+    <h3>③ 售后状态机：按订单项粒度发起</h3>
+    <div class="flowviz">
+      <span class="fnode solid">申请退款(10)</span><span class="farrow">仅退款 →</span>
+      <span class="fnode">商家同意(20)</span><span class="farrow">— 打款 →</span>
+      <span class="fnode ok">退款成功(60)</span>
+    </div>
+    <div class="flowviz">
+      <span class="fnode solid">申请退款(10)</span><span class="farrow">退货退款(type=2) →</span>
+      <span class="fnode">同意退货(20)</span><span class="farrow">买家寄回 →</span>
+      <span class="fnode">买家已发货(30)</span><span class="farrow">签收验货 →</span>
+      <span class="fnode">商家已收货(40)</span><span class="farrow">验货通过 →</span>
+      <span class="fnode ok">退款成功(60)</span>
+    </div>
+    <div class="flowviz">
+      <span class="fnode warn">其他出口</span>：
+      <span class="fnode ghost">任意阶段</span><span class="farrow">→</span>
+      <span class="fnode end">买家取消(80)</span><span class="farrow">/</span>
+      <span class="fnode end">管理员关闭(70)</span>
+    </div>
+    <div class="fnote">售后针对订单项（order_item）而非整单，同一订单不同商品可分别售后；退款成功回调库存回滚（调 erp changeStock）；每步自动写「售后日志」</div>
+  </div>
+
+  <div class="fchain">
+    <h3>④ 支付单与数据终点</h3>
+    <div class="flowviz">
+      <span class="fnode">支付单</span>：<span class="fnode ghost">待支付</span><span class="farrow">— 回调 →</span><span class="fnode ok">支付成功</span><span class="farrow">售后退款 →</span><span class="fnode warn">已退款(原路退回)</span>
+    </div>
+    <div class="fnote">终点规则：订单不可物理删除（财务凭证）；售后完成 = 终态，售后日志完整回溯；商品逻辑删除不影响历史订单快照</div>
+  </div>
+
+  <h2>使用提示</h2>
+  <div class="card">
+    <ul class="tips">
+      <li><span class="tag">快照原则</span>订单明细保存下单时刻的商品信息，之后修改 SPU/SKU 不影响历史订单</li>
+      <li><span class="tag">状态机</span>订单按钮（付款 / 发货 / 取消 / 确认收货）只在对应状态下出现，防误操作</li>
+      <li><span class="tag">售后留痕</span>售后单的每次操作都会写「售后日志」，争议时可完整回溯</li>
+      <li><span class="tag">库存联动</span>下单锁库存、付款扣库存，取消订单自动回补 SKU 库存</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>
