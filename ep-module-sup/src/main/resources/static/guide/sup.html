@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>服务支持管理 · 使用指南</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #333; line-height: 1.7; padding: 32px 16px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  header { background: linear-gradient(135deg, #eab308, #a16207); color: #fff; border-radius: 12px; padding: 28px 32px; margin-bottom: 24px; }
+  header h1 { font-size: 24px; margin-bottom: 8px; }
+  header p { opacity: .92; font-size: 14px; }
+  h2 { font-size: 18px; margin: 28px 0 12px; padding-left: 10px; border-left: 4px solid #eab308; }
+  .card { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid #eef0f4; }
+  th { color: #666; font-weight: 600; background: #fafbfd; }
+  td code { background: #f0f2f8; border-radius: 4px; padding: 1px 6px; font-size: 12.5px; color: #a16207; }
+  ol.flow { list-style: none; counter-reset: step; }
+  ol.flow li { counter-increment: step; position: relative; padding: 8px 0 8px 40px; font-size: 14px; }
+  ol.flow li::before { content: counter(step); position: absolute; left: 0; top: 8px; width: 26px; height: 26px; border-radius: 50%; background: #eab308; color: #fff; text-align: center; line-height: 26px; font-size: 13px; }
+  .tips li { font-size: 14px; margin: 6px 0 6px 20px; }
+  .tag { display: inline-block; background: #fef3c7; color: #a16207; border-radius: 4px; padding: 0 8px; font-size: 12px; margin-right: 6px; }
+  /* 数据生命周期图组件 */
+  .fchain { background: #fff; border-radius: 10px; padding: 16px 20px 10px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  .fchain h3 { font-size: 13px; color: #888; font-weight: 600; margin-bottom: 10px; }
+  .flowviz { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-bottom: 12px; }
+  .fnode { border: 1.5px solid #eab308; color: #a16207; border-radius: 6px; padding: 3px 10px; font-size: 12.5px; font-weight: 500; background: #fefce8; }
+  .fnode.solid { background: #eab308; color: #fff; }
+  .fnode.ghost { border-color: #c8cdd8; color: #8a90a0; background: #fbfbfd; }
+  .fnode.asset { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.data { border-color: #f59e0b; color: #b45309; background: #fffaf0; border-style: dashed; }
+  .fnode.warn { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .fnode.ok { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.end { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .farrow { color: #b6bcc9; font-size: 13px; }
+  .fnote { font-size: 11.5px; color: #a0a6b5; margin: -4px 0 10px; padding-bottom: 8px; }
+  /* 场景示例 */
+  .scene { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; border-left: 4px solid #eab308; }
+  .scene h3 { font-size: 15px; margin-bottom: 10px; }
+  .scene p { font-size: 13.5px; margin: 7px 0; }
+  .scene b.k { color: #a16207; }
+  .scene .res { background: #fefce8; border-radius: 6px; padding: 8px 12px; font-size: 12.5px; margin-top: 10px; color: #4a5570; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>服务支持管理 · 使用指南</h1>
+    <p>工单 · SLA · 分派 · 知识库，服务支持一条线</p>
+  </header>
+
+  <h2>它能做什么</h2>
+  <div class="card">
+    <p>面向客服、技术支持与 IT 运维的 <strong>服务支持系统</strong>。客户报障/咨询在「客户工单」里创建，按「工单优先级」与「SLA 服务等级协议」计算响应/解决时限；「工单分派历史」记录工单在工程师之间的流转轨迹；解决后沉淀到「知识库」，下次同类问题直接复用；「服务支持配置」控制分派策略、SLA 模板等规则。</p>
+  </div>
+
+  <h2>菜单功能说明</h2>
+  <div class="card">
+    <table>
+      <tr><th style="width:160px">菜单</th><th>用途</th></tr>
+      <tr><td>工单优先级</td><td>工单分级（P1-紧急/P2-高/P3-中/P4-低），SLA 响应时限按级别计算</td></tr>
+      <tr><td>SLA服务等级协议</td><td>按客户/产品定义响应与解决时限（如 P1 客户 30 分钟响应、4 小时解决），超时告警</td></tr>
+      <tr><td>客户工单</td><td>客户报障/咨询/投诉入口：分类、描述、附件、优先级、SLA 计时</td></tr>
+      <tr><td>工单分派历史</td><td>工单在工程师之间的分派/转派轨迹，谁在什么时间分到什么工单，全程留痕</td></tr>
+      <tr><td>知识库</td><td>解决方案沉淀：按问题分类，工程师处理时检索复用，客户也可自助查</td></tr>
+      <tr><td>服务支持配置</td><td>分派策略（轮询/技能/负载）、SLA 模板、告警阈值、工单分类树</td></tr>
+    </table>
+  </div>
+
+  <h2>快速上手</h2>
+  <div class="card">
+    <ol class="flow">
+      <li><strong>定 SLA</strong>：管理员在「SLA 服务等级协议」里按客户/产品定响应/解决时限</li>
+      <li><strong>定分级</strong>：「工单优先级」定 P1-P4，SLA 响应时限按级别 × 客户等级计算</li>
+      <li><strong>建工单</strong>：客户报障 → 客服在「客户工单」里创建，系统自动挂 SLA 计时</li>
+      <li><strong>分派</strong>：按「服务支持配置」的分派策略（轮询/技能）自动分派到工程师</li>
+      <li><strong>解决</strong>：工程师处理，解决后写处理记录，工单关单</li>
+      <li><strong>沉淀</strong>：典型解法录入「知识库」，下次同类问题直接复用</li>
+    </ol>
+  </div>
+
+  <h2>场景示例：企业客户报障 SLA 2 小时响应</h2>
+  <div class="scene">
+    <p>某软件公司服务企业客户 B，B 是 P1 客户，按「<b class="k">SLA 服务等级协议</b>」签约：响应 2 小时、解决 8 小时。</p>
+    <p><b class="k">工单创建</b>：9 月 10 日 14:00，B 公司 IT 管理员打客服电话报障「<b class="k">生产环境数据库连接池耗尽，业务全停</b>」。客服小林在「<b class="k">客户工单</b>」里建单，分类「<b class="k">数据库</b>」、优先级「<b class="k">P1</b>」、客户「B（P1）」，系统自动挂 SLA 计时——响应时限 16:00、解决时限 22:00。</p>
+    <p><b class="k">分派处理</b>：按「<b class="k">服务支持配置</b>」的「<b class="k">技能分派</b>」策略，工单自动分派给数据库工程师小吴（技能标签「<b class="k">数据库-MySQL</b>」）。14:12 小吴接单，<b class="k">SLA 响应达成</b>（提前 108 分钟）。小吴 1 小时内定位到「<b class="k">慢查询 + 连接池配置过小</b>」，15:30 重启服务 + 调整连接池参数，业务恢复。</p>
+    <p><b class="k">工单关单</b>：小吴在工单里写处理记录（慢查询 SQL、连接池参数从 50 调到 200、重启时间），关单。系统算 SLA 达成率——响应 14:12/16:00（达成）、解决 15:30/22:00（达成），工单归档。</p>
+    <p><b class="k">沉淀知识库</b>：小吴把「<b class="k">数据库连接池耗尽 → 慢查询 + 连接池参数调优</b>」的解法录入「<b class="k">知识库</b>」，分类「<b class="k">数据库-连接池</b>」，下次同类问题工程师可直接检索复用。B 公司 IT 管理员也能在客户门户自助查知识库，减少重复报障。</p>
+    <p><b class="k">服务支持报表</b>：月底服务支持主管老赵跑「<b class="k">SLA 达成率</b>」报表——B 客户 P1 工单 12 张，SLA 达成率 91.7%，1 张 P1 工单响应超时（凌晨 3 点报障，值班工程师 35 分钟后响应），老赵把「<b class="k">夜间响应</b>」加入 SLA 告警配置，避免再次超时。</p>
+    <div class="res">对应菜单路径：SLA服务等级协议(2h响应/8h解决) → 客户工单(P1 创建+SLA 计时) → 工单分派历史(技能分派到小吴) → 工单关单(处理记录) → 知识库(解法沉淀) —— 工单优先级+服务支持配置贯穿全程</div>
+  </div>
+
+  <h2>数据生命周期</h2>
+
+  <div class="fchain">
+    <h3>① 工单主线：从创建到关单</h3>
+    <div class="flowviz">
+      <span class="fnode data">客户工单(创建)</span><span class="farrow">— 分派 →</span>
+      <span class="fnode solid">工程师处理(接单/解决)</span><span class="farrow">— 关单 →</span>
+      <span class="fnode ok">工单归档</span>
+    </div>
+    <div class="fnote">工单状态机：待分派 → 处理中 → 待客户确认 → 已关单；SLA 计时从「创建」开始，「响应达成」「解决达成」两个关键节点自动打点</div>
+  </div>
+
+  <div class="fchain">
+    <h3>② SLA 主线：响应/解决双计时</h3>
+    <div class="flowviz">
+      <span class="fnode asset">SLA服务等级协议</span><span class="farrow">驱动 →</span>
+      <span class="fnode data">客户工单(响应计时 + 解决计时)</span><span class="farrow">→</span>
+      <span class="fnode warn">超时告警(响应超时/解决超时)</span>
+    </div>
+    <div class="fnote">SLA 按「客户等级 × 优先级」双维度计算响应/解决时限；超时前 30 分钟自动告警到工程师 + 主管，超时后工单标红、纳入 SLA 达成率报表</div>
+  </div>
+
+  <div class="fchain">
+    <h3>③ 分派历史：工单的「轨迹」</h3>
+    <div class="flowviz">
+      <span class="fnode data">客户工单</span><span class="farrow">— 自动分派 →</span>
+      <span class="fnode data">工单分派历史(分派轨迹)</span><span class="farrow">— 转派/退回 →</span>
+      <span class="fnode ok">工程师接单(闭环)</span>
+    </div>
+    <div class="fnote">分派策略由「服务支持配置」控制：轮询/技能/负载三选一；转派必须留痕（谁、什么时间、为什么），分派历史是服务支持审计的唯一来源</div>
+  </div>
+
+  <div class="fchain">
+    <h3>④ 知识库：解法的「沉淀池」</h3>
+    <div class="flowviz">
+      <span class="fnode solid">工单关单(处理记录)</span><span class="farrow">沉淀 →</span>
+      <span class="fnode data">知识库(按问题分类)</span><span class="farrow">— 检索复用 →</span>
+      <span class="fnode ok">下次同类工单(直接引用)</span>
+    </div>
+    <div class="fnote">知识库是「工单 → 知识」的沉淀通道：典型解法录入知识库，下次同类工单工程师可直接引用，减少重复排查；客户门户可自助查，降低报障量</div>
+  </div>
+
+  <h2>使用提示</h2>
+  <div class="card">
+    <ul class="tips">
+      <li><span class="tag">SLA 先行</span>签约客户必须先建「SLA 服务等级协议」再开工单，无 SLA 的工单默认按「P3 + 普通客户」计时，容易超时</li>
+      <li><span class="tag">分派策略</span>按「技能分派」配置工程师技能标签，避免 P1 工单分派给不熟的工程师导致响应超时</li>
+      <li><span class="tag">处理记录</span>关单前必须写处理记录（定位过程 + 解法），不写不能关单；记录是知识库沉淀的原料</li>
+      <li><span class="tag">知识库复用</span>工程师处理工单时先检索知识库，命中直接引用；未命中才走排查，排查完必须回填知识库</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>

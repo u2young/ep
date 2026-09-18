@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERP进销存 · 使用指南</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #333; line-height: 1.7; padding: 32px 16px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  header { background: linear-gradient(135deg, #10b981, #0c7a58); color: #fff; border-radius: 12px; padding: 28px 32px; margin-bottom: 24px; }
+  header h1 { font-size: 24px; margin-bottom: 8px; }
+  header p { opacity: .92; font-size: 14px; }
+  h2 { font-size: 18px; margin: 28px 0 12px; padding-left: 10px; border-left: 4px solid #10b981; }
+  .card { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid #eef0f4; }
+  th { color: #666; font-weight: 600; background: #fafbfd; }
+  td code { background: #f0f2f8; border-radius: 4px; padding: 1px 6px; font-size: 12.5px; color: #0d9468; }
+  ol.flow { list-style: none; counter-reset: step; }
+  ol.flow li { counter-increment: step; position: relative; padding: 8px 0 8px 40px; font-size: 14px; }
+  ol.flow li::before { content: counter(step); position: absolute; left: 0; top: 8px; width: 26px; height: 26px; border-radius: 50%; background: #10b981; color: #fff; text-align: center; line-height: 26px; font-size: 13px; }
+  .tips li { font-size: 14px; margin: 6px 0 6px 20px; }
+  .tag { display: inline-block; background: #d1fae5; color: #047857; border-radius: 4px; padding: 0 8px; font-size: 12px; margin-right: 6px; }
+  /* 数据生命周期图组件 */
+  .fchain { background: #fff; border-radius: 10px; padding: 16px 20px 10px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  .fchain h3 { font-size: 13px; color: #888; font-weight: 600; margin-bottom: 10px; }
+  .flowviz { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-bottom: 12px; }
+  .fnode { border: 1.5px solid #10b981; color: #047857; border-radius: 6px; padding: 3px 10px; font-size: 12.5px; font-weight: 500; background: #f0fdf8; }
+  .fnode.solid { background: #10b981; color: #fff; }
+  .fnode.ghost { border-color: #c8cdd8; color: #8a90a0; background: #fbfbfd; }
+  .fnode.asset { border-color: #10b981; color: #047857; background: #f0fdf8; }
+  .fnode.data { border-color: #f59e0b; color: #b45309; background: #fffaf0; border-style: dashed; }
+  .fnode.warn { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .fnode.ok { border-color: #10b981; color: #047857; background: #f0fdf8; }
+  .fnode.end { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .farrow { color: #b6bcc9; font-size: 13px; }
+  .fnote { font-size: 11.5px; color: #a0a6b5; margin: -4px 0 10px; padding-bottom: 8px; }
+  /* 场景示例 */
+  .scene { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; border-left: 4px solid #10b981; }
+  .scene h3 { font-size: 15px; margin-bottom: 10px; }
+  .scene p { font-size: 13.5px; margin: 7px 0; }
+  .scene b.k { color: #047857; }
+  .scene .res { background: #f0fdf8; border-radius: 6px; padding: 8px 12px; font-size: 12.5px; margin-top: 10px; color: #4a5570; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>ERP进销存 · 使用指南</h1>
+    <p>采购 → 库存 → 销售 → 财务全链路，进销存一体、账实相符</p>
+  </header>
+
+  <h2>它能做什么</h2>
+  <div class="card">
+    <p>面向进销存业务的 <strong>ERP 一体化系统</strong>。统一管理产品分类、品牌、单位、仓库与供应商/客户等基础档案；采购侧从采购订单到入库验收，销售侧从销售订单到出库发货，库存余额实时联动；入库自动生成应付、出库自动生成应收，再通过付款单/收款单核销，把「货、款、账」串成闭环。</p>
+  </div>
+
+  <h2>菜单功能说明</h2>
+  <div class="card">
+    <table>
+      <tr><th style="width:160px">菜单</th><th>用途</th></tr>
+      <tr><td>产品分类 / 单位 / 品牌</td><td>产品主数据基础档案：类目、计量单位、品牌</td></tr>
+      <tr><td>仓库档案</td><td>仓库主数据，库存余额按「仓库 × 产品」维度挂账</td></tr>
+      <tr><td>供应商档案</td><td>供应商基本信息、结算方式、结算账户</td></tr>
+      <tr><td>销售客户</td><td>客户档案：信用额度、结算方式，销售订单的来源</td></tr>
+      <tr><td>结算账户</td><td>银行/现金账户，收付款单据挂接的账户</td></tr>
+      <tr><td>产品档案 / 产品SKU</td><td>产品主数据与规格型号（SKU），销售/采购/库存的挂接对象</td></tr>
+      <tr><td>库存余额</td><td>按仓库、产品汇总的实时数量与金额，只读视图</td></tr>
+      <tr><td>其他入库单 / 其他出库单</td><td>非采购/销售引起的库存变动：盘盈、调拨、报废等</td></tr>
+      <tr><td>采购订单 / 采购入库单</td><td>向供应商下单 → 到货验收入库，入库同时增加库存并生成应付</td></tr>
+      <tr><td>销售订单 / 销售出库单</td><td>与客户下单 → 发货出库，出库同时减少库存并生成应收</td></tr>
+      <tr><td>付款单 / 收款单</td><td>对供应商付款、对客户收款，逐笔核销应付/应收</td></tr>
+      <tr><td>核销记录</td><td>收付款与应收应付的核销流水，资金与债权对应关系留痕</td></tr>
+    </table>
+  </div>
+
+  <h2>快速上手</h2>
+  <div class="card">
+    <ol class="flow">
+      <li><strong>建档案</strong>：维护产品分类、单位、品牌、仓库、结算账户、供应商与销售客户</li>
+      <li><strong>录产品</strong>：录入产品档案与 SKU，形成可售、可采的主数据</li>
+      <li><strong>走采购</strong>：创建采购订单，到货后下采购入库单，库存增加、应付生成</li>
+      <li><strong>走销售</strong>：创建销售订单，发货后下销售出库单，库存减少、应收生成</li>
+      <li><strong>收付款</strong>：付款单核销应付、收款单核销应收，登记核销记录</li>
+      <li><strong>对库存</strong>：随时查看库存余额，其他出入库单处理盘点与调拨差异</li>
+    </ol>
+  </div>
+
+  <h2>场景示例：某贸易公司月度采购 1000 箱矿泉水</h2>
+  <div class="scene">
+    <p>贸易公司采购员小赵负责饮料线。月初，他向「供应商档案」里的 A 食品加工厂下达 <b class="k">采购订单 1000 箱</b>（单价 12 元/箱，合同金额 12000 元）。</p>
+    <p><b class="k">分批入库</b>：供应商分 2 批到货——第 1 批 600 箱验收合格，小赵开 <b class="k">采购入库单</b>；第 2 批 400 箱中有 8 箱破损，仓库按 392 箱实际入库。两张入库单过账后，「库存余额」中该 SKU 从 200 箱增至 984 箱，同时系统生成 <b class="k">应付 11904 元</b>（392×12 + 600×12，破损 8 箱按采购配置扣款）。</p>
+    <p><b class="k">付款核销</b>：财务老钱在下「结算账户」里的工行账户开 <b class="k">付款单 11904 元</b>，勾选对应应账户款逐笔核销，「核销记录」中该供应商欠款清零。</p>
+    <p><b class="k">销售出库</b>：B 便利店超市的月度订单到货后，仓管开 <b class="k">销售出库单 900 箱</b>，库存余额降为 84 箱，同时生成 <b class="k">应收 10800 元</b>。</p>
+    <p><b class="k">收款回款</b>：客户财务打款后，小赵开 <b class="k">收款单</b> 核销应收，本月度进销存资金全部回正，货款两清。</p>
+    <div class="res">对应菜单路径：供应商档案 → 采购订单 → 采购入库单(增库存+生成应付) → 库存余额 → 付款单+核销记录；销售客户 → 销售订单 → 销售出库单(减库存+生成应收) → 收款单+核销记录</div>
+  </div>
+
+  <h2>数据生命周期</h2>
+
+  <div class="fchain">
+    <h3>① 采购主线：货到、款到、账齐</h3>
+    <div class="flowviz">
+      <span class="fnode asset">供应商档案</span><span class="farrow">— 下单 →</span>
+      <span class="fnode data">采购订单</span><span class="farrow">— 到货验收 →</span>
+      <span class="fnode solid">采购入库单</span><span class="farrow">增库存·生成应付 →</span>
+      <span class="fnode data">付款单</span><span class="farrow">— 核销 →</span>
+      <span class="fnode ok">核销记录(应付清零)</span>
+    </div>
+    <div class="fnote">入库单过账是库存与应付的「双生」节点：库存余额增加与应付生成在同一事务完成，保证账实同步</div>
+  </div>
+
+  <div class="fchain">
+    <h3>② 销售主线：货出、款收、账平</h3>
+    <div class="flowviz">
+      <span class="fnode asset">销售客户</span><span class="farrow">— 下单 →</span>
+      <span class="fnode data">销售订单</span><span class="farrow">— 发货 →</span>
+      <span class="fnode solid">销售出库单</span><span class="farrow">减库存·生成应收 →</span>
+      <span class="fnode data">收款单</span><span class="farrow">— 核销 →</span>
+      <span class="fnode ok">核销记录(应收清零)</span>
+    </div>
+    <div class="fnote">出库前校验库存余额是否充足（可配置超卖策略）；出库与应收生成同事务，回款核销后方可关闭应收</div>
+  </div>
+
+  <div class="fchain">
+    <h3>③ 库存主线：一切出入都留痕</h3>
+    <div class="flowviz">
+      <span class="fnode solid">库存余额(仓库×产品)</span><span class="farrow">←</span>
+      <span class="fnode data">采购入库单</span><span class="farrow">　</span>
+      <span class="fnode data">销售出库单</span><span class="farrow">　</span>
+      <span class="fnode data">其他出入库单(盘盈/调拨/报废)</span>
+    </div>
+    <div class="fnote">库存余额是只读汇总视图，任何数量变化都必须通过单据驱动；其他出入库单用于处理盘点差异与仓库间调拨</div>
+  </div>
+
+  <div class="fchain">
+    <h3>④ 档案与单据的关系</h3>
+    <div class="flowviz">
+      <span class="fnode asset">产品/SKU</span><span class="farrow">被引用 →</span>
+      <span class="fnode data">采购·销售·出入库单</span>
+      <span class="farrow">　</span>
+      <span class="fnode asset">仓库档案</span><span class="farrow">挂账 →</span>
+      <span class="fnode solid">库存余额</span>
+      <span class="farrow">　</span>
+      <span class="fnode asset">结算账户</span><span class="farrow">挂接 →</span>
+      <span class="fnode data">收付款单</span>
+    </div>
+    <div class="fnote">档案被单据引用后建议归档而非删除；收付款必须选择结算账户，核销记录把资金流与债权债务一一对应</div>
+  </div>
+
+  <h2>使用提示</h2>
+  <div class="card">
+    <ul class="tips">
+      <li><span class="tag">库存校验</span>销售出库时系统按仓库×产品校验库存余额，不足时按配置拦截或告警，避免超卖</li>
+      <li><span class="tag">应付自动生成</span>采购入库单过账即生成应付，无需手工记账；付款单只核销已生成的应付，金额不可超出</li>
+      <li><span class="tag">核销留痕</span>收付款核销后「核销记录」不可撤销，发现差错应走红冲/反冲单据，保持流水可追溯</li>
+      <li><span class="tag">档案先行</span>先建齐供应商、客户、仓库、结算账户等档案再下单，避免单据挂接缺失造成财务对账困难</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>

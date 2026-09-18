@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>财务管理 · 使用指南</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #333; line-height: 1.7; padding: 32px 16px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  header { background: linear-gradient(135deg, #6366f1, #3f43a8); color: #fff; border-radius: 12px; padding: 28px 32px; margin-bottom: 24px; }
+  header h1 { font-size: 24px; margin-bottom: 8px; }
+  header p { opacity: .92; font-size: 14px; }
+  h2 { font-size: 18px; margin: 28px 0 12px; padding-left: 10px; border-left: 4px solid #6366f1; }
+  .card { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid #eef0f4; }
+  th { color: #666; font-weight: 600; background: #fafbfd; }
+  td code { background: #f0f2f8; border-radius: 4px; padding: 1px 6px; font-size: 12.5px; color: #4338ca; }
+  ol.flow { list-style: none; counter-reset: step; }
+  ol.flow li { counter-increment: step; position: relative; padding: 8px 0 8px 40px; font-size: 14px; }
+  ol.flow li::before { content: counter(step); position: absolute; left: 0; top: 8px; width: 26px; height: 26px; border-radius: 50%; background: #6366f1; color: #fff; text-align: center; line-height: 26px; font-size: 13px; }
+  .tips li { font-size: 14px; margin: 6px 0 6px 20px; }
+  .tag { display: inline-block; background: #e0e7ff; color: #4338ca; border-radius: 4px; padding: 0 8px; font-size: 12px; margin-right: 6px; }
+  /* 数据生命周期图组件 */
+  .fchain { background: #fff; border-radius: 10px; padding: 16px 20px 10px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  .fchain h3 { font-size: 13px; color: #888; font-weight: 600; margin-bottom: 10px; }
+  .flowviz { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-bottom: 12px; }
+  .fnode { border: 1.5px solid #6366f1; color: #4338ca; border-radius: 6px; padding: 3px 10px; font-size: 12.5px; font-weight: 500; background: #eef2ff; }
+  .fnode.solid { background: #6366f1; color: #fff; }
+  .fnode.ghost { border-color: #c8cdd8; color: #8a90a0; background: #fbfbfd; }
+  .fnode.asset { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.data { border-color: #f59e0b; color: #b45309; background: #fffaf0; border-style: dashed; }
+  .fnode.warn { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .fnode.ok { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.end { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .farrow { color: #b6bcc9; font-size: 13px; }
+  .fnote { font-size: 11.5px; color: #a0a6b5; margin: -4px 0 10px; padding-bottom: 8px; }
+  /* 场景示例 */
+  .scene { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; border-left: 4px solid #6366f1; }
+  .scene h3 { font-size: 15px; margin-bottom: 10px; }
+  .scene p { font-size: 13.5px; margin: 7px 0; }
+  .scene b.k { color: #4338ca; }
+  .scene .res { background: #eef2ff; border-radius: 6px; padding: 8px 12px; font-size: 12.5px; margin-top: 10px; color: #4a5570; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>财务管理 · 使用指南</h1>
+    <p>科目 · 成本中心 · 凭证 · 发票 · 收付款 · 预算，一张账看全公司</p>
+  </header>
+
+  <h2>它能做什么</h2>
+  <div class="card">
+    <p>面向财务团队的 <strong>财务管理系统</strong>。以「会计科目」与「成本中心」为记账骨架，日常业务（收发货、采购、销售）通过「总账凭证」入账；「销售发票 / 采购发票」登记税务信息；「收付款单」完成资金收付并核销应收应付；「预算」对费用科目事前控制，事后可算执行率。</p>
+  </div>
+
+  <h2>菜单功能说明</h2>
+  <div class="card">
+    <table>
+      <tr><th style="width:160px">菜单</th><th>用途</th></tr>
+      <tr><td>会计科目</td><td>科目表（资产/负债/权益/收入/费用），凭证分录与预算控制的记账基础</td></tr>
+      <tr><td>成本中心</td><td>内部核算单元（部门/项目），凭证可归集到成本中心，支撑部门损益</td></tr>
+      <tr><td>总账凭证</td><td>记账载体：凭据 + 多行分录，借贷必平衡；支持手工与业务单据生成</td></tr>
+      <tr><td>预算</td><td>按科目 × 期间 × 成本中心设预算额，费用支出时校验额度，期末算执行率</td></tr>
+      <tr><td>销售发票</td><td>向客户开具的销售发票登记，含税、税率、开票状态，关联应收</td></tr>
+      <tr><td>采购发票</td><td>供应商开具的采购发票登记，进项抵扣信息，关联应付</td></tr>
+      <tr><td>收付款单</td><td>实际资金收付，核销应收应付后生成对应的记账凭证</td></tr>
+    </table>
+  </div>
+
+  <h2>快速上手</h2>
+  <div class="card">
+    <ol class="flow">
+      <li><strong>建骨架</strong>：财务管理员维护「会计科目」表与「成本中心」，确定记账口径</li>
+      <li><strong>做凭证</strong>：业务发生即「总账凭证」，多行分录借贷平衡后过账</li>
+      <li><strong>开发票</strong>：销售开票登记「销售发票」，采购收票登记「采购发票」</li>
+      <li><strong>收付款</strong>：资金到达/付出时开「收付款单」，核销应收应付并生成凭证</li>
+      <li><strong>管预算</strong>：按科目/期间/成本中心「预算」，费用支出时校验额度</li>
+      <li><strong>出报告</strong>：月末按凭证、发票、收付款汇总，计算预算执行率与部门损益</li>
+    </ol>
+  </div>
+
+  <h2>场景示例：月末结转全流程</h2>
+  <div class="scene">
+    <p>9 月 30 日，财务主管老陈带着两位会计做月末结转。本月销售收入 58 万元，采购成本 32 万元。</p>
+    <p><b class="k">发票登记</b>：销售会计小林把本月 46 张开票单录入「销售发票」（价税合计 58 万，税额 7.3 万）；采购会计小周录入 31 张「采购发票」（价税合计 35.5 万，进项 4.1 万可抵扣）。</p>
+    <p><b class="k">生成凭证</b>：两张发票过账后系统按配置自动生成「总账凭证」——借：应收账款 58 万 / 贷：主营业务收入 50.7 万 + 应交税费-销项 7.3 万；借方凭证同步归集到「<b class="k">成本中心-电商事业部</b>」，部门损益表当天可出。</p>
+    <p><b class="k">收付款核销</b>：客户 B 超市 12 万到账，老陈开「收款单」核销对应「销售发票」的应收；供应商 C 的 8 万尾款付出，开「<b class="k">付款单</b>」核销「采购发票」应付，核销记录逐笔挂账。</p>
+    <p><b class="k">预算执行率</b>：月末跑「预算」报表——市场部 9 月预算 15 万实际花 13.2 万（执行率 88%），行政部预算 6 万实际 6.8 万（<b class="k">超支 13%</b>），老陈把行政部超支原因写进报表备注，报 CFO 审批。</p>
+    <div class="res">对应菜单路径：销售发票(登记) → 总账凭证(生成+归集成本中心) → 收款单/付款单(核销应收应付) → 预算(执行率分析) —— 会计科目与成本中心贯穿全程</div>
+  </div>
+
+  <h2>数据生命周期</h2>
+
+  <div class="fchain">
+    <h3>① 记账主线：从科目到凭证</h3>
+    <div class="flowviz">
+      <span class="fnode asset">会计科目 + 成本中心</span><span class="farrow">— 做账 →</span>
+      <span class="fnode solid">总账凭证(借贷平衡)</span><span class="farrow">过账 →</span>
+      <span class="fnode ok">总账(不可改，只能红冲)</span>
+    </div>
+    <div class="fnote">凭证过账后锁定，纠错走红冲凭证；每条分录可挂成本中心，月末即可出部门损益</div>
+  </div>
+
+  <div class="fchain">
+    <h3>② 发票主线：登记 → 核销</h3>
+    <div class="flowviz">
+      <span class="fnode data">销售发票(开票)</span><span class="farrow">生成应收 →</span>
+      <span class="fnode data">收款单</span><span class="farrow">— 核销 →</span>
+      <span class="fnode ok">应收清零</span>
+    </div>
+    <div class="flowviz">
+      <span class="fnode data">采购发票(收票)</span><span class="farrow">生成应付 →</span>
+      <span class="fnode data">付款单</span><span class="farrow">— 核销 →</span>
+      <span class="fnode ok">应付清零</span>
+    </div>
+    <div class="fnote">发票是税务与债权债务的源头单据；核销必须逐笔对应，红字发票对应红字凭证</div>
+  </div>
+
+  <div class="fchain">
+    <h3>③ 预算控制：事前 · 事中 · 事后</h3>
+    <div class="flowviz">
+      <span class="fnode asset">预算(科目×期间×成本中心)</span><span class="farrow">事前设定 →</span>
+      <span class="fnode warn">费用凭证校验额度(可配拦截/告警)</span><span class="farrow">事后 →</span>
+      <span class="fnode ok">执行率分析</span>
+    </div>
+    <div class="fnote">预算调整需审批留痕；「拦截」模式超预算凭证不能过账，「告警」模式可过但标红</div>
+  </div>
+
+  <div class="fchain">
+    <h3>④ 风险点与收口</h3>
+    <div class="flowviz">
+      <span class="fnode solid">凭证(过账)</span><span class="farrow">→</span>
+      <span class="fnode warn">未核销应收/应付(账龄风险)</span><span class="farrow">→</span>
+      <span class="fnode end">坏账计提/往来核销收口</span>
+    </div>
+    <div class="fnote">月末须核对「应收-发票-收款单」三单匹配度；长期未核销的应收应付生成账龄报表，驱动坏账计提</div>
+  </div>
+
+  <h2>使用提示</h2>
+  <div class="card">
+    <ul class="tips">
+      <li><span class="tag">凭证锁定</span>过账凭证不可修改删除，只能做红冲凭证；跨期错误必须走「调账凭证」，保留原凭证痕迹</li>
+      <li><span class="tag">借贷平衡</span>凭证保存与过账均校验借贷合计相等，借贷不等无法过账；建议先保存草稿、复核后再过账</li>
+      <li><span class="tag">预算口径</span>预算按「科目 × 期间 × 成本中心」三维控制，调预算先走审批；费用报销类凭证默认走预算校验</li>
+      <li><span class="tag">发票匹配</span>采购发票建议三单匹配（订单-收货-发票），不一致时挂起应付，避免多付/错付</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>

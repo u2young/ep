@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>固定资产管理 · 使用指南</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #333; line-height: 1.7; padding: 32px 16px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  header { background: linear-gradient(135deg, #0ea5e9, #0a6fa0); color: #fff; border-radius: 12px; padding: 28px 32px; margin-bottom: 24px; }
+  header h1 { font-size: 24px; margin-bottom: 8px; }
+  header p { opacity: .92; font-size: 14px; }
+  h2 { font-size: 18px; margin: 28px 0 12px; padding-left: 10px; border-left: 4px solid #0ea5e9; }
+  .card { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid #eef0f4; }
+  th { color: #666; font-weight: 600; background: #fafbfd; }
+  td code { background: #f0f2f8; border-radius: 4px; padding: 1px 6px; font-size: 12.5px; color: #0284c7; }
+  ol.flow { list-style: none; counter-reset: step; }
+  ol.flow li { counter-increment: step; position: relative; padding: 8px 0 8px 40px; font-size: 14px; }
+  ol.flow li::before { content: counter(step); position: absolute; left: 0; top: 8px; width: 26px; height: 26px; border-radius: 50%; background: #0ea5e9; color: #fff; text-align: center; line-height: 26px; font-size: 13px; }
+  .tips li { font-size: 14px; margin: 6px 0 6px 20px; }
+  .tag { display: inline-block; background: #e0f2fe; color: #0369a1; border-radius: 4px; padding: 0 8px; font-size: 12px; margin-right: 6px; }
+  /* 数据生命周期图组件 */
+  .fchain { background: #fff; border-radius: 10px; padding: 16px 20px 10px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  .fchain h3 { font-size: 13px; color: #888; font-weight: 600; margin-bottom: 10px; }
+  .flowviz { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-bottom: 12px; }
+  .fnode { border: 1.5px solid #0ea5e9; color: #0369a1; border-radius: 6px; padding: 3px 10px; font-size: 12.5px; font-weight: 500; background: #f0f9ff; }
+  .fnode.solid { background: #0ea5e9; color: #fff; }
+  .fnode.ghost { border-color: #c8cdd8; color: #8a90a0; background: #fbfbfd; }
+  .fnode.asset { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.data { border-color: #f59e0b; color: #b45309; background: #fffaf0; border-style: dashed; }
+  .fnode.warn { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .fnode.ok { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.end { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .farrow { color: #b6bcc9; font-size: 13px; }
+  .fnote { font-size: 11.5px; color: #a0a6b5; margin: -4px 0 10px; padding-bottom: 8px; }
+  /* 场景示例 */
+  .scene { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; border-left: 4px solid #0ea5e9; }
+  .scene h3 { font-size: 15px; margin-bottom: 10px; }
+  .scene p { font-size: 13.5px; margin: 7px 0; }
+  .scene b.k { color: #0369a1; }
+  .scene .res { background: #f0f9ff; border-radius: 6px; padding: 8px 12px; font-size: 12.5px; margin-top: 10px; color: #4a5570; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>固定资产管理 · 使用指南</h1>
+    <p>资产全生命周期管理：从卡片建档到折旧摊销、转移维修留痕</p>
+  </header>
+
+  <h2>它能做什么</h2>
+  <div class="card">
+    <p>面向资产管理员与财务的 <strong>固定资产管理系统</strong>。先建「资产类别」与「资产位置」目录树，再为每台设备建资产卡片；资产在部门间转移、故障报修都通过单据留痕；财务侧配置「折旧计划」按月摊销，随时掌握资产净值与分布。</p>
+  </div>
+
+  <h2>菜单功能说明</h2>
+  <div class="card">
+    <table>
+      <tr><th style="width:160px">菜单</th><th>用途</th></tr>
+      <tr><td>资产类别</td><td>资产分类目录（如电子设备、房屋建筑、运输工具），决定折旧参数</td></tr>
+      <tr><td>资产位置</td><td>存放位置/使用部门树，资产卡片挂接，支持位置统计</td></tr>
+      <tr><td>固定资产</td><td>资产卡片：名称、编号、原值、使用人、状态，一切变动的主体</td></tr>
+      <tr><td>资产转移单</td><td>资产在不同位置/使用人之间移交，转移前后各留一张快照</td></tr>
+      <tr><td>资产维修单</td><td>故障报修、维修过程与费用登记，维修记录挂到资产卡片</td></tr>
+      <tr><td>折旧计划</td><td>按资产（或类别）设定折旧方法/年限，系统按月生成摊销记录</td></tr>
+    </table>
+  </div>
+
+  <h2>快速上手</h2>
+  <div class="card">
+    <ol class="flow">
+      <li><strong>建目录</strong>：维护「资产类别」与「资产位置」树，确定折旧年限与残值率</li>
+      <li><strong>建卡片</strong>：新购/调拨资产录入「固定资产」，登记原值、使用人、位置</li>
+      <li><strong>转移留痕</strong>：资产换部门/换人时开「资产转移单」，卡片自动更新位置与使用人</li>
+      <li><strong>报修留痕</strong>：故障时开「资产维修单」，维修完成回填费用与结果</li>
+      <li><strong>提折旧</strong>：财务在「折旧计划」中绑定资产与折旧方法，按月计提摊销</li>
+      <li><strong>查净值</strong>：通过资产卡片与折旧计划汇总查看账面净值、已提折旧</li>
+    </ol>
+  </div>
+
+  <h2>场景示例：新购 20 台服务器全生命周期</h2>
+  <div class="scene">
+    <p>公司 1 月新购 <b class="k">20 台服务器</b>，总原值 120 万元。资产管理员小吴先确认「资产类别」里有「电子设备-服务器」（折旧 3 年直线、残值率 5%），位置建好「机房 A-机柜 01~04」。</p>
+    <p><b class="k">入库建档</b>：20 台服务器逐台录入「固定资产」卡片，编号 SRV-001~020，使用部门为运维部，位置挂到机房 A。同时财务老钱为 20 台资产绑定「<b class="k">3 年直线折旧</b>」计划：月折旧 = 120 万 × 95% ÷ 36，约 <b class="k">31667 元/月</b>，系统按月自动生成摊销记录。</p>
+    <p><b class="k">年中转移</b>：7 月公司扩编，运维部把 2 台服务器转给研发部搭建测试环境。小吴开「<b class="k">资产转移单</b>」，位置从「机房 A」改为「研发楼 2F」，使用人改为研发部小陈，卡片历史里转移前后各留一条快照，审计可查。</p>
+    <p><b class="k">故障报修</b>：10 月 SRV-007 电源模块故障，研发部小陈开「<b class="k">资产维修单</b>」，运维部接单更换电源模块（费用 1800 元）并回填维修结果，单据挂在 SRV-007 卡片下，成为该资产的维修履历。</p>
+    <p><b class="k">年底盘点</b>：12 月末 20 台卡片状态核对无差异，已提 6 个月折旧约 19 万，账面净值 101 万，折旧计划继续按月摊销至 2028 年 1 月提足。</p>
+    <div class="res">对应菜单路径：资产类别+资产位置(目录) → 固定资产(卡片建档) → 折旧计划(绑定摊销) → 资产转移单(年中转移留痕) → 资产维修单(故障报修留痕)</div>
+  </div>
+
+  <h2>数据生命周期</h2>
+
+  <div class="fchain">
+    <h3>① 资产主线：从卡片到摊销</h3>
+    <div class="flowviz">
+      <span class="fnode asset">资产类别 + 资产位置</span><span class="farrow">— 建档 →</span>
+      <span class="fnode solid">固定资产卡片</span><span class="farrow">— 绑定 →</span>
+      <span class="fnode data">折旧计划</span><span class="farrow">— 按月摊销 →</span>
+      <span class="fnode ok">净值/已提折旧汇总</span>
+    </div>
+    <div class="fnote">资产卡片是主体：类别决定折旧参数，位置决定分布统计；折旧计划挂在卡片上按月生成摊销记录，提足后转入已提足终态</div>
+  </div>
+
+  <div class="fchain">
+    <h3>② 转移与维修：卡片上的履历</h3>
+    <div class="flowviz">
+      <span class="fnode solid">固定资产卡片</span><span class="farrow">开单 →</span>
+      <span class="fnode data">资产转移单</span><span class="farrow">— 过户 →</span>
+      <span class="fnode ok">卡片位置/使用人更新(留痕)</span>
+    </div>
+    <div class="flowviz">
+      <span class="fnode solid">固定资产卡片</span><span class="farrow">开单 →</span>
+      <span class="fnode data">资产维修单</span><span class="farrow">— 回填费用/结果 →</span>
+      <span class="fnode ok">维修履历挂卡片</span>
+    </div>
+    <div class="fnote">转移单过账后卡片的位置、使用人随之更新，原值与已提折旧不变；维修费用可配置是否资本化调整原值</div>
+  </div>
+
+  <div class="fchain">
+    <h3>③ 关键节点与风险点</h3>
+    <div class="flowviz">
+      <span class="fnode solid">资产卡片(在用的生命周期起点)</span><span class="farrow">→</span>
+      <span class="fnode warn">转移/维修必须走单(直接改卡片=断链)</span><span class="farrow">→</span>
+      <span class="fnode end">折旧提足/报废处置</span>
+    </div>
+    <div class="fnote">风险点：跳过转移单直接改卡片会丢失审计痕迹；折旧计划参数（年限/残值率）修改后影响后续各期摊销，修改需财务审批留痕</div>
+  </div>
+
+  <div class="fchain">
+    <h3>④ 目录与卡片的关系</h3>
+    <div class="flowviz">
+      <span class="fnode asset">资产类别</span><span class="farrow">决定 →</span>
+      <span class="fnode data">折旧参数</span>
+      <span class="farrow">　</span>
+      <span class="fnode asset">资产位置</span><span class="farrow">挂接 →</span>
+      <span class="fnode solid">固定资产卡片</span>
+      <span class="farrow">　</span>
+      <span class="fnode data">转移单 / 维修单</span>
+    </div>
+    <div class="fnote">类别与位置被卡片引用后建议停用而非删除；一张卡片对应多张转移单/维修单，履历全部收敛在卡片页签</div>
+  </div>
+
+  <h2>使用提示</h2>
+  <div class="card">
+    <ul class="tips">
+      <li><span class="tag">单据留痕</span>任何位置/使用人变更必须走「资产转移单」，维修必须走「资产维修单」，卡片本身不做手工修改</li>
+      <li><span class="tag">折旧参数</span>折旧计划的方法、年限、残值率在「资产类别」上统一定义，单卡可覆盖；改参数影响后续各期，需财务审批</li>
+      <li><span class="tag">盘点差异</span>建议按季度盘点，盘亏资产先冻结卡片并说明原因，再走报废/处置流程，避免静默删除</li>
+      <li><span class="tag">卡片编号</span>资产编号建议按「类别码-年份-流水号」规则编码，与转移单、维修单形成可检索的履历链</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>采购管理 · 使用指南</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #333; line-height: 1.7; padding: 32px 16px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  header { background: linear-gradient(135deg, #06b6d4, #086f82); color: #fff; border-radius: 12px; padding: 28px 32px; margin-bottom: 24px; }
+  header h1 { font-size: 24px; margin-bottom: 8px; }
+  header p { opacity: .92; font-size: 14px; }
+  h2 { font-size: 18px; margin: 28px 0 12px; padding-left: 10px; border-left: 4px solid #06b6d4; }
+  .card { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid #eef0f4; }
+  th { color: #666; font-weight: 600; background: #fafbfd; }
+  td code { background: #f0f2f8; border-radius: 4px; padding: 1px 6px; font-size: 12.5px; color: #0e7490; }
+  ol.flow { list-style: none; counter-reset: step; }
+  ol.flow li { counter-increment: step; position: relative; padding: 8px 0 8px 40px; font-size: 14px; }
+  ol.flow li::before { content: counter(step); position: absolute; left: 0; top: 8px; width: 26px; height: 26px; border-radius: 50%; background: #06b6d4; color: #fff; text-align: center; line-height: 26px; font-size: 13px; }
+  .tips li { font-size: 14px; margin: 6px 0 6px 20px; }
+  .tag { display: inline-block; background: #cffafe; color: #0e7490; border-radius: 4px; padding: 0 8px; font-size: 12px; margin-right: 6px; }
+  /* 数据生命周期图组件 */
+  .fchain { background: #fff; border-radius: 10px; padding: 16px 20px 10px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  .fchain h3 { font-size: 13px; color: #888; font-weight: 600; margin-bottom: 10px; }
+  .flowviz { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-bottom: 12px; }
+  .fnode { border: 1.5px solid #06b6d4; color: #0e7490; border-radius: 6px; padding: 3px 10px; font-size: 12.5px; font-weight: 500; background: #ecfeff; }
+  .fnode.solid { background: #06b6d4; color: #fff; }
+  .fnode.ghost { border-color: #c8cdd8; color: #8a90a0; background: #fbfbfd; }
+  .fnode.asset { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.data { border-color: #f59e0b; color: #b45309; background: #fffaf0; border-style: dashed; }
+  .fnode.warn { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .fnode.ok { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.end { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .farrow { color: #b6bcc9; font-size: 13px; }
+  .fnote { font-size: 11.5px; color: #a0a6b5; margin: -4px 0 10px; padding-bottom: 8px; }
+  /* 场景示例 */
+  .scene { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; border-left: 4px solid #06b6d4; }
+  .scene h3 { font-size: 15px; margin-bottom: 10px; }
+  .scene p { font-size: 13.5px; margin: 7px 0; }
+  .scene b.k { color: #0e7490; }
+  .scene .res { background: #ecfeff; border-radius: 6px; padding: 8px 12px; font-size: 12.5px; margin-top: 10px; color: #4a5570; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>采购管理 · 使用指南</h1>
+    <p>请购 → 询价 → 报价 → 下单 → 收货验收，采购全流程一条线</p>
+  </header>
+
+  <h2>它能做什么</h2>
+  <div class="card">
+    <p>面向采购员、需求部门与财务的 <strong>采购管理系统</strong>。需求部门开「请购单」提需求，采购员对高单价物资开「询价单」向多家供应商询价，「供应商报价」回填后系统自动比价；中选后下订单，「采购收货单」验收入库，「采购配置」控制询价家数/审批额度等规则。</p>
+  </div>
+
+  <h2>菜单功能说明</h2>
+  <div class="card">
+    <table>
+      <tr><th style="width:160px">菜单</th><th>用途</th></tr>
+      <tr><td>请购单</td><td>需求部门提采购需求：物料/数量/期望交期/预算来源，是采购的起点</td></tr>
+      <tr><td>询价单</td><td>采购员向多家供应商发出询价：物料规格、数量、期望交期</td></tr>
+      <tr><td>供应商报价</td><td>供应商回填报价（价格/交期/账期），多份报价并排比价</td></tr>
+      <tr><td>采购收货单</td><td>到货验收：数量、质量、入库挂账，可分批收货</td></tr>
+      <tr><td>采购配置</td><td>规则引擎：询价最少家数、审批额度、超预算拦截策略</td></tr>
+    </table>
+  </div>
+
+  <h2>快速上手</h2>
+  <div class="card">
+    <ol class="flow">
+      <li><strong>提请购</strong>：需求部门在「请购单」提需求（物料/数量/交期/预算来源）</li>
+      <li><strong>发询价</strong>：采购员对请购单开「询价单」，向 3+ 家供应商发出</li>
+      <li><strong>收报价</strong>：供应商在「供应商报价」回填价格/交期/账期，系统自动比价</li>
+      <li><strong>选中下单</strong>：按比价结果选定供应商，开采购订单（金额大走审批）</li>
+      <li><strong>收货验收</strong>：到货后「采购收货单」验收，可分批收货，数量/质量都留痕</li>
+      <li><strong>调配置</strong>：财务/采购主管在「采购配置」调询价家数/审批额度，规则生效</li>
+    </ol>
+  </div>
+
+  <h2>场景示例：年度办公用品集采</h2>
+  <div class="scene">
+    <p>行政部小刘负责「<b class="k">年度办公用品集采</b>」，10 月启动，预算 18 万。</p>
+    <p><b class="k">请购汇总</b>：9 月底小刘把研发部 4 人、市场部 6 人、人事部 3 人的请购汇总——共 13 人，按「<b class="k">请购单</b>」逐人提交，小刘在系统里合并为一张「<b class="k">集采请购单</b>」，共 32 类办公用品、预估 18 万。</p>
+    <p><b class="k">三家询价</b>：按「采购配置」里「<b class="k">≥ 10 万物资必须 3 家询价</b>」规则，小刘开「<b class="k">询价单</b>」向 A/B/C 三家办公用品供应商发出，3 天后 3 家全部在「供应商报价」里回填——A 家 17.6 万 / 30 天账期、B 家 18.2 万 / 60 天账期、C 家 16.9 万 / 预付 50%。</p>
+    <p><b class="k">比价选中</b>：系统自动出「<b class="k">比价表</b>」，小刘按「<b class="k">最低价 + 账期可接受</b>」原则选中 C 家 16.9 万，备注「预付 50% 可谈」，谈后 C 家同意 30 天账期，总价 17.2 万，走「<b class="k">采购订单</b>」（金额 &gt; 10 万走总经理审批）。</p>
+    <p><b class="k">分批收货</b>：C 家分 3 批到货——第 1 批 8.2 万验收合格、「<b class="k">采购收货单</b>」过账；第 2 批 6.4 万中 2 箱纸品破损，按「采购配置」的「破损扣款 5%」规则收货 6.08 万；第 3 批 2.72 万验收合格。3 张收货单全部过账，库存增加、应付 17.2 万挂账。</p>
+    <p><b class="k">付款核销</b>：财务老钱 30 天后开「<b class="k">付款单</b>」核销应付 17.2 万，比原预算 18 万节 8000 元，小刘把「集采节余」写进行政部 10 月费用报告。</p>
+    <div class="res">对应菜单路径：请购单(13 人汇总→1 张集采请购单) → 询价单(3 家) → 供应商报价(比价) → 采购订单(17.2 万/总经理审批) → 采购收货单(3 批分批收货) —— 采购配置(询价 3 家+破损扣款)贯穿全程</div>
+  </div>
+
+  <h2>数据生命周期</h2>
+
+  <div class="fchain">
+    <h3>① 采购主线：从需求到收货</h3>
+    <div class="flowviz">
+      <span class="fnode data">请购单</span><span class="farrow">— 开单 →</span>
+      <span class="fnode data">询价单</span><span class="farrow">— 收报价 →</span>
+      <span class="fnode data">供应商报价(比价)</span><span class="farrow">— 选中 →</span>
+      <span class="fnode solid">采购订单</span><span class="farrow">— 到货 →</span>
+      <span class="fnode solid">采购收货单(验收)</span>
+    </div>
+    <div class="fnote">请购单是「需求」，询价/报价是「比价」，订单是「承诺」，收货是「兑现」；四张单据一一对应，缺一张就是断链</div>
+  </div>
+
+  <div class="fchain">
+    <h3>② 询价-报价：比价的「暗盒」</h3>
+    <div class="flowviz">
+      <span class="fnode data">询价单</span><span class="farrow">发出 →</span>
+      <span class="fnode data">供应商 A 报价</span>
+      <span class="farrow">/</span>
+      <span class="fnode data">供应商 B 报价</span>
+      <span class="farrow">/</span>
+      <span class="fnode data">供应商 C 报价</span><span class="farrow">→</span>
+      <span class="fnode ok">比价表(最低价/账期/交期)</span>
+    </div>
+    <div class="fnote">「采购配置」控制询价最少家数（默认 3 家）；报价回填后系统按「价格 + 账期 + 交期」自动出比价表，采购员备注选中理由</div>
+  </div>
+
+  <div class="fchain">
+    <h3>③ 收货与扣款：验收的「出口」</h3>
+    <div class="flowviz">
+      <span class="fnode solid">采购订单</span><span class="farrow">— 到货 →</span>
+      <span class="fnode warn">破损/缺量(扣款规则)</span><span class="farrow">→</span>
+      <span class="fnode ok">采购收货单(过账)</span>
+    </div>
+    <div class="fnote">「采购配置」里的「破损扣款 5%」「缺量扣款 10%」规则在收货时自动计算实收金额；分批收货每批独立挂账，订单总金额是上限</div>
+  </div>
+
+  <div class="fchain">
+    <h3>④ 规则引擎：配置驱动</h3>
+    <div class="flowviz">
+      <span class="fnode asset">采购配置</span><span class="farrow">驱动 →</span>
+      <span class="fnode data">询价家数 / 审批额度 / 扣款比例</span><span class="farrow">→</span>
+      <span class="fnode solid">每张采购单(规则生效)</span>
+    </div>
+    <div class="fnote">配置是「宪法」，改配置只影响新单，历史单快照不变；询价家数不足/审批额度超界时系统拦截，不能强过</div>
+  </div>
+
+  <h2>使用提示</h2>
+  <div class="card">
+    <ul class="tips">
+      <li><span class="tag">请购先行</span>需求部门必须先开「请购单」并挂预算来源，无预算的请购单不能转询价</li>
+      <li><span class="tag">询价纪律</span>≥ 10 万物资必须 3 家询价（「采购配置」控制），报价回填后比价表自动出，不能跳比价直接下单</li>
+      <li><span class="tag">分批收货</span>大单按到货节奏分批开「采购收货单」，破损/缺量按配置扣款，实收金额自动算，采购员不能手工改</li>
+      <li><span class="tag">审批额度</span>订单金额 &gt; 审批额度（默认 10 万）必须走审批流，超审批走总经理/财务总监双签</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>制造管理 · 使用指南</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #333; line-height: 1.7; padding: 32px 16px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  header { background: linear-gradient(135deg, #f97316, #c2570a); color: #fff; border-radius: 12px; padding: 28px 32px; margin-bottom: 24px; }
+  header h1 { font-size: 24px; margin-bottom: 8px; }
+  header p { opacity: .92; font-size: 14px; }
+  h2 { font-size: 18px; margin: 28px 0 12px; padding-left: 10px; border-left: 4px solid #f97316; }
+  .card { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid #eef0f4; }
+  th { color: #666; font-weight: 600; background: #fafbfd; }
+  td code { background: #f0f2f8; border-radius: 4px; padding: 1px 6px; font-size: 12.5px; color: #c2410c; }
+  ol.flow { list-style: none; counter-reset: step; }
+  ol.flow li { counter-increment: step; position: relative; padding: 8px 0 8px 40px; font-size: 14px; }
+  ol.flow li::before { content: counter(step); position: absolute; left: 0; top: 8px; width: 26px; height: 26px; border-radius: 50%; background: #f97316; color: #fff; text-align: center; line-height: 26px; font-size: 13px; }
+  .tips li { font-size: 14px; margin: 6px 0 6px 20px; }
+  .tag { display: inline-block; background: #ffedd5; color: #c2410c; border-radius: 4px; padding: 0 8px; font-size: 12px; margin-right: 6px; }
+  /* 数据生命周期图组件 */
+  .fchain { background: #fff; border-radius: 10px; padding: 16px 20px 10px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  .fchain h3 { font-size: 13px; color: #888; font-weight: 600; margin-bottom: 10px; }
+  .flowviz { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-bottom: 12px; }
+  .fnode { border: 1.5px solid #f97316; color: #c2410c; border-radius: 6px; padding: 3px 10px; font-size: 12.5px; font-weight: 500; background: #fff7ed; }
+  .fnode.solid { background: #f97316; color: #fff; }
+  .fnode.ghost { border-color: #c8cdd8; color: #8a90a0; background: #fbfbfd; }
+  .fnode.asset { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.data { border-color: #f59e0b; color: #b45309; background: #fffaf0; border-style: dashed; }
+  .fnode.warn { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .fnode.ok { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.end { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .farrow { color: #b6bcc9; font-size: 13px; }
+  .fnote { font-size: 11.5px; color: #a0a6b5; margin: -4px 0 10px; padding-bottom: 8px; }
+  /* 场景示例 */
+  .scene { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; border-left: 4px solid #f97316; }
+  .scene h3 { font-size: 15px; margin-bottom: 10px; }
+  .scene p { font-size: 13.5px; margin: 7px 0; }
+  .scene b.k { color: #c2410c; }
+  .scene .res { background: #fff7ed; border-radius: 6px; padding: 8px 12px; font-size: 12.5px; margin-top: 10px; color: #4a5570; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>制造管理 · 使用指南</h1>
+    <p>BOM · 工序 · 工作中心 · 工单 · 派工 · 委外，车间一条线</p>
+  </header>
+
+  <h2>它能做什么</h2>
+  <div class="card">
+    <p>面向车间、计划与工艺工程师的 <strong>制造执行系统</strong>。先建「BOM 工艺清单」（产品怎么拆、用什么料）、工序与工作中心（活在哪做、谁做）；接到订单下「工单」，工单按工序「派工」到工作中心；完成一件「报工」入库；自制做不来的部分走「委外单」外包，成品/半成品库存全部可追溯。</p>
+  </div>
+
+  <h2>菜单功能说明</h2>
+  <div class="card">
+    <table>
+      <tr><th style="width:160px">菜单</th><th>用途</th></tr>
+      <tr><td>工序定义</td><td>工序模板（如切割、机加工、焊接、涂装、总装），含标准工时</td></tr>
+      <tr><td>工作中心</td><td>执行车间/设备/班组，工序派工的落点</td></tr>
+      <tr><td>BOM工艺清单</td><td>产品物料清单 + 工艺路线：拆料 + 按什么顺序在哪做</td></tr>
+      <tr><td>工单</td><td>生产指令：按 BOM 展开数量、下达、执行、完工收口</td></tr>
+      <tr><td>派工单</td><td>把工序「投」到工作中心：派工人、排期、报工入口</td></tr>
+      <tr><td>生产出入库单</td><td>工单领料出库、半成品/成品入库，库存同步变动</td></tr>
+      <tr><td>委外单</td><td>外包工序/部件：发料 → 外厂加工 → 收货入库</td></tr>
+    </table>
+  </div>
+
+  <h2>快速上手</h2>
+  <div class="card">
+    <ol class="flow">
+      <li><strong>建工艺</strong>：工艺工程师维护「工序定义」「工作中心」「BOM 工艺清单」</li>
+      <li><strong>下工单</strong>：计划员按订单下「工单」，BOM 自动展开领料需求</li>
+      <li><strong>派工</strong>：车间主任把工序「派工」到工作中心，指定班组/设备/排期</li>
+      <li><strong>报工</strong>：工人完成工序后在「派工单」报工，系统自动开「生产入库单」</li>
+      <li><strong>委外</strong>：自制做不来的工序走「委外单」，外厂完成后收货入库</li>
+      <li><strong>查库存</strong>：领料、半成品、成品全部通过「生产出入库单」入账，库存可查</li>
+    </ol>
+  </div>
+
+  <h2>场景示例：1000 件成品订单生产全流程</h2>
+  <div class="scene">
+    <p>公司接了某客户「<b class="k">1000 件铝合金外壳</b>」的订单，工艺路线 5 道：下料 → 机加工 → 焊接 → 表面处理 → 总装。</p>
+    <p><b class="k">BOM 展开</b>：工艺工程师小李在「BOM 工艺清单」里确认外壳产品的工艺路线与物料清单（铝锭 3.2 kg/件 + 焊丝 0.15 kg/件 + 喷漆 0.3 L/件），下料工序需 <b class="k">1050 件毛坯</b>（含 5% 损耗）。</p>
+    <p><b class="k">工单下达</b>：计划员小吴在「工单」里下 1000 件生产指令，BOM 自动展开领料需求——铝锭 3360 kg、焊丝 150 kg、喷漆 300 L，开「<b class="k">生产出库单</b>」领料。</p>
+    <p><b class="k">派工</b>：车间主任老张把工序「派工」——下料机加工班组（排期 1 天）、机加工 2 号机台（排期 3 天）、焊接 1 班组（2 天）、喷涂车间（1 天）、总装 2 班组（1 天）。每个班组每天在「派工单」上 <b class="k">报工</b>。</p>
+    <p><b class="k">委外</b>：焊接后 5 件不合格，老张开「<b class="k">委外单</b>」把 5 件毛坯送 A 外协厂返工，3 天后收货入库，5 件补入合格品。</p>
+    <p><b class="k">完工入库</b>：1000 件外壳全部完工，开「<b class="k">生产入库单</b>」入成品仓，工单状态改「完工」，整单耗时 8 天，一次合格率 99.5%。</p>
+    <div class="res">对应菜单路径：BOM工艺清单(物料+工艺路线) → 工单(下达+展开领料) → 派工单(投到工作中心+报工) → 生产出入库单(领料/入库) → 委外单(外包补件) —— 工序定义与工作中心贯穿全程</div>
+  </div>
+
+  <h2>数据生命周期</h2>
+
+  <div class="fchain">
+    <h3>① 工艺主线：BOM → 工单 → 派工</h3>
+    <div class="flowviz">
+      <span class="fnode asset">BOM工艺清单</span><span class="farrow">— 下达 →</span>
+      <span class="fnode solid">工单(展开领料)</span><span class="farrow">— 派工 →</span>
+      <span class="fnode data">派工单(投到工作中心)</span>
+    </div>
+    <div class="fnote">工单是「量」的主线，派工单是「工序×工作中心」的执行单元；BOM 改版本不影响已下达工单，影响后续新工单</div>
+  </div>
+
+  <div class="fchain">
+    <h3>② 报工与库存：生产流水</h3>
+    <div class="flowviz">
+      <span class="fnode data">派工单</span><span class="farrow">— 报工 →</span>
+      <span class="fnode data">生产入库单</span><span class="farrow">→</span>
+      <span class="fnode ok">半成品/成品入库</span>
+    </div>
+    <div class="flowviz">
+      <span class="fnode solid">工单</span><span class="farrow">— 领料 →</span>
+      <span class="fnode data">生产出库单</span><span class="farrow">→</span>
+      <span class="fnode ok">原材料减库存</span>
+    </div>
+    <div class="fnote">报工是「人→机器→物料」的汇聚点：报工完成才允许开生产入库单；领料必须在工单下达后，超领需审批</div>
+  </div>
+
+  <div class="fchain">
+    <h3>③ 委外主线：外包不脱链</h3>
+    <div class="flowviz">
+      <span class="fnode data">委外单(发料)</span><span class="farrow">— 外厂加工 →</span>
+      <span class="fnode data">委外收货入库</span><span class="farrow">→</span>
+      <span class="fnode ok">并入工单/库存</span>
+    </div>
+    <div class="fnote">委外单挂工单：发料走「委外出库单」，收货走「委外入库单」，外厂费用挂账应付；委外不中断库存流水</div>
+  </div>
+
+  <div class="fchain">
+    <h3>④ 风险点与收口</h3>
+    <div class="flowviz">
+      <span class="fnode solid">工单(下达)</span><span class="farrow">→</span>
+      <span class="fnode warn">报工漏录/超领未审批</span><span class="farrow">→</span>
+      <span class="fnode end">完工收口(领-用-产-存闭环)</span>
+    </div>
+    <div class="fnote">风险点：报工漏录导致库存「有账无实」；超领未审批导致 BOM 成本失真。完工后工单状态改「完工」，领-用-产-存可勾稽核对</div>
+  </div>
+
+  <h2>使用提示</h2>
+  <div class="card">
+    <ul class="tips">
+      <li><span class="tag">BOM 版本</span>BOM 工艺清单建议用版本号管理，改料号/用量后旧版本保留，新工单按最新版本展开</li>
+      <li><span class="tag">派工粒度</span>派工按「工序×工作中心×班」三维度，不要跨工序合并派工，否则报工数据无法拆到工序</li>
+      <li><span class="tag">委外挂工单</span>委外单必须挂到具体工单，不挂工单的委外只能走「其他出入库」，库存对不上账</li>
+      <li><span class="tag">超领审批</span>超领必须走审批，留痕可查；完工后跑「领-用-产-存」勾稽报表，差异 &gt; 2% 触发工艺复核</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>

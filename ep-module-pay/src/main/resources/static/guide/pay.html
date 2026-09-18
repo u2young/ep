@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>薪资管理 · 使用指南</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #333; line-height: 1.7; padding: 32px 16px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  header { background: linear-gradient(135deg, #8b5cf6, #5b3aa8); color: #fff; border-radius: 12px; padding: 28px 32px; margin-bottom: 24px; }
+  header h1 { font-size: 24px; margin-bottom: 8px; }
+  header p { opacity: .92; font-size: 14px; }
+  h2 { font-size: 18px; margin: 28px 0 12px; padding-left: 10px; border-left: 4px solid #8b5cf6; }
+  .card { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid #eef0f4; }
+  th { color: #666; font-weight: 600; background: #fafbfd; }
+  td code { background: #f0f2f8; border-radius: 4px; padding: 1px 6px; font-size: 12.5px; color: #6d28d9; }
+  ol.flow { list-style: none; counter-reset: step; }
+  ol.flow li { counter-increment: step; position: relative; padding: 8px 0 8px 40px; font-size: 14px; }
+  ol.flow li::before { content: counter(step); position: absolute; left: 0; top: 8px; width: 26px; height: 26px; border-radius: 50%; background: #8b5cf6; color: #fff; text-align: center; line-height: 26px; font-size: 13px; }
+  .tips li { font-size: 14px; margin: 6px 0 6px 20px; }
+  .tag { display: inline-block; background: #ede9fe; color: #6d28d9; border-radius: 4px; padding: 0 8px; font-size: 12px; margin-right: 6px; }
+  /* 数据生命周期图组件 */
+  .fchain { background: #fff; border-radius: 10px; padding: 16px 20px 10px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  .fchain h3 { font-size: 13px; color: #888; font-weight: 600; margin-bottom: 10px; }
+  .flowviz { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-bottom: 12px; }
+  .fnode { border: 1.5px solid #8b5cf6; color: #6d28d9; border-radius: 6px; padding: 3px 10px; font-size: 12.5px; font-weight: 500; background: #f5f3ff; }
+  .fnode.solid { background: #8b5cf6; color: #fff; }
+  .fnode.ghost { border-color: #c8cdd8; color: #8a90a0; background: #fbfbfd; }
+  .fnode.asset { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.data { border-color: #f59e0b; color: #b45309; background: #fffaf0; border-style: dashed; }
+  .fnode.warn { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .fnode.ok { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.end { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .farrow { color: #b6bcc9; font-size: 13px; }
+  .fnote { font-size: 11.5px; color: #a0a6b5; margin: -4px 0 10px; padding-bottom: 8px; }
+  /* 场景示例 */
+  .scene { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; border-left: 4px solid #8b5cf6; }
+  .scene h3 { font-size: 15px; margin-bottom: 10px; }
+  .scene p { font-size: 13.5px; margin: 7px 0; }
+  .scene b.k { color: #6d28d9; }
+  .scene .res { background: #f5f3ff; border-radius: 6px; padding: 8px 12px; font-size: 12.5px; margin-top: 10px; color: #4a5570; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>薪资管理 · 使用指南</h1>
+    <p>工资项 · 工资结构 · 工资单，一张工资条看明白</p>
+  </header>
+
+  <h2>它能做什么</h2>
+  <div class="card">
+    <p>面向 HR 与财务的 <strong>薪资管理系统</strong>。先建「工资项组件」（基本工资、绩效、加班费、社保、个税等每一项怎么算），再把组件按岗位/部门打包成「工资结构」；每月「<strong>工资单</strong>」按结构生成，汇总发放，个税社保代扣代缴，一张工资条可追溯每个数字的来源。</p>
+  </div>
+
+  <h2>菜单功能说明</h2>
+  <div class="card">
+    <table>
+      <tr><th style="width:160px">菜单</th><th>用途</th></tr>
+      <tr><td>工资项组件</td><td>工资条里的每一项：基本工资、绩效、加班费、社保、公积金、个税等，含计算方式（固定/公式/引用）</td></tr>
+      <tr><td>工资结构</td><td>按岗位/部门把组件打包：如「技术岗工资结构 = 基本工资 + 绩效 + 加班费 - 社保 - 公积金 - 个税」</td></tr>
+      <tr><td>工资单</td><td>月度工资汇总：按员工 + 结构生成，可调整、审批、发放，代扣代缴</td></tr>
+    </table>
+  </div>
+
+  <h2>快速上手</h2>
+  <div class="card">
+    <ol class="flow">
+      <li><strong>定义组件</strong>：HR 维护「工资项组件」，每项的计算方式（固定/公式/引用考勤/引用绩效）</li>
+      <li><strong>组结构</strong>：把组件打包成「工资结构」，按岗位/部门套用</li>
+      <li><strong>做单</strong>：每月「工资单」按结构 + 考勤/绩效数据生成，HR 校验调整</li>
+      <li><strong>审批</strong>：工资单走审批流（财务 + 总经理）</li>
+      <li><strong>发放</strong>：审批通过后批量发放，工资条可下载到员工端</li>
+      <li><strong>代扣</strong>：社保/公积金/个税按政策代扣代缴，记录留痕</li>
+    </ol>
+  </div>
+
+  <h2>场景示例：12 月薪发全流程</h2>
+  <div class="scene">
+    <p>公司技术部 80 人，HR 小林负责薪资，每月 10 号发上月工资。</p>
+    <p><b class="k">组件定义</b>：小林在「工资项组件」里维护 6 项——「<b class="k">基本工资</b>」（固定，按岗位）、「<b class="k">绩效奖金</b>」（公式 = 基本 × 考核系数，引用绩效模块）、「<b class="k">加班费</b>」（公式 = 加班小时 × 时薪，引用考勤）、「<b class="k">社保</b>」（固定比例）、「<b class="k">公积金</b>」（固定比例）、「<b class="k">个税</b>」（公式 = 累计预扣法）。</p>
+    <p><b class="k">结构绑定</b>：80 人按岗位打包成「<b class="k">技术岗工资结构</b>」= 基本 + 绩效 + 加班 - 社保 - 公积金 - 个税；管理层用「<b class="k">管理岗工资结构</b>」= 基本 + 年终奖金 - 社保 - 公积金 - 个税。两个结构在「工资结构」里各绑一批人。</p>
+    <p><b class="k">12 月做单</b>：11 月 10 号，系统按 80 人 × 2 个结构自动生 12 张「<b class="k">工资单</b>」（按部门拆单），绩效系数从绩效模块拉取，加班小时从考勤模块拉取。小林校验发现 3 人绩效数据缺失，手工补录后重新计算。</p>
+    <p><b class="k">审批发放</b>：12 张工资单走「<b class="k">财务老钱 + 总经理</b>」双审批，12 月 8 号全部通过，财务按单内金额批量打款，80 人收到 <b class="k">12 月工资 23.4 万元</b>。工资条在员工端可查，社保/公积金/个税代扣明细逐项可追溯。</p>
+    <p><b class="k">代扣代缴</b>：12 月 15 号小林在「工资单」里点「代扣代缴」，系统生成「<b class="k">社保 8.2 万 + 公积金 6.4 万 + 个税 2.1 万</b>」的代扣清单，按政策缴到税务/社保局，代扣记录挂到各员工档案。</p>
+    <div class="res">对应菜单路径：工资项组件(6 项定义) → 工资结构(技术/管理 2 个打包) → 工资单(12 张按部门生成) → 审批流(财务+总经理) → 代扣代缴(社保/公积金/个税)</div>
+  </div>
+
+  <h2>数据生命周期</h2>
+
+  <div class="fchain">
+    <h3>① 组件主线：从定义到结构</h3>
+    <div class="flowviz">
+      <span class="fnode asset">工资项组件(定义)</span><span class="farrow">打包 →</span>
+      <span class="fnode solid">工资结构(按岗位/部门)</span><span class="farrow">套用 →</span>
+      <span class="fnode data">工资单(月度生成)</span>
+    </div>
+    <div class="fnote">组件是「原子」，结构是「配方」，工资单是「按配方算出的结果」；组件改动立即影响后续各期工资单，历史单保留原公式</div>
+  </div>
+
+  <div class="fchain">
+    <h3>② 工资单主线：生成 → 审批 → 发放</h3>
+    <div class="flowviz">
+      <span class="fnode data">工资单(生成)</span><span class="farrow">→</span>
+      <span class="fnode warn">校验/调整</span><span class="farrow">→</span>
+      <span class="fnode data">审批(财务+总经理)</span><span class="farrow">→</span>
+      <span class="fnode ok">批量发放</span>
+    </div>
+    <div class="fnote">工资单走「校验-调整-审批-发放」四状态机：调整后重算，审批通过后才允许发放；发放后锁定</div>
+  </div>
+
+  <div class="fchain">
+    <h3>③ 代扣代缴：工资之外的「暗流」</h3>
+    <div class="flowviz">
+      <span class="fnode solid">工资单(应发)</span><span class="farrow">代扣 →</span>
+      <span class="fnode data">社保 + 公积金 + 个税</span><span class="farrow">→</span>
+      <span class="fnode ok">实发到账 + 代扣清单</span>
+    </div>
+    <div class="fnote">代扣金额由工资单自动算出，生成代扣清单缴到税务/社保局；个税按「累计预扣法」计算，跨年需重算</div>
+  </div>
+
+  <div class="fchain">
+    <h3>④ 关键节点与风险点</h3>
+    <div class="flowviz">
+      <span class="fnode solid">工资单(月度)</span><span class="farrow">→</span>
+      <span class="fnode warn">绩效/考勤数据缺失(算错)</span><span class="farrow">→</span>
+      <span class="fnode end">发放收口(工资条可追溯)</span>
+    </div>
+    <div class="fnote">风险点：跨模块数据（绩效/考勤）缺失时工资单算错，发放前必须校验「缺数据」告警；工资条每个数字可点进组件看来源</div>
+  </div>
+
+  <h2>使用提示</h2>
+  <div class="card">
+    <ul class="tips">
+      <li><span class="tag">组件优先</span>所有计算逻辑放「工资项组件」里，结构只负责「选哪些组件」，不写公式，便于统一改</li>
+      <li><span class="tag">校验缺数据</span>工资单生成后先跑「缺数据校验」，绩效/考勤缺失的标红，发放前必须清零</li>
+      <li><span class="tag">调整留痕</span>手工调整工资单必须备注原因，调整记录自动留痕，审计可查</li>
+      <li><span class="tag">代扣代缴</span>社保/公积金比例按当地政策配置，个税按累计预扣法；跨年 1 月需重算全年累计，避免多扣</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>销售管理 · 使用指南</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #333; line-height: 1.7; padding: 32px 16px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  header { background: linear-gradient(135deg, #ec4899, #9d2462); color: #fff; border-radius: 12px; padding: 28px 32px; margin-bottom: 24px; }
+  header h1 { font-size: 24px; margin-bottom: 8px; }
+  header p { opacity: .92; font-size: 14px; }
+  h2 { font-size: 18px; margin: 28px 0 12px; padding-left: 10px; border-left: 4px solid #ec4899; }
+  .card { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid #eef0f4; }
+  th { color: #666; font-weight: 600; background: #fafbfd; }
+  td code { background: #f0f2f8; border-radius: 4px; padding: 1px 6px; font-size: 12.5px; color: #be185d; }
+  ol.flow { list-style: none; counter-reset: step; }
+  ol.flow li { counter-increment: step; position: relative; padding: 8px 0 8px 40px; font-size: 14px; }
+  ol.flow li::before { content: counter(step); position: absolute; left: 0; top: 8px; width: 26px; height: 26px; border-radius: 50%; background: #ec4899; color: #fff; text-align: center; line-height: 26px; font-size: 13px; }
+  .tips li { font-size: 14px; margin: 6px 0 6px 20px; }
+  .tag { display: inline-block; background: #fce7f3; color: #be185d; border-radius: 4px; padding: 0 8px; font-size: 12px; margin-right: 6px; }
+  /* 数据生命周期图组件 */
+  .fchain { background: #fff; border-radius: 10px; padding: 16px 20px 10px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  .fchain h3 { font-size: 13px; color: #888; font-weight: 600; margin-bottom: 10px; }
+  .flowviz { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-bottom: 12px; }
+  .fnode { border: 1.5px solid #ec4899; color: #be185d; border-radius: 6px; padding: 3px 10px; font-size: 12.5px; font-weight: 500; background: #fdf2f8; }
+  .fnode.solid { background: #ec4899; color: #fff; }
+  .fnode.ghost { border-color: #c8cdd8; color: #8a90a0; background: #fbfbfd; }
+  .fnode.asset { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.data { border-color: #f59e0b; color: #b45309; background: #fffaf0; border-style: dashed; }
+  .fnode.warn { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .fnode.ok { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.end { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .farrow { color: #b6bcc9; font-size: 13px; }
+  .fnote { font-size: 11.5px; color: #a0a6b5; margin: -4px 0 10px; padding-bottom: 8px; }
+  /* 场景示例 */
+  .scene { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; border-left: 4px solid #ec4899; }
+  .scene h3 { font-size: 15px; margin-bottom: 10px; }
+  .scene p { font-size: 13.5px; margin: 7px 0; }
+  .scene b.k { color: #be185d; }
+  .scene .res { background: #fdf2f8; border-radius: 6px; padding: 8px 12px; font-size: 12.5px; margin-top: 10px; color: #4a5570; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>销售管理 · 使用指南</h1>
+    <p>销售员 · 销售伙伴 · 报价 · 订单 · 送货，销售履约一条线</p>
+  </header>
+
+  <h2>它能做什么</h2>
+  <div class="card">
+    <p>面向销售团队与仓管的 <strong>销售管理系统</strong>。维护「销售员」「销售伙伴」（经销商/代理/直客）档案，给伙伴设信用期；销售按伙伴开「报价单」，伙伴确认后转「销售订单」走审核；订单履约走「送货单」分批发货，签收后与伙伴对账，回款与应收挂账。</p>
+  </div>
+
+  <h2>菜单功能说明</h2>
+  <div class="card">
+    <table>
+      <tr><th style="width:160px">菜单</th><th>用途</th></tr>
+      <tr><td>销售员</td><td>销售团队档案：所属区域、负责伙伴、业绩统计</td></tr>
+      <tr><td>销售伙伴</td><td>经销商/代理/直客档案：信用额度、信用期、结算方式，报价/订单/送货/对账的主体</td></tr>
+      <tr><td>报价单</td><td>按伙伴信用期/价格策略报价，伙伴确认后转订单</td></tr>
+      <tr><td>销售订单</td><td>正式交易凭证：金额、交货期、付款条件，走审核后履约</td></tr>
+      <tr><td>送货单</td><td>订单履约：按批次送货、签收，作为对账与回款依据</td></tr>
+    </table>
+  </div>
+
+  <h2>快速上手</h2>
+  <div class="card">
+    <ol class="flow">
+      <li><strong>建档案</strong>：维护「销售员」「销售伙伴」档案，给伙伴设信用期/信用额度</li>
+      <li><strong>开报价</strong>：销售按伙伴价格策略开「报价单」，伙伴确认</li>
+      <li><strong>转订单</strong>：报价确认后转「销售订单」，走销售总监审核（超信用额度拦截）</li>
+      <li><strong>发货</strong>：订单履约时开「送货单」分批送货，伙伴签收</li>
+      <li><strong>对账</strong>：按送货签收与订单金额对账，伙伴按信用期回款</li>
+      <li><strong>看业绩</strong>：销售员/伙伴维度出销售报表，驱动促销/信用调整</li>
+    </ol>
+  </div>
+
+  <h2>场景示例：经销商季度采购全链路</h2>
+  <div class="scene">
+    <p>某饮料厂商销售部，华东区经销商「<b class="k">B 酒业</b>」是 A 级伙伴（信用额度 50 万、信用期 30 天）。销售小孙负责华东区，9 月启动 Q4 季度采购。</p>
+    <p><b class="k">报价</b>：小孙按「<b class="k">销售伙伴</b>」里 B 酒业的 A 级价格策略开「<b class="k">报价单</b>」——「<b class="k">经典款 5000 箱 + 新款 2000 箱</b>」，共 <b class="k">88 万元</b>（按 A 级伙伴 92 折），信用期 30 天。B 酒业采购经理确认报价，备注「<b class="k">分 2 批到货</b>」。</p>
+    <p><b class="k">转订单</b>：报价确认后小孙在系统里转「<b class="k">销售订单</b>」，金额 88 万走「<b class="k">销售总监</b>」审核——系统校验 B 酒业当前未结应收 32 万 + 新订单 88 万 = 120 万，<b class="k">超信用额度 50 万</b>，按「<b class="k">销售配置</b>」规则拦截，需「<b class="k">财务总监特批</b>」。小孙补了「<b class="k">分批回款承诺</b>」（首笔 40 万 7 天内），财务总监特批通过。</p>
+    <p><b class="k">分批送货</b>：9 月 15 日第 1 批 3000 箱经典款开「<b class="k">送货单</b>」，B 酒业 9 月 17 日签收；9 月 25 日第 2 批 4000 箱（3000 经典 + 1000 新款）开「<b class="k">送货单</b>」，B 酒业 9 月 27 日签收；10 月 5 日第 3 批 1000 箱新款开「<b class="k">送货单</b>」，B 酒业 10 月 7 日签收。3 张送货单全部签收，订单履约完成。</p>
+    <p><b class="k">对账回款</b>：10 月 15 日（信用期 30 天内），B 酒业按「<b class="k">首笔 40 万</b>」承诺回款 40 万；10 月 25 日回款 35 万，累计 75 万；11 月 5 日尾款 13 万到账，订单 <b class="k">全部结清</b>。小孙在「<b class="k">销售订单</b>」里标记「<b class="k">已结清</b>」，Q4 该伙伴销售 88 万、回款率 100%。</p>
+    <div class="res">对应菜单路径：销售伙伴(A 级/信用 50 万) → 报价单(88 万/92 折) → 销售订单(超信用财务总监特批) → 送货单(3 批签收) → 对账回款(75 万 + 13 万结清) —— 销售员业绩+销售配置(信用额度)贯穿全程</div>
+  </div>
+
+  <h2>数据生命周期</h2>
+
+  <div class="fchain">
+    <h3>① 销售主线：从报价到结清</h3>
+    <div class="flowviz">
+      <span class="fnode asset">销售伙伴(信用/价格)</span><span class="farrow">— 报价 →</span>
+      <span class="fnode data">报价单(确认)</span><span class="farrow">— 转 →</span>
+      <span class="fnode solid">销售订单(审核)</span><span class="farrow">— 履约 →</span>
+      <span class="fnode data">送货单(签收)</span><span class="farrow">— 回款 →</span>
+      <span class="fnode ok">订单结清</span>
+    </div>
+    <div class="fnote">报价单是「意向」，订单是「承诺」，送货是「履约」，回款是「收口」；四张单据一一对应，签收单是对账与回款的唯一依据</div>
+  </div>
+
+  <div class="fchain">
+    <h3>② 信用控制：报价/订单的「暗盒」</h3>
+    <div class="flowviz">
+      <span class="fnode asset">销售伙伴(信用额度/信用期)</span><span class="farrow">驱动 →</span>
+      <span class="fnode data">报价单(价格策略)</span><span class="farrow">→</span>
+      <span class="fnode warn">销售订单(超信用拦截/特批)</span>
+    </div>
+    <div class="fnote">「销售配置」控制超信用策略（拦截/告警/特批）；报价单按伙伴等级自动套价格策略；订单审核时校验「未结应收 + 新订单 ≤ 信用额度」</div>
+  </div>
+
+  <div class="fchain">
+    <h3>③ 送货主线：订单的「出口」</h3>
+    <div class="flowviz">
+      <span class="fnode solid">销售订单(审核通过)</span><span class="farrow">— 分批 →</span>
+      <span class="fnode data">送货单(批次 1)</span>
+      <span class="farrow">/</span>
+      <span class="fnode data">送货单(批次 2)</span>
+      <span class="farrow">→</span>
+      <span class="fnode ok">签收(对账依据)</span>
+    </div>
+    <div class="fnote">订单按伙伴要求的到货节奏分批开「送货单」；每批次独立签收，签收后订单部分履约；全部签收后订单进入「已履约」，回款按信用期挂账</div>
+  </div>
+
+  <div class="fchain">
+    <h3>④ 业绩与对账：销售员的「台账」</h3>
+    <div class="flowviz">
+      <span class="fnode solid">销售订单(结清)</span><span class="farrow">归集 →</span>
+      <span class="fnode data">销售员业绩 + 伙伴对账表</span><span class="farrow">→</span>
+      <span class="fnode ok">销售报表(驱动促销/信用调整)</span>
+    </div>
+    <div class="fnote">订单结清后业绩自动归集到销售员；伙伴对账表按「送货签收 × 订单金额 × 回款记录」三维勾稽；对账差异走「红冲/补单」处理</div>
+  </div>
+
+  <h2>使用提示</h2>
+  <div class="card">
+    <ul class="tips">
+      <li><span class="tag">伙伴先行</span>先建「销售伙伴」档案（等级/信用额度/信用期/价格策略）再开报价，无档案的伙伴不能报价</li>
+      <li><span class="tag">报价转单</span>报价单伙伴确认后 7 天内必须转订单，超期报价自动作废，避免伙伴拿过期价格下单</li>
+      <li><span class="tag">信用控制</span>订单审核时校验「未结应收 + 新订单 ≤ 信用额度」，超信用走「销售配置」的特批流程，不能强过</li>
+      <li><span class="tag">签收对账</span>对账以「送货单签收」为唯一依据，未签收的送货单不能计入对账；对账差异走红冲/补单，不能直接改签收</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>

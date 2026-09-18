@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>质量管理 · 使用指南</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #333; line-height: 1.7; padding: 32px 16px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  header { background: linear-gradient(135deg, #22c55e, #15803d); color: #fff; border-radius: 12px; padding: 28px 32px; margin-bottom: 24px; }
+  header h1 { font-size: 24px; margin-bottom: 8px; }
+  header p { opacity: .92; font-size: 14px; }
+  h2 { font-size: 18px; margin: 28px 0 12px; padding-left: 10px; border-left: 4px solid #22c55e; }
+  .card { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid #eef0f4; }
+  th { color: #666; font-weight: 600; background: #fafbfd; }
+  td code { background: #f0f2f8; border-radius: 4px; padding: 1px 6px; font-size: 12.5px; color: #15803d; }
+  ol.flow { list-style: none; counter-reset: step; }
+  ol.flow li { counter-increment: step; position: relative; padding: 8px 0 8px 40px; font-size: 14px; }
+  ol.flow li::before { content: counter(step); position: absolute; left: 0; top: 8px; width: 26px; height: 26px; border-radius: 50%; background: #22c55e; color: #fff; text-align: center; line-height: 26px; font-size: 13px; }
+  .tips li { font-size: 14px; margin: 6px 0 6px 20px; }
+  .tag { display: inline-block; background: #dcfce7; color: #15803d; border-radius: 4px; padding: 0 8px; font-size: 12px; margin-right: 6px; }
+  /* 数据生命周期图组件 */
+  .fchain { background: #fff; border-radius: 10px; padding: 16px 20px 10px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  .fchain h3 { font-size: 13px; color: #888; font-weight: 600; margin-bottom: 10px; }
+  .flowviz { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-bottom: 12px; }
+  .fnode { border: 1.5px solid #22c55e; color: #15803d; border-radius: 6px; padding: 3px 10px; font-size: 12.5px; font-weight: 500; background: #f0fdf4; }
+  .fnode.solid { background: #22c55e; color: #fff; }
+  .fnode.ghost { border-color: #c8cdd8; color: #8a90a0; background: #fbfbfd; }
+  .fnode.asset { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.data { border-color: #f59e0b; color: #b45309; background: #fffaf0; border-style: dashed; }
+  .fnode.warn { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .fnode.ok { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.end { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .farrow { color: #b6bcc9; font-size: 13px; }
+  .fnote { font-size: 11.5px; color: #a0a6b5; margin: -4px 0 10px; padding-bottom: 8px; }
+  /* 场景示例 */
+  .scene { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; border-left: 4px solid #22c55e; }
+  .scene h3 { font-size: 15px; margin-bottom: 10px; }
+  .scene p { font-size: 13.5px; margin: 7px 0; }
+  .scene b.k { color: #15803d; }
+  .scene .res { background: #f0fdf4; border-radius: 6px; padding: 8px 12px; font-size: 12.5px; margin-top: 10px; color: #4a5570; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>质量管理 · 使用指南</h1>
+    <p>检验标准 · 质检单 · 不合格品 · 客户反馈，质量闭环一条线</p>
+  </header>
+
+  <h2>它能做什么</h2>
+  <div class="card">
+    <p>面向质量工程师、IQC/OQC 与客服的 <strong>质量管理系统</strong>。先建「质检参数标准」定义每类物料的检验项目与合格阈值；来料（IQC）/ 过程（IPQC）/ 出货（OQC）按标准开「质检单」抽检；不合格的走「<strong>不合格品处理</strong>」（让步/返工/报废）；客户投诉/反馈在「客户反馈」里登记，处置结果回写，形成质量闭环。</p>
+  </div>
+
+  <h2>菜单功能说明</h2>
+  <div class="card">
+    <table>
+      <tr><th style="width:160px">菜单</th><th>用途</th></tr>
+      <tr><td>质检参数标准</td><td>检验标准：检验项目（外观/尺寸/性能）+ 合格阈值 + 抽检比例，IQC/IPQC/OQC 都引用它</td></tr>
+      <tr><td>质检单</td><td>按检验类型（来料/过程/出货）开单，记录抽检数、合格数、不合格数与判定结果</td></tr>
+      <tr><td>不合格品处理</td><td>不合格品的处置单：让步接收 / 供应商返工 / 报废，处置结果回写质检单</td></tr>
+      <tr><td>客户反馈</td><td>客户投诉/质量反馈登记，关联到质检单与不合格品单，跟踪闭环</td></tr>
+    </table>
+  </div>
+
+  <h2>快速上手</h2>
+  <div class="card">
+    <ol class="flow">
+      <li><strong>定标准</strong>：质量工程师在「质检参数标准」里建每类物料的检验项与合格阈值</li>
+      <li><strong>开质检</strong>：IQC/OQC 按标准开「质检单」抽检，记录抽检数/合格数/判定</li>
+      <li><strong>开不合格</strong>：不合格的批次开「不合格品处理」单，选让步/返工/报废</li>
+      <li><strong>跟踪处置</strong>：返工单跟到供应商/车间，处置完回填结果，质检单闭环</li>
+      <li><strong>客户反馈</strong>：投诉在「客户反馈」里登记，关联到对应质检单与批次</li>
+      <li><strong>复盘</strong>：按批次/供应商/缺陷类型出质量月报，驱动持续改进</li>
+    </ol>
+  </div>
+
+  <h2>场景示例：某批次来料 IQC 抽检发现 2 件划痕</h2>
+  <div class="scene">
+    <p>电子厂 IQC 小陈负责来料检验。9 月 5 日，供应商 A 的 <b class="k">PCB 板批次 BA-2024-0905</b> 到货 500 件，按「<b class="k">质检参数标准</b>」（PCB 板：外观抽检 10%、尺寸抽检 5%、功能抽检 2%）抽检 50 件。</p>
+    <p><b class="k">发现划痕</b>：外观抽检 50 件中发现 <b class="k">2 件划痕</b>（位于边缘，不影响焊接但影响外观），尺寸抽检 25 件全部合格，功能抽检 10 件全部合格。小陈开「<b class="k">IQC 质检单</b>」，判定「<b class="k">部分不合格</b>」——2 件划痕品单独隔离，48 件合格放行。</p>
+    <p><b class="k">开不合格品单</b>：小陈开「<b class="k">不合格品处理</b>」单，选「<b class="k">供应商返工</b>」，备注「2 件划痕品退回 A 厂，要求 3 天内打磨抛光后回厂复验」，A 厂确认接单。</p>
+    <p><b class="k">复验放行</b>：9 月 8 日 2 件返工品到货，小陈按同一「<b class="k">质检参数标准</b>」复验，2 件全部合格，开「<b class="k">复验质检单</b>」，处置结果回写「<b class="k">不合格品单</b>」为「<b class="k">已返工放行</b>」，批次 BA-2024-0905 全部 500 件入库。</p>
+    <p><b class="k">客户反馈</b>：10 月，客户 B 投诉「同型号产品 1 件外壳划痕」，客服小赵在「<b class="k">客户反馈</b>」里登记，关联到 PCB 板批次 BA-2024-0905 与该型号产品，质量工程师复盘发现划痕是「<b class="k">抛光工序打磨不足</b>」导致，更新「<b class="k">质检参数标准</b>」中「外观」项的合格阈值（增加「抛光后复验」节点），防止再次发生。</p>
+    <div class="res">对应菜单路径：质检参数标准(PCB 板：外观/尺寸/功能) → IQC质检单(50 件抽检发现 2 件划痕) → 不合格品处理(供应商返工) → 复验质检单(合格放行) → 客户反馈(投诉关联批次+复盘标准)</div>
+  </div>
+
+  <h2>数据生命周期</h2>
+
+  <div class="fchain">
+    <h3>① 质检主线：标准 → 单 → 判定</h3>
+    <div class="flowviz">
+      <span class="fnode asset">质检参数标准</span><span class="farrow">引用 →</span>
+      <span class="fnode data">IQC/IPQC/OQC质检单</span><span class="farrow">— 抽检 →</span>
+      <span class="fnode solid">判定(合格/部分不合格/不合格)</span>
+    </div>
+    <div class="fnote">质检单必须挂「质检参数标准」：检验项、阈值、抽检比例全从标准继承，单本身只记录「实测值」，不记「标准值」（避免改标准时历史单失真）</div>
+  </div>
+
+  <div class="fchain">
+    <h3>② 不合格品主线：处置 → 闭环</h3>
+    <div class="flowviz">
+      <span class="fnode warn">质检单(部分不合格)</span><span class="farrow">开单 →</span>
+      <span class="fnode data">不合格品处理(让步/返工/报废)</span><span class="farrow">— 回填 →</span>
+      <span class="fnode ok">质检单闭环(放行/报废)</span>
+    </div>
+    <div class="fnote">让步需客户/质量总监双审批留痕；返工跟到供应商/车间，复验合格才能放行；报废需走「报废审批」，资产减值入账</div>
+  </div>
+
+  <div class="fchain">
+    <h3>③ 客户反馈：闭环的「最后一环」</h3>
+    <div class="flowviz">
+      <span class="fnode data">客户反馈(投诉/建议)</span><span class="farrow">关联 →</span>
+      <span class="fnode data">质检单 + 批次</span><span class="farrow">复盘 →</span>
+      <span class="fnode solid">质检参数标准(更新阈值)</span>
+    </div>
+    <div class="fnote">客户反馈必须关联到具体批次/质检单，复盘后更新「质检参数标准」或工艺参数，形成「投诉→标准」的闭环；投诉未闭环的批次不能再次出货</div>
+  </div>
+
+  <div class="fchain">
+    <h3>④ 风险点与收口</h3>
+    <div class="flowviz">
+      <span class="fnode solid">质检单(判定)</span><span class="farrow">→</span>
+      <span class="fnode warn">不合格品未处置/返工未复验</span><span class="farrow">→</span>
+      <span class="fnode end">批次放行/报废收口</span>
+    </div>
+    <div class="fnote">风险点：不合格品未开处置单 = 批次「悬挂」，库存账实不符；返工未复验就放行 = 质量失控；报废未走审批 = 资产减值失真</div>
+  </div>
+
+  <h2>使用提示</h2>
+  <div class="card">
+    <ul class="tips">
+      <li><span class="tag">标准先行</span>先建「质检参数标准」再开质检单，无标准的物料不能进 IQC/OQC，标准是质量判定的唯一依据</li>
+      <li><span class="tag">抽检留痕</span>质检单必须记录「抽检数 + 实测值 + 判定」，实测值拍照/打点留档，复验时可比对</li>
+      <li><span class="tag">处置闭环</span>「让步/返工/报废」三选一，让步需双审批，返工必须复验合格才能放行，报废必须走审批并减值入账</li>
+      <li><span class="tag">投诉关联</span>客户反馈必须关联到具体批次/质检单，未关联的投诉视为「未闭环」，对应批次冻结出货</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>

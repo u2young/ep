@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>库存管理 · 使用指南</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #333; line-height: 1.7; padding: 32px 16px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  header { background: linear-gradient(135deg, #64748b, #3f4a5c); color: #fff; border-radius: 12px; padding: 28px 32px; margin-bottom: 24px; }
+  header h1 { font-size: 24px; margin-bottom: 8px; }
+  header p { opacity: .92; font-size: 14px; }
+  h2 { font-size: 18px; margin: 28px 0 12px; padding-left: 10px; border-left: 4px solid #64748b; }
+  .card { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid #eef0f4; }
+  th { color: #666; font-weight: 600; background: #fafbfd; }
+  td code { background: #f0f2f8; border-radius: 4px; padding: 1px 6px; font-size: 12.5px; color: #475569; }
+  ol.flow { list-style: none; counter-reset: step; }
+  ol.flow li { counter-increment: step; position: relative; padding: 8px 0 8px 40px; font-size: 14px; }
+  ol.flow li::before { content: counter(step); position: absolute; left: 0; top: 8px; width: 26px; height: 26px; border-radius: 50%; background: #64748b; color: #fff; text-align: center; line-height: 26px; font-size: 13px; }
+  .tips li { font-size: 14px; margin: 6px 0 6px 20px; }
+  .tag { display: inline-block; background: #e2e8f0; color: #475569; border-radius: 4px; padding: 0 8px; font-size: 12px; margin-right: 6px; }
+  /* 数据生命周期图组件 */
+  .fchain { background: #fff; border-radius: 10px; padding: 16px 20px 10px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; }
+  .fchain h3 { font-size: 13px; color: #888; font-weight: 600; margin-bottom: 10px; }
+  .flowviz { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-bottom: 12px; }
+  .fnode { border: 1.5px solid #64748b; color: #475569; border-radius: 6px; padding: 3px 10px; font-size: 12.5px; font-weight: 500; background: #f1f5f9; }
+  .fnode.solid { background: #64748b; color: #fff; }
+  .fnode.ghost { border-color: #c8cdd8; color: #8a90a0; background: #fbfbfd; }
+  .fnode.asset { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.data { border-color: #f59e0b; color: #b45309; background: #fffaf0; border-style: dashed; }
+  .fnode.warn { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .fnode.ok { border-color: #10b981; color: #0d9468; background: #f2fbf7; }
+  .fnode.end { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+  .farrow { color: #b6bcc9; font-size: 13px; }
+  .fnote { font-size: 11.5px; color: #a0a6b5; margin: -4px 0 10px; padding-bottom: 8px; }
+  /* 场景示例 */
+  .scene { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 12px; border-left: 4px solid #64748b; }
+  .scene h3 { font-size: 15px; margin-bottom: 10px; }
+  .scene p { font-size: 13.5px; margin: 7px 0; }
+  .scene b.k { color: #475569; }
+  .scene .res { background: #f1f5f9; border-radius: 6px; padding: 8px 12px; font-size: 12.5px; margin-top: 10px; color: #4a5570; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>库存管理 · 使用指南</h1>
+    <p>批次 · 序列号 · 出入库 · 盘点 · 配置，库存账实相符一条线</p>
+  </header>
+
+  <h2>它能做什么</h2>
+  <div class="card">
+    <p>面向仓管、采购与财务的 <strong>库存管理系统</strong>。先给「批次」与「序列号」建档（效期、SN 码），出入库单据驱动库存变动；「库存盘点单」周期盘点、差异审批调整；「库存配置」控制先进先出、效期预警等规则，保证账实相符、批次可追溯。</p>
+  </div>
+
+  <h2>菜单功能说明</h2>
+  <div class="card">
+    <table>
+      <tr><th style="width:160px">菜单</th><th>用途</th></tr>
+      <tr><td>批次</td><td>物料批次档案：批次号、生产日期、效期、供应商，先进先出依据</td></tr>
+      <tr><td>序列号</td><td>单件序列号档案：SN 码、入厂日期、保修期，高价值/可追溯物料用</td></tr>
+      <tr><td>库存出入库单</td><td>出入库的载体：采购入库/销售出库/生产入库/生产出库/调拨/盘盈盘亏，驱动库存变动</td></tr>
+      <tr><td>库存盘点单</td><td>周期盘点：实盘数 vs 账面数，差异审批后调整库存</td></tr>
+      <tr><td>库存配置</td><td>规则引擎：先进先出/效期预警/盘点频率/差异审批阈值</td></tr>
+    </table>
+  </div>
+
+  <h2>快速上手</h2>
+  <div class="card">
+    <ol class="flow">
+      <li><strong>建档</strong>：仓管给「批次」「序列号」建档，绑定效期/SN 码</li>
+      <li><strong>开单</strong>：采购/销售/生产出入库时开「库存出入库单」，库存自动变动</li>
+      <li><strong>先进先出</strong>：出库时系统按「库存配置」自动选最早批次，效期临近预警</li>
+      <li><strong>盘点</strong>：按「库存配置」的盘点频率开「库存盘点单」，实盘 vs 账面</li>
+      <li><strong>差异调整</strong>：盘盈盘亏走审批，差异单据过账后库存更新</li>
+      <li><strong>看库存</strong>：按批次/SN 码/仓库多维查库存，效期预警清单驱动临期处理</li>
+    </ol>
+  </div>
+
+  <h2>场景示例：食品批次管理全链路</h2>
+  <div class="scene">
+    <p>食品公司仓管小吴负责牛奶库存，按「<b class="k">库存配置</b>」设「<b class="k">先进先出 + 效期 1 个月预警</b>」。</p>
+    <p><b class="k">入货登记</b>：9 月 1 日，供应商 A 的「<b class="k">纯牛奶 250ml×24 箱</b>」到货 500 箱。小吴在「<b class="k">批次</b>」里登记 <b class="k">批次 B-2024-0901</b>（生产日期 2024-08-25、效期 2025-02-24），开「<b class="k">库存入库单</b>」500 箱，库存增加、批次挂账。</p>
+    <p><b class="k">先进先出</b>：9 月 10 日销售订单出库 200 箱，系统按「先进先出」自动选最早批次 B-2024-0815（库存 200 箱），开「<b class="k">库存出库单</b>」，批次 B-2024-0815 清零。9 月 15 日再出 300 箱，系统选 B-2024-0901，库存 500-300 = 200 箱。</p>
+    <p><b class="k">效期预警</b>：9 月 30 日，批次 B-2024-0901 效期 2025-02-24，距到期 5 个月，未到预警线；但批次 B-2024-1005（10 月 5 日入的 300 箱）效期 2025-04-04，距到期 6 个月，也安全。系统按「库存配置」的「效期 1 个月预警」规则，11 月 4 日起 B-2024-1005 进入「临期预警」清单，小吴把它挂到「促销清仓」计划。</p>
+    <p><b class="k">月度盘点</b>：9 月 30 日月末盘点，小吴开「<b class="k">库存盘点单</b>」，实盘 B-2024-0901 共 203 箱（账面 200，<b class="k">盘盈 3 箱</b>），B-2024-1005 共 299 箱（账面 300，<b class="k">盘亏 1 箱</b>）。按「库存配置」的「差异 ≤ 5% 仓管自审、&gt; 5% 财务审批」规则，盘盈 3 箱走仓管自审，盘亏 1 箱走财务审批。两张差异单据过账后库存更新为 203 + 299 = 502 箱。</p>
+    <p><b class="k">批次追溯</b>：10 月客户投诉「某批次牛奶有沉淀」，客服小赵在「客户反馈」里登记，质量工程师小陈在「批次」里查 B-2024-0901 的供应商/生产日期/出货记录，锁定问题批次，驱动「<b class="k">库存配置</b>」里加「<b class="k">沉淀抽检</b>」检验项，防止再次发生。</p>
+    <div class="res">对应菜单路径：批次(建档+效期) → 库存入库单(入货) → 先进先出(库存配置驱动) → 库存出库单(出货) → 库存盘点单(盘盈 3 箱+盘亏 1 箱) → 差异审批(仓管自审/财务审批) —— 序列号+库存配置贯穿全程</div>
+  </div>
+
+  <h2>数据生命周期</h2>
+
+  <div class="fchain">
+    <h3>① 批次/序列号主线：从建档到消耗</h3>
+    <div class="flowviz">
+      <span class="fnode asset">批次(效期/SN)</span><span class="farrow">— 入货 →</span>
+      <span class="fnode solid">库存入库单</span><span class="farrow">— 先进先出 →</span>
+      <span class="fnode data">库存出库单(消耗)</span><span class="farrow">→</span>
+      <span class="fnode end">批次清零/临期清仓</span>
+    </div>
+    <div class="fnote">批次是「量」的主线：入货时建档，出货时按先进先出消耗，批次清零代表该批次生命周期结束；序列号是「单件」粒度，高价值物料用 SN 码追溯</div>
+  </div>
+
+  <div class="fchain">
+    <h3>② 出入库主线：库存的「双轨」</h3>
+    <div class="flowviz">
+      <span class="fnode data">库存入库单(采购/生产/盘盈)</span><span class="farrow">→</span>
+      <span class="fnode solid">库存(仓库×物料×批次)</span><span class="farrow">←</span>
+      <span class="fnode data">库存出库单(销售/生产/盘亏/调拨)</span>
+    </div>
+    <div class="fnote">库存是「仓库×物料×批次」三维汇总，任何数量变化必须通过出入库单据驱动；「库存配置」控制先进先出/效期预警/超卖策略</div>
+  </div>
+
+  <div class="fchain">
+    <h3>③ 盘点主线：账实相符的「出口」</h3>
+    <div class="flowviz">
+      <span class="fnode solid">库存盘点单(实盘 vs 账面)</span><span class="farrow">— 差异 →</span>
+      <span class="fnode data">盘盈/盘亏单(审批)</span><span class="farrow">— 过账 →</span>
+      <span class="fnode ok">库存更新(账实相符)</span>
+    </div>
+    <div class="fnote">「库存配置」里的盘点频率（月/季/年）驱动盘点；差异 ≤ 阈值走仓管自审，&gt; 阈值走财务审批；过账后库存自动调整，差异留痕可查</div>
+  </div>
+
+  <div class="fchain">
+    <h3>④ 风险点与收口</h3>
+    <div class="flowviz">
+      <span class="fnode solid">库存(批次)</span><span class="farrow">→</span>
+      <span class="fnode warn">临期未清仓/盘点差异未审</span><span class="farrow">→</span>
+      <span class="fnode end">批次报废/差异收口</span>
+    </div>
+    <div class="fnote">风险点：临期批次未及时清仓会过期报废；盘点差异未审批导致库存长期「悬挂」；批次效期预警必须驱动「促销/报废」决策，否则损失累积</div>
+  </div>
+
+  <h2>使用提示</h2>
+  <div class="card">
+    <ul class="tips">
+      <li><span class="tag">批次先行</span>食品/药品/化工类物料必须按批次入货，无批次的物料不能进仓，批次是追溯与效期管理的唯一依据</li>
+      <li><span class="tag">先进先出</span>「库存配置」里的先进先出规则按「生产日期 + 效期」双维度自动选批次，人工不能指定批次（特殊需求走调拨单）</li>
+      <li><span class="tag">盘点差异</span>盘盈盘亏必须走「库存盘点单 + 差异审批」，仓管不能直接改库存；差异原因（损耗/盗窃/录入错误）必须备注留痕</li>
+      <li><span class="tag">效期预警</span>「库存配置」的效期预警阈值（默认 1 个月）驱动「临期清仓」，临期批次必须挂促销/报废计划，不能静默过期</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>
